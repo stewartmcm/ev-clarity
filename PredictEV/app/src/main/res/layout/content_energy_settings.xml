@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.android.predictev.EnergySettingsActivity"
+    tools:showIn="@layout/activity_energy_settings">
+
+    <TextView
+        android:id="@+id/utility_header_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Utility Provider"
+        android:textSize="24sp"/>
+
+    <LinearLayout
+        android:id="@+id/user_utility_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/utility_header_text_view" >
+
+        <TextView
+            android:id="@+id/current_utility_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Please set your location."
+            android:textSize="18sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/utility_rate_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="$0.00 / kWh"
+            android:textSize="18sp"
+
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/current_utility_text_view" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/gas_header_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Local Price of Gas"
+        android:textSize="24sp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/user_utility_details" />
+
+    <LinearLayout
+        android:id="@+id/user_gas_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/gas_header_text_view" >
+
+        <TextView
+            android:id="@+id/set_location_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Please set your location."
+            android:textSize="18sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/gas_price_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="$0.00 / gal"
+            android:textSize="18sp"
+
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/current_utility_text_view" />
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/user_gas_details">
+
+    </ListView>
+</RelativeLayout>
