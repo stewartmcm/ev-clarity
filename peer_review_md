@@ -1,0 +1,38 @@
+
+1. Does the project appear to meet the technical requirements? Write up one sentence on your findings and give a score 0-3.
+Is your peer making API calls, using SDK's/third-party libraries?
+- Using Retrofit to make API calls too http://developer.nrel.gov/api/utility_rates/. Good use of comments to track and remember the key and target url. Remember to delete the comment with the key though . 
+Is your peer making use of Services? If so, are they offloading long tasks to a separate thread, i.e. AsyncTask, Runnable, IntentService, etc.
+- Uses Services alot and IntentService. Odometer Service uses a LocationListener, but not sure whether it should be bound or not. Comments in DetectedActivitiesIntentService are great. 
+Is your peer making use of Fragments? If so, are they passing data from Fragment to Activity via interfaces? If not, why did absense of Fragments make sense?
+- I don't see any use of Fragments, just Activities. Its a preference thing, but I think that Activities make sense since alot of the activities are independent and don't need to share a context. 
+Is your peer making use of RecyclerView? If so, does it appear to be working correctly ( implementation and otherwise )?
+- No RecyclerView. I see that you use a Listview that should be upgraded to a recycler view, so it is more optimized and more custom. 
+Is your peer making use of some sort of persistent storage, i.e. Firebase or SQLite? If so, why do you think Firebase/SQLite was chosen? Could they have used one or the other instead and why?
+- SQLite to store trips is good. SQlite is probably preferable to Firebase because all of the data would be stored locally and wouldn't need to connect to any servers. 
+
+2. Does the project appear to be creative, innovative, and different from any competition? Write up one sentence on your findings and give a score 0-3.
+Is your peer making use of proper UX patterns we learned in class? If not, what are they doing that is unconvetional or that might confuse a user ( you )?
+- Still kind of early to worry about UX but for the future, just making sure it is easy for the user to understand whats going on.
+Is your peer making anything cool or awesome that you would like to note or applaud them on?
+- There's plenty. Working with all of the services is amazing. Try adding in some libraries for easy "wow" factors. 
+
+3. Does the project appear to follow correct coding styles and best practices? Write up one sentence on your findings and give a score 0-3.
+Are you able to reasonably follow the code without having anyone answer your questions?
+- Mostly. It's obviously not final/polished code yet, but the files that are commented are good. Especially with all of the services running. MainActivity is really long and those comments make it much easier to follow. 
+Are you able to make sense of what the code is doing or is trying to do?
+- Yes, especially once running it and seeing what it does. Comments help. 
+
+4. Find two pieces of code of any size: one that is readable and easy to follow and one that is difficult to follow and understand.
+What makes the readable code readable? Be as detailed as you can in your answer, it can be challenging to explain why something is easy to undertand
+- Most of the code with the comments make it much more readable. 
+What makes the difficult code harder to follow? Be as detailed as you can in your answer.
+- Services are complicated, so anything uncommented can be confusing. 
+
+5. High level project overview: Take a look at as many individual files as you have time for
+Does this class make sense?
+- Titles are mostly easy to understand. 
+Does the structure of the class make sense?
+- There are folders for models and services but you can add more for activities (since there are alot of activities) and throw the odometerService in the services folder and the Trip.java into the models. 
+
+Overall, dude this is going to be a sick app. So much complexity with all of the services. Really good job with the comments and use of the TODOs. Not much to critique on. 
