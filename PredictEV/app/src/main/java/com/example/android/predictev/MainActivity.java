@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.predictev.services.DetectedActivitiesIntentService;
-import com.example.android.predictev.services.OdometerService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -308,8 +307,8 @@ public class MainActivity extends AppCompatActivity
             unbindService(connection);
             bound = false;
         }
-
         mGoogleApiClient.disconnect();
+
     }
 
     @Override
