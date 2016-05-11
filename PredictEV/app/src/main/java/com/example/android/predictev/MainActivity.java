@@ -10,9 +10,15 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,7 +33,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +67,12 @@ public class MainActivity extends AppCompatActivity
     private Location mLastLocation;
     private String latString;
     private String lonString;
+    SQLiteDatabase db;
+    private Cursor cursor;
+    private ListView loggedTripsListView;
+    private String utilityName;
+    private double utilityRate;
+    private String utilityRateString;
 
     // UI elements.
     private Button mRequestActivityUpdatesButton;
@@ -100,6 +114,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        loadSavedPreferences();
         watchMileage();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -115,6 +130,7 @@ public class MainActivity extends AppCompatActivity
         mRequestActivityUpdatesButton = (Button) findViewById(R.id.request_activity_updates_button);
         mRemoveActivityUpdatesButton = (Button) findViewById(R.id.remove_activity_updates_button);
         mDetectedActivitiesListView = (ListView) findViewById(R.id.detected_activities_listview);
+        loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
 //        trackingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 //            @Override
@@ -159,7 +175,7 @@ public class MainActivity extends AppCompatActivity
         // add another client? or just add another api to same client? Test it.
 //        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-
+        new GetLoggedTripsTask().execute(loggedTripsListView);
     }
 
     /**
@@ -190,6 +206,50 @@ public class MainActivity extends AppCompatActivity
                 handler.postDelayed(this, 1000);
             }
         });
+    }
+
+    //Inner class to update the drink.
+    private class GetLoggedTripsTask extends AsyncTask<ListView, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected Boolean doInBackground(ListView... params) {
+            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
+
+            try {
+                db = mHelper.getReadableDatabase();
+                cursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
+                        null, null, null, null, null);
+                return true;
+
+            } catch (SQLiteException e) {
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+
+            if (success) {
+                // fill listview with data from cursor
+                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(MainActivity.this,
+                        android.R.layout.simple_list_item_1, cursor,
+                        new String[]{"TRIP_MILES"},
+                        new int[]{android.R.id.text1}, 0);
+                loggedTripsListView.setAdapter(simpleCursorAdapter);
+
+            } else {
+
+                Toast toast = Toast.makeText(MainActivity.this, "Database unavailable", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
     }
 
     public boolean updateSwitchText(boolean isChecked) {
@@ -467,6 +527,8 @@ public class MainActivity extends AppCompatActivity
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    // TODO: fix shared preferences repetition
+
     /**
      * Retrieves a SharedPreference object used to store or read values in this app. If a
      * preferences file passed as the first argument to {@link #getSharedPreferences}
@@ -475,6 +537,15 @@ public class MainActivity extends AppCompatActivity
      */
     private SharedPreferences getSharedPreferencesInstance() {
         return getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+    }
+
+    /**
+     * loads utility and gas settings that were set in EnergySettingsActivity
+     */
+    private void loadSavedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "default name");
+        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "default rate");
     }
 
     /**

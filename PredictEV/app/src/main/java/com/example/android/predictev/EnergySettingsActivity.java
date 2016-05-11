@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -62,32 +63,25 @@ public class EnergySettingsActivity extends AppCompatActivity {
         lonString = (String) getIntent().getExtras().get(Constants.EXTRA_USER_LON);
         Log.i(TAG, "onCreate: latString : " + lonString);
 
-        sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-        sharedPrefUtilName = sharedPreferences.getString(Constants
-                .KEY_SHARED_PREF_UTIL_NAME, "No Utility Selected");
-        sharedPrefUtilRate = sharedPreferences.getString(Constants
-                .KEY_SHARED_PREF_UTIL_RATE, "No Utility Selected");
-
         if (savedInstanceState != null) {
-            utilityName = savedInstanceState.getString("UTILITY_NAME");
+            utilityName = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_NAME);
             Log.i(TAG, "onCreate: utilityName: " + utilityName);
-            utilityRateString = savedInstanceState.getString("UTILITY_RATE");
+            utilityRateString = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_RATE);
+            Log.i(TAG, "onCreate: utilityRate: " + utilityRateString);
 
-            utilityHeaderTextView = (TextView) findViewById(R.id.utility_header_text_view);
-            currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
-            utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
-            utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
+            initLayoutElements();
 
             currentUtilityTextView.setText(utilityName);
             utilityRateTextView.setText("$" + utilityRateString + " / kWh");
 
+        } else {
+
+            initLayoutElements();
+            loadSavedPreferences();
         }
 
+        // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
         utilities = new ArrayList<>();
-
-        utilityHeaderTextView = (TextView) findViewById(R.id.utility_header_text_view);
-        currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
-        utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
         utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -99,6 +93,30 @@ public class EnergySettingsActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void loadSavedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "default name");
+        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "default rate");
+
+        currentUtilityTextView.setText(utilityName);
+        utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+    }
+
+    private void savePreferences(String key, String value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, value);
+        editor.commit();
+    }
+
+    private void initLayoutElements() {
+
+        utilityHeaderTextView = (TextView) findViewById(R.id.utility_header_text_view);
+        currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
+        utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
+        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
     }
 
     @Override
@@ -196,17 +214,15 @@ public class EnergySettingsActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putString("UTILITY_NAME", utilityName);
-        savedInstanceState.putString("UTILITY_RATE", utilityRateString);
+        savedInstanceState.putString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
+        savedInstanceState.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
     }
 
     @Override
     protected void onDestroy() {
-        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
-        editor.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
-        editor.commit();
+        savePreferences(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
+        Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
+        savePreferences(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
 
         super.onDestroy();
     }

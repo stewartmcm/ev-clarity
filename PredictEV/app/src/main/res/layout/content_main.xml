@@ -42,7 +42,13 @@
     <ListView
         android:id="@+id/detected_activities_listview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
+        android:layout_height="wrap_content"/>
+
+    <ListView
+        android:id="@+id/trips_logged_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/detected_activities_listview"/>
 
     <RelativeLayout
         android:id="@+id/activity_recognition_buttons"
