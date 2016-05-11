@@ -361,16 +361,16 @@ public class MainActivity extends AppCompatActivity
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show an expanation to the user *asynchronously* -- don't block
+                // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
             } else {
 
                 // No explanation needed, we can request the permission.
-
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        permissions,
                         Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
 
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
