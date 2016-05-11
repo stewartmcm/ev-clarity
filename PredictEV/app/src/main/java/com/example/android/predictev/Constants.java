@@ -39,6 +39,12 @@ public final class Constants {
      */
     public static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1928;
 
+    public static final String EXTRA_USER_LAT = "USER_LAT";
+    public static final String EXTRA_USER_LON = "USER_LON";
+
+    public static final String KEY_SHARED_PREF_UTIL_NAME = "SHARED_PREF_UTIL_NAME";
+    public static final String KEY_SHARED_PREF_UTIL_RATE = "SHARED_PREF_UTIL_RATE";
+
     /**
      * List of DetectedActivity types that we monitor in this sample.
      */

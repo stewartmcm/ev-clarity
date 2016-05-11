@@ -336,6 +336,12 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+    }
+
     /**
      * Runs when a GoogleApiClient object successfully connects.
      */
@@ -587,6 +593,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_vehicle_settings) {
 
             Intent intent = new Intent(MainActivity.this, EnergySettingsActivity.class);
+            intent.putExtra(Constants.EXTRA_USER_LAT, latString);
+            intent.putExtra(Constants.EXTRA_USER_LON, lonString);
             startActivity(intent);
 
         } else if (id == R.id.nav_share) {

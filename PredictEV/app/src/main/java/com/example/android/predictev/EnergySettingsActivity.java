@@ -2,6 +2,7 @@ package com.example.android.predictev;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +43,12 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private String utilityRateString;
     private ArrayList<Utility> utilities;
     private ArrayAdapter<String> mAdapter;
+    private String latString;
+    private String lonString;
+    SharedPreferences sharedPreferences;
+    String stringSharedPrefs;
+    String sharedPrefUtilName;
+    String sharedPrefUtilRate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +56,17 @@ public class EnergySettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_energy_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        latString = (String) getIntent().getExtras().get(Constants.EXTRA_USER_LAT);
+        Log.i(TAG, "onCreate: latString : " + latString);
+        lonString = (String) getIntent().getExtras().get(Constants.EXTRA_USER_LON);
+        Log.i(TAG, "onCreate: latString : " + lonString);
+
+        sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        sharedPrefUtilName = sharedPreferences.getString(Constants
+                .KEY_SHARED_PREF_UTIL_NAME, "No Utility Selected");
+        sharedPrefUtilRate = sharedPreferences.getString(Constants
+                .KEY_SHARED_PREF_UTIL_RATE, "No Utility Selected");
 
         if (savedInstanceState != null) {
             utilityName = savedInstanceState.getString("UTILITY_NAME");
@@ -105,7 +123,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         Call<UtilityArray> call = null;
 
-        call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", "35.45", "-82.98");
+        call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", latString, lonString);
 
         if (call != null) {
             call.enqueue(new Callback<UtilityArray>() {
@@ -121,6 +139,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
                     utilityRate = response.body().getOutputs().getResidentialRate();
                     utilityRateString = String.valueOf(utilityRate);
                     utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+
 
 //                    TODO: set adapter to display utilities in listview if there are multiple utilities in the area
 //                    ArrayList<String> utilityNames = new ArrayList<String>();
@@ -179,5 +198,16 @@ public class EnergySettingsActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putString("UTILITY_NAME", utilityName);
         savedInstanceState.putString("UTILITY_RATE", utilityRateString);
+    }
+
+    @Override
+    protected void onDestroy() {
+        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
+        editor.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
+        editor.commit();
+
+        super.onDestroy();
     }
 }
