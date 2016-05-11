@@ -35,6 +35,11 @@ public final class Constants {
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 0;
 
     /**
+     * An arbitrary request code that is used to grant the app access to the user's location data.
+     */
+    public static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1928;
+
+    /**
      * List of DetectedActivity types that we monitor in this sample.
      */
     protected static final int[] MONITORED_ACTIVITIES = {
