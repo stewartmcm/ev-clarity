@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EnergySettingsActivity extends AppCompatActivity {
+    protected static final String TAG = "EnergySettingsActivity";
     private TextView utilityHeaderTextView;
     private TextView currentUtilityTextView;
     private TextView utilityRateTextView;
@@ -35,7 +37,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private UtilityRateAPIService mService;
     private Retrofit retrofit;
     private String userZip;
-    String utilityName;
+    private String utilityName;
+    private double utilityRate;
+    private String utilityRateString;
     private ArrayList<Utility> utilities;
     private ArrayAdapter<String> mAdapter;
 
@@ -46,13 +50,27 @@ public class EnergySettingsActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (savedInstanceState != null) {
+            utilityName = savedInstanceState.getString("UTILITY_NAME");
+            Log.i(TAG, "onCreate: utilityName: " + utilityName);
+            utilityRateString = savedInstanceState.getString("UTILITY_RATE");
+
+            utilityHeaderTextView = (TextView) findViewById(R.id.utility_header_text_view);
+            currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
+            utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
+            utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
+
+            currentUtilityTextView.setText(utilityName);
+            utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+
+        }
+
         utilities = new ArrayList<>();
 
         utilityHeaderTextView = (TextView) findViewById(R.id.utility_header_text_view);
         currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
         utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
         utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -80,11 +98,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
     public void findUtilities() {
         retrofit = new Retrofit.Builder().baseUrl("http://developer.nrel.gov/api/utility_rates/")
                 .addConverterFactory(GsonConverterFactory.create()).build();
@@ -105,8 +118,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
                     utilityName = utilities.get(0).getUtilityName();
                     currentUtilityTextView.setText(utilityName);
 
-                    double utilityRate = response.body().getOutputs().getResidentialRate();
-                    String utilityRateString = String.valueOf(utilityRate);
+                    utilityRate = response.body().getOutputs().getResidentialRate();
+                    utilityRateString = String.valueOf(utilityRate);
                     utilityRateTextView.setText("$" + utilityRateString + " / kWh");
 
 //                    TODO: set adapter to display utilities in listview if there are multiple utilities in the area
@@ -159,5 +172,12 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
     public void findGasPrice() {
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString("UTILITY_NAME", utilityName);
+        savedInstanceState.putString("UTILITY_RATE", utilityRateString);
     }
 }
