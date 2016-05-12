@@ -55,17 +55,32 @@ class PredictEvDatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    private static void insertTrip(SQLiteDatabase db, String date, String time, double originLat,
+    // makes sure there is only one instance of the database
+    // if there isn't one, make it, otherwise return the one instance
+    private static PredictEvDatabaseHelper instance;
+
+    public static PredictEvDatabaseHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new PredictEvDatabaseHelper(context);
+        }
+
+        return instance;
+    }
+
+    public void insertTrip(SQLiteDatabase db, String date, String time, double originLat,
                                    double originLong, double destLat, double destLong, double tripMiles) {
+
+        db = getWritableDatabase();
+
         ContentValues tripValues = new ContentValues();
-        tripValues.put("DATE", date);
-        tripValues.put("TIME", time);
-        tripValues.put("ORIGIN_LAT", originLat);
-        tripValues.put("ORIGIN_LONG", originLong);
-        tripValues.put("DEST_LAT", destLat);
-        tripValues.put("DEST_LONG", destLong);
-        tripValues.put("TRIP_MILES", tripMiles);
-        db.insert("TRIP", null, tripValues);
+        tripValues.put(COL_DATE, date);
+        tripValues.put(COL_TIME, time);
+        tripValues.put(COL_ORIGIN_LAT, originLat);
+        tripValues.put(COL_ORIGIN_LONG, originLong);
+        tripValues.put(COL_DEST_LAT, destLat);
+        tripValues.put(COL_DEST_LONG, destLong);
+        tripValues.put(COL_TRIP_MILES, tripMiles);
+        db.insert(TRIP_TABLE_NAME, null, tripValues);
     }
 
     public Cursor getTripList() {

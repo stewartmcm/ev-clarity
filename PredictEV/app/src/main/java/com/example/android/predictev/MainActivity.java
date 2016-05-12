@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity
     private double monthlySavings;
     private TextView monthlySavingsTextView;
     double finalTripDistance;
+    public PredictEvDatabaseHelper mHelper;
 
     // UI elements.
     private Button mRequestActivityUpdatesButton;
@@ -307,13 +308,11 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected Boolean doInBackground(TextView... params) {
-            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
-
+            Log.i(TAG, "LogTripTask doInBackground: method ran");
+            mHelper = PredictEvDatabaseHelper.getInstance(getBaseContext());
+            cursor.moveToLast();
             try {
-                db = mHelper.getWritableDatabase();
-                cursor = db.query("TRIP", new String[] {"SUM(TRIP_MILES) AS sum"},
-                        null, null, null, null, null);
-//                double sumLoggedTrips = cursor.getDouble()
+                mHelper.insertTrip(db,"2016-05-01","11:23",37.828411,-122.289890,37.805591,-122.275583,finalTripDistance);
 
                 return true;
 
@@ -338,6 +337,7 @@ public class MainActivity extends AppCompatActivity
                 String sumLoggedTripsStr = String.valueOf(sumLoggedTripsDouble);
                 monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
                 monthlySavingsTextView.setText("$" + sumLoggedTripsStr);
+                Log.i(TAG, "onPostExecute: new trip added to db");
 
             } else {
 
@@ -743,6 +743,7 @@ public class MainActivity extends AppCompatActivity
                         Log.i( "MainActivity", "Still %: " + activity.getConfidence() );
 
                         logDrive();
+                        new LogTripTask().execute(monthlySavingsTextView);
 
                         break;
                     }
