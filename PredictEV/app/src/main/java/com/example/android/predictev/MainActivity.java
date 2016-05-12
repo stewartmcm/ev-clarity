@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity
     private boolean bound = false;
     private GoogleApiClient client;
     private Location mLastLocation;
+    public Location mCurrentLocation;
     private String latString;
     private String lonString;
     SQLiteDatabase db;
@@ -392,6 +393,8 @@ public class MainActivity extends AppCompatActivity
         ).setResultCallback(this);
     }
 
+
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -447,6 +450,7 @@ public class MainActivity extends AppCompatActivity
             Log.i(TAG, "Connected to GoogleApiClient");
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
             if (mLastLocation != null) {
                 latString = String.valueOf(mLastLocation.getLatitude());
