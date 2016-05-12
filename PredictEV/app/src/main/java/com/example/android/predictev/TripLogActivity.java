@@ -89,7 +89,7 @@ public class TripLogActivity extends AppCompatActivity {
         });
     }
 
-    //Inner class to update the drink.
+    //inner class retrieves all logged trips asynchronously when executed[onCreate]
     private class GetLoggedTripsTask extends AsyncTask<ListView, Void, Boolean> {
 
         @Override

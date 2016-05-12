@@ -32,7 +32,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EnergySettingsActivity extends AppCompatActivity {
     protected static final String TAG = "EnergySettingsActivity";
-    private TextView utilityHeaderTextView;
     private TextView currentUtilityTextView;
     private TextView utilityRateTextView;
     private ListView utilityOptionsListView;
@@ -46,10 +45,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private ArrayAdapter<String> mAdapter;
     private String latString;
     private String lonString;
-    SharedPreferences sharedPreferences;
-    String stringSharedPrefs;
-    String sharedPrefUtilName;
-    String sharedPrefUtilRate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,8 +92,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
     private void loadSavedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "default name");
-        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "default rate");
+        utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "Please set your location.");
+        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
 
         currentUtilityTextView.setText(utilityName);
         utilityRateTextView.setText("$" + utilityRateString + " / kWh");
@@ -113,7 +108,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
     private void initLayoutElements() {
 
-        utilityHeaderTextView = (TextView) findViewById(R.id.utility_header_text_view);
         currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
         utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
         utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);

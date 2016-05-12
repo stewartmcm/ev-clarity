@@ -33,9 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,6 +71,8 @@ public class MainActivity extends AppCompatActivity
     private String utilityName;
     private double utilityRate;
     private String utilityRateString;
+    private double monthlySavings;
+    private TextView monthlySavingsTextView;
 
     // UI elements.
     private Button mRequestActivityUpdatesButton;
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        loadSavedPreferences();
+//        loadSavedPreferences();
         watchMileage();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -175,7 +175,8 @@ public class MainActivity extends AppCompatActivity
         // add another client? or just add another api to same client? Test it.
 //        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-        new GetLoggedTripsTask().execute(loggedTripsListView);
+//        new GetLoggedTripsTask().execute(loggedTripsListView);
+        new SumLoggedTripsTask().execute(monthlySavingsTextView);
     }
 
     /**
@@ -208,8 +209,8 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    //Inner class to update the drink.
-    private class GetLoggedTripsTask extends AsyncTask<ListView, Void, Boolean> {
+    //inner class sums all logged trips asynchronously when executed[onCreate]
+    private class SumLoggedTripsTask extends AsyncTask<TextView, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -218,13 +219,15 @@ public class MainActivity extends AppCompatActivity
         }
 
         @Override
-        protected Boolean doInBackground(ListView... params) {
+        protected Boolean doInBackground(TextView... params) {
             SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
 
             try {
                 db = mHelper.getReadableDatabase();
-                cursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
+                cursor = db.query("TRIP", new String[] {"SUM(TRIP_MILES) AS sum"},
                         null, null, null, null, null);
+//                double sumLoggedTrips = cursor.getDouble()
+
                 return true;
 
             } catch (SQLiteException e) {
@@ -236,13 +239,18 @@ public class MainActivity extends AppCompatActivity
         protected void onPostExecute(Boolean success) {
             super.onPostExecute(success);
 
+            cursor.moveToFirst();
             if (success) {
-                // fill listview with data from cursor
-                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(MainActivity.this,
-                        android.R.layout.simple_list_item_1, cursor,
-                        new String[]{"TRIP_MILES"},
-                        new int[]{android.R.id.text1}, 0);
-                loggedTripsListView.setAdapter(simpleCursorAdapter);
+                // TODO: update comment describing code below
+//                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(MainActivity.this,
+//                        android.R.layout.simple_list_item_1, cursor,
+//                        new String[]{"TRIP_MILES"},
+//                        new int[]{android.R.id.text1}, 0);
+//                loggedTripsListView.setAdapter(simpleCursorAdapter);
+                double sumLoggedTripsDouble = cursor.getDouble(0);
+                String sumLoggedTripsStr = String.valueOf(sumLoggedTripsDouble);
+                monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
+                monthlySavingsTextView.setText("$" + sumLoggedTripsStr);
 
             } else {
 
@@ -250,6 +258,30 @@ public class MainActivity extends AppCompatActivity
                 toast.show();
             }
         }
+    }
+
+    private boolean calcSavings() {
+        monthlySavings = 0.00;
+        SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
+
+        try {
+            db = mHelper.getReadableDatabase();
+            cursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
+                    null, null, null, null, null);
+            return true;
+
+        } catch (SQLiteException e) {
+            return false;
+        }
+
+    }
+
+    public static Double stringToDouble (String x)
+    {
+        if (x !=null)
+            return Double.parseDouble(x);
+
+        return null;
     }
 
     public boolean updateSwitchText(boolean isChecked) {

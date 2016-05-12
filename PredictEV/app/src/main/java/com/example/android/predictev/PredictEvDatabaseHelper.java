@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.text.DateFormat;
-
 /**
  * Created by stewartmcmillan on 5/2/16.
  */
@@ -46,7 +44,7 @@ class PredictEvDatabaseHelper extends SQLiteOpenHelper {
                 + "TRIP_MILES REAL);");
 
         insertTrip(db,"2016-05-01", "11:23", 37.805591, -122.275583, 37.828411,-122.289890,3.34);
-        insertTrip(db,"2016-05-01","11:23",37.828411,-122.289890,37.805591,-122.275583,3.34);
+        insertTrip(db,"2016-05-01","11:23",37.828411,-122.289890,37.805591,-122.275583,3.26);
         insertTrip(db,"2016-05-02","8:17",37.805591,-122.275583,37.790841,-122.401280,12.76);
         insertTrip(db, "2016-05-02", "18:17", 37.790841, -122.401280, 37.805591, -122.275583, 13.56);
 
