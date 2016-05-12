@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity
     public Location mCurrentLocation;
     private String latString;
     private String lonString;
+    private double latDouble;
+    private double lonDouble;
+    private long timeStamp;
     SQLiteDatabase db;
     private Cursor cursor;
     private ListView loggedTripsListView;
@@ -74,6 +77,7 @@ public class MainActivity extends AppCompatActivity
     private String utilityRateString;
     private double monthlySavings;
     private TextView monthlySavingsTextView;
+    double finalTripDistance;
 
     // UI elements.
     private Button mRequestActivityUpdatesButton;
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
 //        loadSavedPreferences();
-        watchMileage();
+//        watchMileage();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -210,7 +214,38 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    //inner class sums all logged trips asynchronously when executed[onCreate]
+    protected void recordDrive() {
+        Log.i(TAG, "recordDrive: method called");
+        final TextView distanceView = (TextView) findViewById(R.id.main_distance);
+        final android.os.Handler handler = new android.os.Handler();
+        Log.i(TAG, "recordDrive: entered while loop");
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                double distance = 0.0;
+                if (odometer != null) {
+                    distance = odometer.getMiles();
+                    Log.i(TAG, "tripOdometer: " + distance);
+                }
+                String distanceStr = String.format("%1$,.2f miles", distance);
+                distanceView.setText(distanceStr);
+                handler.postDelayed(this, 1000);
+            }
+
+        });
+    }
+
+    public double logDrive() {
+        Log.i(TAG, "logDrive: method ran");
+        if (odometer != null) {
+            finalTripDistance = odometer.getMiles();
+            Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
+
+        }
+        return finalTripDistance;
+    }
+
+    //sums all logged trips asynchronously when executed[onCreate]
     private class SumLoggedTripsTask extends AsyncTask<TextView, Void, Boolean> {
 
         @Override
@@ -225,6 +260,57 @@ public class MainActivity extends AppCompatActivity
 
             try {
                 db = mHelper.getReadableDatabase();
+                cursor = db.query("TRIP", new String[] {"SUM(TRIP_MILES) AS sum"},
+                        null, null, null, null, null);
+//                double sumLoggedTrips = cursor.getDouble()
+
+                return true;
+
+            } catch (SQLiteException e) {
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+
+            cursor.moveToFirst();
+            if (success) {
+                // TODO: update comment describing code below
+//                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(MainActivity.this,
+//                        android.R.layout.simple_list_item_1, cursor,
+//                        new String[]{"TRIP_MILES"},
+//                        new int[]{android.R.id.text1}, 0);
+//                loggedTripsListView.setAdapter(simpleCursorAdapter);
+                double sumLoggedTripsDouble = cursor.getDouble(0);
+                String sumLoggedTripsStr = String.valueOf(sumLoggedTripsDouble);
+                monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
+                monthlySavingsTextView.setText("$" + sumLoggedTripsStr);
+
+            } else {
+
+                Toast toast = Toast.makeText(MainActivity.this, "Database unavailable", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
+    }
+
+    //sums all logged trips asynchronously when executed[onCreate]
+    private class LogTripTask extends AsyncTask<TextView, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected Boolean doInBackground(TextView... params) {
+            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
+
+            try {
+                db = mHelper.getWritableDatabase();
                 cursor = db.query("TRIP", new String[] {"SUM(TRIP_MILES) AS sum"},
                         null, null, null, null, null);
 //                double sumLoggedTrips = cursor.getDouble()
@@ -543,8 +629,8 @@ public class MainActivity extends AppCompatActivity
 
             Toast.makeText(
                     this,
-                    getString(requestingUpdates ? R.string.activity_updates_added :
-                            R.string.activity_updates_removed),
+                    getString(requestingUpdates ? R.string.drive_tracking_on :
+                            R.string.drive_tracking_off),
                     Toast.LENGTH_SHORT
             ).show();
         } else {
@@ -619,6 +705,7 @@ public class MainActivity extends AppCompatActivity
      */
     protected void updateDetectedActivitiesList(ArrayList<DetectedActivity> detectedActivities) {
         mAdapter.updateActivities(detectedActivities);
+
     }
 
     /**
@@ -634,6 +721,34 @@ public class MainActivity extends AppCompatActivity
             ArrayList<DetectedActivity> updatedActivities =
                     intent.getParcelableArrayListExtra(Constants.ACTIVITY_EXTRA);
             updateDetectedActivitiesList(updatedActivities);
+
+            for (DetectedActivity activity : updatedActivities) {
+                switch (activity.getType()) {
+                    case DetectedActivity.WALKING: {
+                        Log.i("MainActivity", "Walking %: " + activity.getConfidence());
+                        if (activity.getConfidence() >= 75) {
+
+                            recordDrive();
+
+                        }
+                        break;
+
+                    }
+                    case DetectedActivity.ON_BICYCLE: {
+                        Log.i( "MainActivity", "On Bicycle %: " + activity.getConfidence() );
+
+                        break;
+                    }
+                    case DetectedActivity.STILL: {
+                        Log.i( "MainActivity", "Still %: " + activity.getConfidence() );
+
+                        logDrive();
+
+                        break;
+                    }
+
+                }
+            }
         }
     }
 

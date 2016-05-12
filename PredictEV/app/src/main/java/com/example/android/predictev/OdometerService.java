@@ -65,6 +65,8 @@ public class OdometerService extends Service {
         return this.distanceInMeters / 1609.344;
     }
 
+    public double reset() { return 0.0; }
+
     public class OdometerBinder extends Binder {
         OdometerService getOdometer() {
             return OdometerService.this;

@@ -23,8 +23,8 @@
 
     <string name="request_activity_updates">Turn Drive Tracking On</string>
     <string name="remove_activity_updates">Turn Drive Tracking Off</string>
-    <string name="activity_updates_added">Activity updates added</string>
-    <string name="activity_updates_removed">Activity updates removed</string>
+    <string name="drive_tracking_on">Drive Tracking Turned On</string>
+    <string name="drive_tracking_off">Drive Tracking Turned Off</string>
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
 </resources>
