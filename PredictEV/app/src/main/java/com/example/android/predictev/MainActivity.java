@@ -55,19 +55,15 @@ public class MainActivity extends AppCompatActivity
 
     protected static final String TAG = "MainActivity";
     public Switch trackingSwitch;
-    public boolean isChecked;
     public boolean isTracking;
     GoogleApiClient mGoogleApiClient;
     private ArrayList<DetectedActivity> mDetectedActivities;
     private OdometerService odometer;
     private boolean bound = false;
-    private GoogleApiClient client;
     private Location mLastLocation;
     public Location mCurrentLocation;
     private String latString;
     private String lonString;
-    private double latDouble;
-    private double lonDouble;
     private long timeStamp;
     SQLiteDatabase db;
     private Cursor cursor;
@@ -79,11 +75,9 @@ public class MainActivity extends AppCompatActivity
     private TextView monthlySavingsTextView;
     double finalTripDistance;
     public PredictEvDatabaseHelper mHelper;
-
-    // UI elements.
     private Button mRequestActivityUpdatesButton;
     private Button mRemoveActivityUpdatesButton;
-    private ListView mDetectedActivitiesListView;
+//    private ListView mDetectedActivitiesListView;   from google repo, for testing purposes
 
     /**
      * Adapter backed by a list of DetectedActivity objects.
@@ -96,32 +90,12 @@ public class MainActivity extends AppCompatActivity
      */
     protected ActivityDetectionBroadcastReceiver mBroadcastReceiver;
 
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder binder) {
-            OdometerService.OdometerBinder odometerBinder =
-                    (OdometerService.OdometerBinder) binder;
-            odometer = odometerBinder.getOdometer();
-            Log.i(TAG, "onServiceConnected: odometer initiated");
-            bound = true;
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            bound = false;
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-//        loadSavedPreferences();
-//        watchMileage();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -132,10 +106,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        loadSavedPreferences();
+
 //        trackingSwitch = (Switch) findViewById(R.id.tracking_switch);
         mRequestActivityUpdatesButton = (Button) findViewById(R.id.request_activity_updates_button);
         mRemoveActivityUpdatesButton = (Button) findViewById(R.id.remove_activity_updates_button);
-        mDetectedActivitiesListView = (ListView) findViewById(R.id.detected_activities_listview);
+//        mDetectedActivitiesListView = (ListView) findViewById(R.id.detected_activities_listview);
         loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
 //        trackingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -149,8 +125,6 @@ public class MainActivity extends AppCompatActivity
         // Get a receiver for broadcasts from ActivityDetectionIntentService.
         mBroadcastReceiver = new ActivityDetectionBroadcastReceiver();
 
-        // Enable either the Request Updates button or the Remove Updates button depending on
-        // whether activity updates have been requested.
         setButtonsEnabledState();
 
         // Reuse the value of mDetectedActivities from the bundle if possible. This maintains state
@@ -173,15 +147,11 @@ public class MainActivity extends AppCompatActivity
 
         // Bind the adapter to the ListView responsible for display data for detected activities.
         mAdapter = new DetectedActivitiesAdapter(this, mDetectedActivities);
-        mDetectedActivitiesListView.setAdapter(mAdapter);
+//        mDetectedActivitiesListView.setAdapter(mAdapter);
 
         // Kick off the request to build GoogleApiClient.
         buildGoogleApiClient();
 
-        // add another client? or just add another api to same client? Test it.
-//        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-
-//        new GetLoggedTripsTask().execute(loggedTripsListView);
         new SumLoggedTripsTask().execute(monthlySavingsTextView);
     }
 
@@ -196,23 +166,6 @@ public class MainActivity extends AppCompatActivity
                 .addApi(ActivityRecognition.API)
                 .addApi(LocationServices.API)
                 .build();
-    }
-
-    private void watchMileage() {
-        final TextView distanceView = (TextView) findViewById(R.id.main_distance);
-        final android.os.Handler handler = new android.os.Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                double distance = 0.0;
-                if (odometer != null) {
-                    distance = odometer.getMiles();
-                }
-                String distanceStr = String.format("%1$,.2f miles", distance);
-                distanceView.setText(distanceStr);
-                handler.postDelayed(this, 1000);
-            }
-        });
     }
 
     protected void recordDrive() {
@@ -241,9 +194,10 @@ public class MainActivity extends AppCompatActivity
         if (odometer != null) {
             finalTripDistance = odometer.getMiles();
             Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
-
+            odometer.reset();
         }
         return finalTripDistance;
+
     }
 
     //sums all logged trips asynchronously when executed[onCreate]
@@ -263,7 +217,6 @@ public class MainActivity extends AppCompatActivity
                 db = mHelper.getReadableDatabase();
                 cursor = db.query("TRIP", new String[] {"SUM(TRIP_MILES) AS sum"},
                         null, null, null, null, null);
-//                double sumLoggedTrips = cursor.getDouble()
 
                 return true;
 
@@ -279,15 +232,10 @@ public class MainActivity extends AppCompatActivity
             cursor.moveToFirst();
             if (success) {
                 // TODO: update comment describing code below
-//                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(MainActivity.this,
-//                        android.R.layout.simple_list_item_1, cursor,
-//                        new String[]{"TRIP_MILES"},
-//                        new int[]{android.R.id.text1}, 0);
-//                loggedTripsListView.setAdapter(simpleCursorAdapter);
                 double sumLoggedTripsDouble = cursor.getDouble(0);
-                String sumLoggedTripsStr = String.valueOf(sumLoggedTripsDouble);
                 monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                monthlySavingsTextView.setText("$" + sumLoggedTripsStr);
+                monthlySavingsTextView.setText("$" + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
+
 
             } else {
 
@@ -313,7 +261,7 @@ public class MainActivity extends AppCompatActivity
             cursor.moveToLast();
             try {
                 mHelper.insertTrip(db,"2016-05-01","11:23",37.828411,-122.289890,37.805591,-122.275583,finalTripDistance);
-
+                finalTripDistance = 0.00;
                 return true;
 
             } catch (SQLiteException e) {
@@ -327,16 +275,11 @@ public class MainActivity extends AppCompatActivity
 
             cursor.moveToFirst();
             if (success) {
-                // TODO: update comment describing code below
-//                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(MainActivity.this,
-//                        android.R.layout.simple_list_item_1, cursor,
-//                        new String[]{"TRIP_MILES"},
-//                        new int[]{android.R.id.text1}, 0);
-//                loggedTripsListView.setAdapter(simpleCursorAdapter);
+
                 double sumLoggedTripsDouble = cursor.getDouble(0);
-                String sumLoggedTripsStr = String.valueOf(sumLoggedTripsDouble);
+
                 monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                monthlySavingsTextView.setText("$" + sumLoggedTripsStr);
+                monthlySavingsTextView.setText("$" + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
                 Log.i(TAG, "onPostExecute: new trip added to db");
 
             } else {
@@ -347,28 +290,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private boolean calcSavings() {
-        monthlySavings = 0.00;
-        SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
+    private double calcSavings(double mileageDouble) {
 
-        try {
-            db = mHelper.getReadableDatabase();
-            cursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
-                    null, null, null, null, null);
-            return true;
+        double savings;
 
-        } catch (SQLiteException e) {
-            return false;
+        if (Double.parseDouble(utilityRateString) > 0) {
+
+            savings = mileageDouble * ((2.81 / 29) - (.3 * Double.parseDouble(utilityRateString)));
+
+            return savings;
         }
+        return 0.00;
 
-    }
-
-    public static Double stringToDouble (String x)
-    {
-        if (x !=null)
-            return Double.parseDouble(x);
-
-        return null;
     }
 
     public boolean updateSwitchText(boolean isChecked) {
@@ -561,11 +494,7 @@ public class MainActivity extends AppCompatActivity
                         permissions,
                         Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
 
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
-
         }
     }
 
@@ -667,7 +596,7 @@ public class MainActivity extends AppCompatActivity
     private void loadSavedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "default name");
-        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "default rate");
+        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
     }
 
     /**
@@ -714,37 +643,32 @@ public class MainActivity extends AppCompatActivity
      * the device.
      */
     public class ActivityDetectionBroadcastReceiver extends BroadcastReceiver {
-        protected static final String TAG = "activity-detection-response-receiver";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             ArrayList<DetectedActivity> updatedActivities =
                     intent.getParcelableArrayListExtra(Constants.ACTIVITY_EXTRA);
+
             updateDetectedActivitiesList(updatedActivities);
 
             for (DetectedActivity activity : updatedActivities) {
                 switch (activity.getType()) {
-                    case DetectedActivity.WALKING: {
+
+                    case DetectedActivity.IN_VEHICLE: {
                         Log.i("MainActivity", "Walking %: " + activity.getConfidence());
                         if (activity.getConfidence() >= 75) {
-
                             recordDrive();
-
                         }
                         break;
 
                     }
-                    case DetectedActivity.ON_BICYCLE: {
-                        Log.i( "MainActivity", "On Bicycle %: " + activity.getConfidence() );
+                    case DetectedActivity.WALKING: {
+                        Log.i("MainActivity", "Still %: " + activity.getConfidence());
 
-                        break;
-                    }
-                    case DetectedActivity.STILL: {
-                        Log.i( "MainActivity", "Still %: " + activity.getConfidence() );
-
-                        logDrive();
-                        new LogTripTask().execute(monthlySavingsTextView);
-
+                        if (odometer.getMiles() != 0 && activity.getConfidence() >= 75) {
+                            logDrive();
+                            new LogTripTask().execute(monthlySavingsTextView);
+                        }
                         break;
                     }
 
@@ -752,6 +676,23 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder binder) {
+            OdometerService.OdometerBinder odometerBinder =
+                    (OdometerService.OdometerBinder) binder;
+            odometer = odometerBinder.getOdometer();
+            Log.i(TAG, "onServiceConnected: odometer initiated");
+            bound = true;
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            bound = false;
+        }
+    };
 
     /**
      * Ensures that only one button is enabled at any time. The Request Activity Updates button is
@@ -794,6 +735,10 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, EnergySettingsActivity.class);
+            intent.putExtra(Constants.EXTRA_USER_LAT, latString);
+            intent.putExtra(Constants.EXTRA_USER_LON, lonString);
+            startActivity(intent);
             return true;
         }
 

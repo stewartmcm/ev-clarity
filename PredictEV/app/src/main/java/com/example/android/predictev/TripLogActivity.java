@@ -12,16 +12,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
@@ -52,41 +48,13 @@ public class TripLogActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        tripsLogged = new ArrayList<>();
         loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
         new GetLoggedTripsTask().execute(loggedTripsListView);
 
-        watchMileage();
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-    }
-
-    private void watchMileage() {
-        final TextView distanceView = (TextView) findViewById(R.id.trip_log_distance);
-        final android.os.Handler handler = new android.os.Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                double distance = 0.0;
-                if (odometer != null) {
-                    distance = odometer.getMiles();
-                }
-                String distanceStr = String.format("%1$,.2f miles", distance);
-                distanceView.setText(distanceStr);
-                handler.postDelayed(this, 1000);
-            }
-        });
     }
 
     //inner class retrieves all logged trips asynchronously when executed[onCreate]

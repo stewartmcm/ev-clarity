@@ -112,25 +112,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                             Log.i(TAG, "Connected to GoogleApiClient");
 
                         } else {
-//                            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-//
-//                                // Show an explanation to the user *asynchronously* -- don't block
-//                                // this thread waiting for the user's response! After the user
-//                                // sees the explanation, try again to request the permission.
-//
-//                            } else {
-//
-//                                // No explanation needed, we can request the permission.
-//                                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-//                                ActivityCompat.requestPermissions(this,
-//                                        permissions,
-//                                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-//
-//                                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-//                                // app-defined int constant. The callback method gets the
-//                                // result of the request.
-//                            }
 
                         }
                     }
@@ -159,14 +140,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 }
                 case DetectedActivity.WALKING: {
                     Log.e( "ActivityRecogition", "Walking: " + activity.getConfidence() );
-                    if( activity.getConfidence() >= 75 ) {
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                        builder.setContentText("Are you walking?");
-                        builder.setSmallIcon(R.mipmap.ic_launcher);
-                        builder.setContentTitle(getString(R.string.app_name));
-                        NotificationManagerCompat.from(this).notify(0, builder.build());
 
-                    }
                     break;
                 }
                 case DetectedActivity.UNKNOWN: {

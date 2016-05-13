@@ -60,15 +60,6 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity
-            android:name=".SetLocationActivity"
-            android:label="@string/title_activity_set_location"
-            android:parentActivityName=".EnergySettingsActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.android.predictev.EnergySettingsActivity" />
-        </activity>
 
         <service
             android:name=".services.DetectedActivitiesIntentService"

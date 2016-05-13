@@ -85,6 +85,42 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/select_vehicle_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Vehicle"
+        android:textSize="24sp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/user_gas_details" />
+
+    <LinearLayout
+        android:id="@+id/vehicle_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/select_vehicle_text_view" >
+
+        <TextView
+            android:id="@+id/set_location_text_view1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="No vehicle selected."
+            android:textSize="18sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/mpg_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text=""
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/set_location_text_view" />
+    </LinearLayout>
+
+    <TextView
         android:id="@+id/lat_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -100,6 +136,7 @@
         android:layout_below="@id/lat_text_view"/>
 
     <ListView
+        android:id="@+id/utility_options_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="5dp"
