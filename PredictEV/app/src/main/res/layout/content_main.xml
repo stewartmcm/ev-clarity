@@ -4,28 +4,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.android.predictev.MainActivity"
     tools:showIn="@layout/app_bar_main">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/openroad"/>
 
     <TextView
         android:id="@+id/projected_savings_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Projected Savings"
+        android:textAlignment="center"
+        android:paddingTop="5dp"
+        android:background="@android:color/black"
+        android:textColor="@android:color/darker_gray"
         android:textSize="24sp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/savings_text_view"/>
+        android:layout_above="@+id/savings_text_view"
+        android:layout_alignEnd="@+id/savings_text_view"
+        android:layout_alignStart="@+id/savings_text_view" />
 
     <TextView
         android:id="@+id/savings_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="$0.00"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="@android:color/black"
+        android:textColor="@android:color/darker_gray"
         android:textSize="88sp"
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/per_month_static" />
@@ -35,9 +46,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="per month"
+        android:paddingBottom="5dp"
+        android:textAlignment="center"
+        android:background="@android:color/black"
+        android:textColor="@android:color/darker_gray"
         android:textSize="18sp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true"
+        android:layout_alignEnd="@+id/savings_text_view"
+        android:layout_alignStart="@+id/savings_text_view" />
 
     <ListView
         android:id="@+id/detected_activities_listview"
@@ -58,22 +74,6 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="100dp">
 
-        <Button
-            android:id="@+id/request_activity_updates_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/narrow_space"
-            android:onClick="requestActivityUpdatesButtonHandler"
-            android:text="@string/request_activity_updates" />
-
-        <Button
-            android:id="@+id/remove_activity_updates_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/request_activity_updates_button"
-            android:layout_marginTop="@dimen/narrow_space"
-            android:onClick="removeActivityUpdatesButtonHandler"
-            android:text="@string/remove_activity_updates" />
     </RelativeLayout>
 
     <TextView
@@ -84,22 +84,40 @@
         android:layout_alignParentEnd="true"
         android:singleLine="false" />
 
-    <!--<Switch-->
-        <!--android:id="@+id/tracking_switch"-->
-        <!--android:layout_width="45dp"-->
-        <!--android:layout_height="20dp"-->
-        <!--android:maxHeight="30dp"-->
-        <!--android:thumbTextPadding="25dp"-->
-        <!--android:switchMinWidth="40dp"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_marginBottom="5dp"-->
-        <!--android:layout_above="@+id/tracking_on_off_text_view"/>-->
+    <Switch
+        android:id="@+id/tracking_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:thumbTextPadding="25dp"
+        android:layout_marginBottom="5dp"
+        android:layout_above="@+id/on_off_text_view"
+        android:layout_centerHorizontal="true" />
 
-    <!--<TextView-->
-        <!--android:id="@id/tracking_on_off_text_view"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:text="Tracking OFF"-->
-        <!--android:layout_above="@id/activity_recognition_buttons"/>-->
+    <TextView
+        android:id="@+id/on_off_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tracking OFF"
+        android:textColor="@android:color/darker_gray"
+        android:layout_above="@+id/activity_recognition_buttons"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="57dp" />
+
+    <Button
+        android:id="@+id/request_activity_updates_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="requestActivityUpdatesButtonHandler"
+        android:text="@string/request_activity_updates"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:id="@+id/remove_activity_updates_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="removeActivityUpdatesButtonHandler"
+        android:text="@string/remove_activity_updates"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>
