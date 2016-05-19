@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class DetectedActivitiesIntentService extends IntentService implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
-    protected static final String TAG = "DetectedActivitiesIS";
+    protected static final String TAG = "DetectedActivities";
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -98,7 +98,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         for( DetectedActivity activity : probableActivities ) {
             switch( activity.getType() ) {
                 case DetectedActivity.IN_VEHICLE: {
-                    Log.e( "ActivityRecogition", "In Vehicle: " + activity.getConfidence() );
+                    Log.e("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                         builder.setContentText( "Are you driving?" );
@@ -123,7 +123,23 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     break;
                 }
                 case DetectedActivity.ON_FOOT: {
-                    Log.e( "ActivityRecogition", "On Foot: " + activity.getConfidence() );
+                    Log.e("ActivityRecogition", "On Foot: " + activity.getConfidence());
+                    if( activity.getConfidence() >= 75 ) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                        builder.setContentText( "Are you on foot?" );
+                        builder.setSmallIcon(R.mipmap.ic_launcher);
+                        builder.setContentTitle(getString(R.string.app_name));
+                        NotificationManagerCompat.from(this).notify(0, builder.build());
+                        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.ACCESS_FINE_LOCATION);
+
+                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                            Log.i(TAG, "Connected to GoogleApiClient");
+
+                        } else {
+
+                        }
+                    }
                     break;
                 }
                 case DetectedActivity.RUNNING: {
@@ -131,7 +147,23 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     break;
                 }
                 case DetectedActivity.STILL: {
-                    Log.e( "ActivityRecogition", "Still: " + activity.getConfidence() );
+                    Log.e("ActivityRecogition", "Still: " + activity.getConfidence());
+                    if( activity.getConfidence() >= 75 ) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                        builder.setContentText( "Are you still?" );
+                        builder.setSmallIcon(R.mipmap.ic_launcher);
+                        builder.setContentTitle(getString(R.string.app_name));
+                        NotificationManagerCompat.from(this).notify(0, builder.build());
+                        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.ACCESS_FINE_LOCATION);
+
+                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                            Log.i(TAG, "Connected to GoogleApiClient");
+
+                        } else {
+
+                        }
+                    }
                     break;
                 }
                 case DetectedActivity.TILTING: {
@@ -164,8 +196,9 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     @Override
     public void onStart(Intent intent, int startId) {
-        mGoogleApiClient.connect();
         super.onStart(intent, startId);
+        mGoogleApiClient.connect();
+
     }
 
 

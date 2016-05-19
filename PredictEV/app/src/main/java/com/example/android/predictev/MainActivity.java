@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
     protected static final String TAG = "MainActivity";
     public Switch trackingSwitch;
     public boolean isTracking;
-    GoogleApiClient mGoogleApiClient;
+    public GoogleApiClient mGoogleApiClient;
     private ArrayList<DetectedActivity> mDetectedActivities;
     private OdometerService odometer;
     private boolean bound = false;
@@ -70,14 +70,15 @@ public class MainActivity extends AppCompatActivity
     private ListView loggedTripsListView;
     private String utilityName;
     private double utilityRate;
-    private String utilityRateString;
+    public double tripDistance;
     private double monthlySavings;
+    private String utilityRateString;
     private TextView monthlySavingsTextView;
     double finalTripDistance;
     public PredictEvDatabaseHelper mHelper;
     private Button mRequestActivityUpdatesButton;
     private Button mRemoveActivityUpdatesButton;
-//    private ListView mDetectedActivitiesListView;   from google repo, for testing purposes
+    private ListView mDetectedActivitiesListView;
 
     /**
      * Adapter backed by a list of DetectedActivity objects.
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity
 //        trackingSwitch = (Switch) findViewById(R.id.tracking_switch);
         mRequestActivityUpdatesButton = (Button) findViewById(R.id.request_activity_updates_button);
         mRemoveActivityUpdatesButton = (Button) findViewById(R.id.remove_activity_updates_button);
-//        mDetectedActivitiesListView = (ListView) findViewById(R.id.detected_activities_listview);
+        mDetectedActivitiesListView = (ListView) findViewById(R.id.detected_activities_listview);
         loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
 //        trackingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -147,12 +148,10 @@ public class MainActivity extends AppCompatActivity
 
         // Bind the adapter to the ListView responsible for display data for detected activities.
         mAdapter = new DetectedActivitiesAdapter(this, mDetectedActivities);
-//        mDetectedActivitiesListView.setAdapter(mAdapter);
+        mDetectedActivitiesListView.setAdapter(mAdapter);
 
         // Kick off the request to build GoogleApiClient.
         buildGoogleApiClient();
-
-        new SumLoggedTripsTask().execute(monthlySavingsTextView);
     }
 
     /**
@@ -168,21 +167,26 @@ public class MainActivity extends AppCompatActivity
                 .build();
     }
 
+    protected void updateMonthlySavings() {
+
+    }
+
     protected void recordDrive() {
         Log.i(TAG, "recordDrive: method called");
         final TextView distanceView = (TextView) findViewById(R.id.main_distance);
+
         final android.os.Handler handler = new android.os.Handler();
-        Log.i(TAG, "recordDrive: entered while loop");
         handler.post(new Runnable() {
             @Override
             public void run() {
-                double distance = 0.0;
+                tripDistance = 0.0;
                 if (odometer != null) {
-                    distance = odometer.getMiles();
-                    Log.i(TAG, "tripOdometer: " + distance);
+                    tripDistance = odometer.getMiles();
+                    Log.i(TAG, "recordDrive method tripOdometer: " + tripDistance);
+                    String distanceStr = String.format("%1$,.2f miles", tripDistance);
+                    distanceView.setText(distanceStr);
                 }
-                String distanceStr = String.format("%1$,.2f miles", distance);
-                distanceView.setText(distanceStr);
+
                 handler.postDelayed(this, 1000);
             }
 
@@ -417,6 +421,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        new SumLoggedTripsTask().execute(monthlySavingsTextView);
         Intent intent = new Intent(this, OdometerService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
         mGoogleApiClient.connect();
@@ -654,18 +659,19 @@ public class MainActivity extends AppCompatActivity
             for (DetectedActivity activity : updatedActivities) {
                 switch (activity.getType()) {
 
-                    case DetectedActivity.IN_VEHICLE: {
-                        Log.i("MainActivity", "Walking %: " + activity.getConfidence());
+                    case DetectedActivity.ON_FOOT: {
+                        Log.i("MainActivity", "On foot %: " + activity.getConfidence());
                         if (activity.getConfidence() >= 75) {
                             recordDrive();
                         }
                         break;
 
                     }
-                    case DetectedActivity.WALKING: {
+                    case DetectedActivity.STILL: {
                         Log.i("MainActivity", "Still %: " + activity.getConfidence());
 
                         if (odometer.getMiles() != 0 && activity.getConfidence() >= 75) {
+                            Log.i(TAG, "onReceive: " + odometer.getMiles());
                             logDrive();
                             new LogTripTask().execute(monthlySavingsTextView);
                         }
