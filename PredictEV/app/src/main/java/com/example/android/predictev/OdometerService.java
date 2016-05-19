@@ -17,11 +17,13 @@ public class OdometerService extends Service {
     private final IBinder binder = new OdometerBinder();
     private static double distanceInMeters;
     private static Location lastLocation = null;
+    private LocationManager locManager;
+    private LocationListener listener;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        LocationListener listener = new LocationListener() {
+        listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 if (lastLocation == null) {
@@ -47,7 +49,7 @@ public class OdometerService extends Service {
             }
         };
 
-        LocationManager locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -58,7 +60,14 @@ public class OdometerService extends Service {
         return this.distanceInMeters / 1609.344;
     }
 
-    public void reset() { lastLocation = null; }
+    public double reset() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return this.distanceInMeters / 1609.344;
+        }
+        locManager.removeUpdates(listener);
+        distanceInMeters = 0.0;
+        return 0.0;
+    }
 
     public class OdometerBinder extends Binder {
         OdometerService getOdometer() {
