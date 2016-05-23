@@ -35,7 +35,7 @@
         </activity>
 
         <service
-            android:name=".OdometerService"
+            android:name=".services.OdometerService"
             android:enabled="true"
             android:exported="false" />
         <!--

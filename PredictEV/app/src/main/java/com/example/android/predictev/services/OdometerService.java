@@ -1,4 +1,4 @@
-package com.example.android.predictev;
+package com.example.android.predictev.services;
 
 import android.Manifest;
 import android.app.Service;
