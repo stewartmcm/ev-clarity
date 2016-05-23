@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -34,6 +35,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
     protected static final String TAG = "EnergySettingsActivity";
     private TextView currentUtilityTextView;
     private TextView utilityRateTextView;
+    private EditText gasPriceEditText;
+    private double gasPrice;
     private ListView utilityOptionsListView;
     private UtilityRateAPIService mService;
     private Retrofit retrofit;
@@ -41,6 +44,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private String utilityName;
     private double utilityRate;
     private String utilityRateString;
+    private String gasPriceString;
     private ArrayList<Utility> utilities;
     private ArrayAdapter<String> mAdapter;
     private String latString;
@@ -94,16 +98,14 @@ public class EnergySettingsActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "Please set your location.");
         utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
+        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,"0.00");
 
         currentUtilityTextView.setText(utilityName);
-        utilityRateTextView.setText("$" + utilityRateString + " / kWh");
-    }
+        utilityRateTextView.setText(utilityRateString);
 
-    private void savePreferences(String key, String value) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
-        editor.commit();
+        gasPriceEditText.setText(gasPriceString);
+        Log.i(TAG, "loadSavedPref gasPriceString: " + gasPriceString);
+
     }
 
     private void initLayoutElements() {
@@ -111,6 +113,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
         currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
         utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
         utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
+        gasPriceEditText = (EditText) findViewById(R.id.gas_price_edit_text);
     }
 
     @Override
@@ -201,10 +204,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
     }
 
-    public void findGasPrice() {
-
-    }
-
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
@@ -212,11 +211,21 @@ public class EnergySettingsActivity extends AppCompatActivity {
         savedInstanceState.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
     }
 
+    private void savePreferencesString(String key, String value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, value);
+        editor.commit();
+    }
+
     @Override
     protected void onDestroy() {
-        savePreferences(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
+        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
         Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
-        savePreferences(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
+        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
+
+        gasPriceString = gasPriceEditText.getText().toString();
+        savePreferencesString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
 
         super.onDestroy();
     }

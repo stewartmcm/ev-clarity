@@ -32,7 +32,7 @@ public final class Constants {
      * fastest possible rate. Getting frequent updates negatively impact battery life and a real
      * app may prefer to request less frequent updates.
      */
-    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 10000;
+    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 3000;
 
     /**
      * An arbitrary request code that is used to grant the app access to the user's location data.
@@ -44,6 +44,7 @@ public final class Constants {
 
     public static final String KEY_SHARED_PREF_UTIL_NAME = "SHARED_PREF_UTIL_NAME";
     public static final String KEY_SHARED_PREF_UTIL_RATE = "SHARED_PREF_UTIL_RATE";
+    public static final String KEY_SHARED_PREF_GAS_PRICE = "SHARED_PREF_GAS_PRICE";
 
     /**
      * List of DetectedActivity types that we monitor in this sample.

@@ -2,10 +2,14 @@ package com.example.android.predictev.services;
 
 import android.Manifest;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -41,6 +45,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private Location mLastLocation;
     private String latString;
     private String lonString;
+    private static double distanceInMeters;
+    private static Location lastLocation = null;
+    private LocationManager locManager;
+    private LocationListener listener;
+    public double tripDistance;
 
     /**
      * This constructor is required, and calls the super IntentService(String)
@@ -67,7 +76,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     protected void onHandleIntent(Intent intent) {
         if(ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-            handleDetectedActivities( result.getProbableActivities() );
+            handleDetectedActivities(result.getProbableActivities());
         }
 
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
@@ -100,6 +109,39 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.IN_VEHICLE: {
                     Log.e("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
+
+                        listener = new LocationListener() {
+                            @Override
+                            public void onLocationChanged(Location location) {
+                                if (lastLocation == null) {
+                                    lastLocation = location;
+                                }
+                                distanceInMeters += location.distanceTo(lastLocation);
+                                lastLocation = location;
+                            }
+
+                            @Override
+                            public void onStatusChanged(String arg0, int arg1, Bundle bundle) {
+
+                            }
+
+                            @Override
+                            public void onProviderEnabled(String arg0) {
+
+                            }
+
+                            @Override
+                            public void onProviderDisabled(String arg0) {
+
+                            }
+                        };
+
+                        locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
+
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                         builder.setContentText( "Are you driving?" );
                         builder.setSmallIcon(R.mipmap.ic_launcher);
@@ -149,6 +191,9 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.STILL: {
                     Log.e("ActivityRecogition", "Still: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
+
+
+
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                         builder.setContentText( "Are you still?" );
                         builder.setSmallIcon(R.mipmap.ic_launcher);

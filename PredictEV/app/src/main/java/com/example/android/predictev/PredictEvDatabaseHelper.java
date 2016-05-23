@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 /**
  * Created by stewartmcmillan on 5/2/16.
  */
-class PredictEvDatabaseHelper extends SQLiteOpenHelper {
+public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
 
     public static final String TRIP_TABLE_NAME = "TRIP";
 
@@ -63,7 +63,7 @@ class PredictEvDatabaseHelper extends SQLiteOpenHelper {
 
     // makes sure there is only one instance of the database
     // if there isn't one, make it, otherwise return the one instance
-    private static PredictEvDatabaseHelper instance;
+    public static PredictEvDatabaseHelper instance;
 
     public static PredictEvDatabaseHelper getInstance(Context context) {
         if (instance == null) {
