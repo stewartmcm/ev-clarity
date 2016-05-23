@@ -12,8 +12,10 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 public class OdometerService extends Service {
+    private static final String TAG = "OdometerService";
     private final IBinder binder = new OdometerBinder();
     private static double distanceInMeters;
     private static Location lastLocation = null;
@@ -23,6 +25,7 @@ public class OdometerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i(TAG, "onCreate: OdometerService is running");
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {

@@ -16,7 +16,6 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -50,12 +49,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     protected static final String TAG = "DetectedActivities";
 
     private GoogleApiClient mGoogleApiClient;
-    public PredictEvDatabaseHelper mHelper;
-    private Cursor cursor;
+    Cursor cursor;
     SQLiteDatabase db;
     private OdometerService odometer;
+    Intent odometerIntent;
     private boolean driving;
-    private boolean bound;
+    private boolean bound = false;
     private Location mLastLocation;
     private String latString;
     private String lonString;
@@ -78,8 +77,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i(TAG, "onCreate: method ran");
         buildGoogleApiClient();
 
+        odometerIntent = new Intent(this, OdometerService.class);
+        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+        Log.i(TAG, "onCreate: OdometerService now bound to DetectionActivitiesIntentService");
     }
 
     /**
@@ -89,6 +92,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
      */
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.i(TAG, "onHandleIntent: method ran");
         if(ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             handleDetectedActivities(result.getProbableActivities());
@@ -117,7 +121,17 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (bound) {
+            unbindService(connection);
+            bound = false;
+        }
+    }
+
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
+        Log.i(TAG, "handleDetectedActivities: method ran");
 
         for( DetectedActivity activity : probableActivities ) {
             switch( activity.getType() ) {
@@ -151,39 +165,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
 
-                        listener = new LocationListener() {
-                            @Override
-                            public void onLocationChanged(Location location) {
-                                if (lastLocation == null) {
-                                    lastLocation = location;
-                                }
-                                distanceInMeters += location.distanceTo(lastLocation);
-                                lastLocation = location;
-                            }
-
-                            @Override
-                            public void onStatusChanged(String arg0, int arg1, Bundle bundle) {
-
-                            }
-
-                            @Override
-                            public void onProviderEnabled(String arg0) {
-
-                            }
-
-                            @Override
-                            public void onProviderDisabled(String arg0) {
-
-                            }
-                        };
-
-                        locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            return;
-                        }
-                        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
-
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                         builder.setContentText( "Are you on foot?" );
                         builder.setSmallIcon(R.mipmap.ic_launcher);
@@ -194,13 +175,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
                         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
                             Log.i(TAG, "On foot and Location Permission is granted");
-                            if (activity.getConfidence() >= 75) {
+                            if (odometer == null) {
+                                Log.i(TAG, "onReceive: odometer null");
+                                break;
+                            } else if (activity.getConfidence() >= 75) {
                                 driving = true;
                                 recordDrive();
                             }
                             break;
-
-                        } else {
 
                         }
                     }
@@ -228,13 +210,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                             if (odometer == null) {
                                 Log.i(TAG, "onReceive: odometer null");
                                 break;
-                            } else if (getMiles() != 0 && activity.getConfidence() >= 75) {
+                            } else if (odometer.getMiles() != 0 && activity.getConfidence() >= 75) {
                                 Log.i(TAG, "onReceive: getMiles != 0 && still > 75");
                                 driving = false;
-                                Log .i(TAG, "onReceive: " + getMiles());
+                                Log .i(TAG, "onReceive: " + odometer.getMiles());
                                 logDrive();
+                            }else {
+                                Log.i(TAG, "onReceive: getMiles == 0 && still > 75");
                             }
-                            Log.i(TAG, "onReceive: getMiles == 0 && still > 75");
                             break;
 
                         } else {
@@ -280,7 +263,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             public void run() {
                 tripDistance = 0.0;
                 if (driving) {
-                    tripDistance = getMiles();
+                    tripDistance = odometer.getMiles();
                     Log.i(TAG, "runnable tripOdometer: " + tripDistance);
                 }
 
@@ -288,34 +271,37 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             }
 
         });
+
     }
 
     public double logDrive() {
         Log.i(TAG, "logDrive: method ran");
         if (odometer != null) {
-            finalTripDistance = getMiles();
+            finalTripDistance = odometer.getMiles();
             Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
-            reset();
+            odometer.reset();
             Log.i(TAG, "logDrive: tripOdometer: " + odometer.reset());
+            unbindService(connection);
+            bound = false;
         }
         return finalTripDistance;
 
     }
 
-    public double getMiles() {
-        return this.distanceInMeters / 1609.344;
-    }
+//    public double getMiles() {
+//        return this.distanceInMeters / 1609.344;
+//    }
 
-    public double reset() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return this.distanceInMeters / 1609.344;
-        }
-        locManager.removeUpdates(listener);
-        distanceInMeters = 0.0;
-        return 0.0;
-    }
+//    public double reset() {
+//        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            return this.distanceInMeters / 1609.344;
+//        }
+//        locManager.removeUpdates(listener);
+//        distanceInMeters = 0.0;
+//        return 0.0;
+//    }
 
     //logs new trip asynchronously when executed
     private class LogTripTask extends AsyncTask<Void, Void, Boolean> {
@@ -329,7 +315,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         @Override
         protected Boolean doInBackground(Void... params) {
             Log.i(TAG, "LogTripTask doInBackground: method ran");
-            mHelper = PredictEvDatabaseHelper.getInstance(getBaseContext());
+
+            PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(DetectedActivitiesIntentService.this);
+            db = mHelper.getWritableDatabase();
+            cursor = db.query("TRIP", new String[]{"SUM(TRIP_MILES) AS sum"},
+                    null, null, null, null, null);
             cursor.moveToLast();
             try {
                 mHelper.insertTrip(db,"2016-05-01","11:23",37.828411,-122.289890,37.805591,-122.275583,finalTripDistance);
