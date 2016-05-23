@@ -103,21 +103,4 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="57dp" />
 
-    <Button
-        android:id="@+id/request_activity_updates_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="requestActivityUpdatesButtonHandler"
-        android:text="@string/request_activity_updates"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:id="@+id/remove_activity_updates_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="removeActivityUpdatesButtonHandler"
-        android:text="@string/remove_activity_updates"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
 </RelativeLayout>
