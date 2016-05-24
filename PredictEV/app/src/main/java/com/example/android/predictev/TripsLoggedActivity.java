@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -16,12 +15,7 @@ import android.widget.Toast;
 
 import com.example.android.predictev.services.OdometerService;
 
-import java.util.ArrayList;
-
-public class TripLogActivity extends AppCompatActivity {
-
-    private ArrayList<String> tripsLogged;
-    private ArrayAdapter<String> mAdapter;
+public class TripsLoggedActivity extends AppCompatActivity {
     SQLiteDatabase db;
     private ListView loggedTripsListView;
     private Cursor cursor;
@@ -31,14 +25,15 @@ public class TripLogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trip_log);
+        setContentView(R.layout.activity_trips_logged);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
         new GetLoggedTripsTask().execute(loggedTripsListView);
-        
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     //inner class retrieves all logged trips asynchronously when executed[onCreate]
@@ -52,7 +47,7 @@ public class TripLogActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(ListView... params) {
-            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(TripLogActivity.this);
+            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(TripsLoggedActivity.this);
 
             try {
                 db = mHelper.getReadableDatabase();
@@ -71,7 +66,7 @@ public class TripLogActivity extends AppCompatActivity {
 
             if (success) {
                 // fill listview with data from cursor
-                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(TripLogActivity.this,
+                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(TripsLoggedActivity.this,
                         android.R.layout.simple_list_item_1, cursor,
                         new String[]{"TRIP_MILES"},
                         new int[]{android.R.id.text1}, 0);
@@ -79,20 +74,10 @@ public class TripLogActivity extends AppCompatActivity {
 
             } else {
 
-                Toast toast = Toast.makeText(TripLogActivity.this, "Database unavailable", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(TripsLoggedActivity.this, "Database unavailable", Toast.LENGTH_SHORT);
                 toast.show();
             }
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 
     @Override
@@ -101,5 +86,4 @@ public class TripLogActivity extends AppCompatActivity {
         cursor.close();
         db.close();
     }
-
 }

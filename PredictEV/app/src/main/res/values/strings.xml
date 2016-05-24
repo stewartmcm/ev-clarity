@@ -26,4 +26,5 @@
     <string name="drive_tracking_off">Drive Tracking Turned Off</string>
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
+    <string name="title_activity_trips_logged">Your Logged Drives</string>
 </resources>

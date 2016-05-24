@@ -67,6 +67,16 @@
         <service
             android:name=".services.DetectedActivitiesIntentService"
             android:exported="false" />
+
+        <activity
+            android:name=".TripsLoggedActivity"
+            android:label="@string/title_activity_trips_logged"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.android.predictev.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

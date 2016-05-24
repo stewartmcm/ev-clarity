@@ -82,8 +82,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
         }
 
         // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
-        utilities = new ArrayList<>();
-        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
+//        utilities = new ArrayList<>();
+//        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +118,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
         utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
-        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
         gasPriceEditText = (EditText) findViewById(R.id.gas_price_edit_text);
         mpgEditText = (EditText) findViewById(R.id.mpg_edit_text);
     }
