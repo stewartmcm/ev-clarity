@@ -28,13 +28,14 @@
 
         <TextView
             android:id="@+id/current_utility_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Please set your location."
-            android:textSize="16sp"
+            android:layout_weight="1"
+            android:textSize="14sp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="10dp" />
 
         <TextView
             android:id="@+id/dollar_symbol_utility"
@@ -42,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="$"
             android:textSize="16sp"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="10dp"/>
 
         <TextView
             android:id="@+id/utility_rate_text_view"
@@ -50,13 +51,13 @@
             android:layout_height="wrap_content"
             android:text="0.00"
             android:textSize="16sp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="10dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:text=" / kWh"/>
     </LinearLayout>
 
@@ -78,10 +79,11 @@
 
         <TextView
             android:id="@+id/set_location_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Please enter your gas price."
-            android:textSize="16sp"
+            android:layout_weight="1"
+            android:textSize="14sp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="20dp"/>
 
@@ -94,7 +96,7 @@
 
         <EditText
             android:id="@+id/gas_price_edit_text"
-            android:layout_width="wrap_content"
+            android:layout_width="40dp"
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:hint="0.00"
@@ -104,27 +106,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:text=" / gal"/>
 
-        <!--<TextView-->
-            <!--android:id="@+id/gas_price_text_view"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight="2"-->
-            <!--android:text="$0.00 / gal"-->
-            <!--android:textSize="18sp"-->
-            <!--android:layout_marginTop="5dp"-->
-            <!--android:layout_toRightOf="@id/current_utility_text_view" />-->
     </LinearLayout>
 
     <TextView
         android:id="@+id/select_vehicle_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your Vehicle"
-        android:textSize="24sp"
-        android:layout_marginTop="15dp"
+        android:text="Current Vehicle MPG"
+        android:textSize="20sp"
+        android:layout_marginTop="5dp"
         android:layout_below="@+id/user_gas_details" />
 
     <LinearLayout
@@ -138,20 +131,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="No vehicle selected."
-            android:textSize="18sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp" />
+            android:text="Please enter your current vehicle's MPG."
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="10dp" />
+
+        <EditText
+            android:id="@+id/mpg_edit_text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:hint=" 0.0 "
+            android:inputType="numberDecimal"/>
 
         <TextView
-            android:id="@+id/mpg_text_view"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text=""
-            android:textSize="18sp"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/set_location_text_view" />
+            android:textSize="16sp"
+            android:layout_marginBottom="5dp"
+            android:text="mpg"/>
     </LinearLayout>
 
     <TextView
@@ -169,12 +167,5 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/lat_text_view"/>
 
-    <ListView
-        android:id="@+id/utility_options_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:layout_below="@id/user_gas_details">
 
-    </ListView>
 </RelativeLayout>

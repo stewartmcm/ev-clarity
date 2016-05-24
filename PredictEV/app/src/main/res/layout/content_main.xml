@@ -21,9 +21,9 @@
         android:text="Projected Savings"
         android:textAlignment="center"
         android:paddingTop="5dp"
-        android:background="@android:color/black"
+        android:background="#99000000"
         android:textColor="@android:color/darker_gray"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:layout_above="@+id/savings_text_view"
         android:layout_alignEnd="@+id/savings_text_view"
         android:layout_alignStart="@+id/savings_text_view" />
@@ -35,9 +35,9 @@
         android:text="$0.00"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:background="@android:color/black"
+        android:background="#99000000"
         android:textColor="@android:color/darker_gray"
-        android:textSize="88sp"
+        android:textSize="72sp"
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/per_month_static" />
 
@@ -48,7 +48,7 @@
         android:text="per month"
         android:paddingBottom="5dp"
         android:textAlignment="center"
-        android:background="@android:color/black"
+        android:background="#99000000"
         android:textColor="@android:color/darker_gray"
         android:textSize="18sp"
         android:layout_centerVertical="true"
@@ -59,12 +59,6 @@
         android:id="@+id/detected_activities_listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
-    <ListView
-        android:id="@+id/trips_logged_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/detected_activities_listview"/>
 
     <RelativeLayout
         android:id="@+id/activity_recognition_buttons"

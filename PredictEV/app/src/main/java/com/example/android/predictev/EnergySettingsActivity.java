@@ -36,6 +36,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private TextView currentUtilityTextView;
     private TextView utilityRateTextView;
     private EditText gasPriceEditText;
+    private EditText mpgEditText;
     private double gasPrice;
     private ListView utilityOptionsListView;
     private UtilityRateAPIService mService;
@@ -45,6 +46,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private double utilityRate;
     private String utilityRateString;
     private String gasPriceString;
+    private String currentMPGString;
     private ArrayList<Utility> utilities;
     private ArrayAdapter<String> mAdapter;
     private String latString;
@@ -99,12 +101,16 @@ public class EnergySettingsActivity extends AppCompatActivity {
         utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "Please set your location.");
         utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
         gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,"0.00");
+        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,"0.0");
 
         currentUtilityTextView.setText(utilityName);
         utilityRateTextView.setText(utilityRateString);
 
         gasPriceEditText.setText(gasPriceString);
         Log.i(TAG, "loadSavedPref gasPriceString: " + gasPriceString);
+
+        mpgEditText.setText(currentMPGString);
+        Log.i(TAG, "loadSavedPref mpgString: " + currentMPGString);
 
     }
 
@@ -114,6 +120,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
         utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
         utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
         gasPriceEditText = (EditText) findViewById(R.id.gas_price_edit_text);
+        mpgEditText = (EditText) findViewById(R.id.mpg_edit_text);
     }
 
     @Override
@@ -153,47 +160,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
                     utilityRate = response.body().getOutputs().getResidentialRate();
                     utilityRateString = String.valueOf(utilityRate);
-                    utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+                    utilityRateTextView.setText(utilityRateString);
 
-
-//                    TODO: set adapter to display utilities in listview if there are multiple utilities in the area
-//                    ArrayList<String> utilityNames = new ArrayList<String>();
-//                    utilityNames.add(utilityArray[0].getUtilityName());
-//                    mAdapter = new ArrayAdapter<>(EnergySettingsActivity.this,android.R.layout.simple_list_item_1, utilityNames);
-//                    utilityOptionsListView.setAdapter(mAdapter);
-//
-//
-//                    if (getActivity() != null) {
-//                        sharedPreferences = getActivity().getPreferences(Context.MODE_PRIVATE);
-//                        stringSharedPrefs = sharedPreferences.getString(MainActivity.KEY_SHARED_PREF_NOTIF, "");
-//                        arrayNotificationPref = stringSharedPrefs.split(",");
-//                        Log.i(TAG, "onResponse: shared prefs = " + sharedPreferences);
-//                        Log.i(TAG, "onResponse: title = " + fragTitle);
-//                        Log.i(TAG, "onResponse: prefs as string" + stringSharedPrefs);
-//
-//                        if (Arrays.asList(arrayNotificationPref).contains(fragTitle)) {
-//                            // if a notification pref is on, add those articles to the database here
-//                            // will use them as a reference point for notifications on new articles
-//                            Log.i(TAG, "onResponse: entered if statement for database entry");
-//                            DatabaseHelper searchHelper = DatabaseHelper.getInstance(getActivity());
-//                            // checks if the category articles are already in the database, if not, then add them.
-//                            Cursor articleCursor = searchHelper.findByCategory(fragTitle.toLowerCase());
-//                            if (articleCursor.getCount() == 0) {
-//                                for (Article article : articles) {
-//                                    int articleId = Integer.parseInt(article.getArticleId());
-//                                    String articleTitle = article.getArticleTitle();
-//                                    String articleCategory = article.getArticleCategory();
-//                                    String articleTimeStamp = String.valueOf(article.getArticleTimeStamp());
-//                                    // adds articles to database based on users preference notifications
-//                                    searchHelper.insertArticles(articleId, articleTitle, articleCategory, articleTimeStamp);
-//                                }
-//                            }
-//                        }
-//
-//                        int currentSize = articleAdapter.getItemCount();
-//                        articleAdapter.notifyItemRangeInserted(currentSize, articlesNew.size());
-//                        alphaAdapter.notifyItemRangeInserted(currentSize, articlesNew.size());
-//                    }
                 }
 
                 @Override
@@ -225,7 +193,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
         savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
 
         gasPriceString = gasPriceEditText.getText().toString();
+        currentMPGString = mpgEditText.getText().toString();
         savePreferencesString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
+        savePreferencesString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString);
 
         super.onDestroy();
     }

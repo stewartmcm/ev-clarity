@@ -67,13 +67,6 @@
         <service
             android:name=".services.DetectedActivitiesIntentService"
             android:exported="false" />
-        <service
-            android:name=".OdometerIntentService"
-            android:exported="false" />
-        <service
-            android:name=".services.ActivityRecogWithOdometerService"
-            android:enabled="true"
-            android:exported="false"></service>
     </application>
 
 </manifest>
