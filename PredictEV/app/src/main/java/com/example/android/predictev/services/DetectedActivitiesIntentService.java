@@ -22,7 +22,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.android.predictev.Constants;
+import com.example.android.predictev.activities.Constants;
 import com.example.android.predictev.PredictEvDatabaseHelper;
 import com.example.android.predictev.R;
 import com.google.android.gms.common.ConnectionResult;

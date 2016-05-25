@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.predictev.activities.Constants;
 import com.google.android.gms.location.DetectedActivity;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class DetectedActivitiesAdapter extends ArrayAdapter<DetectedActivity>{
      *
      * @param detectedActivities the freshly detected activities
      */
-    protected void updateActivities(ArrayList<DetectedActivity> detectedActivities) {
+    public void updateActivities(ArrayList<DetectedActivity> detectedActivities) {
         HashMap<Integer, Integer> detectedActivitiesMap = new HashMap<>();
         for (DetectedActivity activity : detectedActivities) {
             detectedActivitiesMap.put(activity.getType(), activity.getConfidence());

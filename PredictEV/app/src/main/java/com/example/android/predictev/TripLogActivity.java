@@ -38,7 +38,6 @@ public class TripLogActivity extends AppCompatActivity {
         loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
         new GetLoggedTripsTask().execute(loggedTripsListView);
-        
     }
 
     //inner class retrieves all logged trips asynchronously when executed[onCreate]

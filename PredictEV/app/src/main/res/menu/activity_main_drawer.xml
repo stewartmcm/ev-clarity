@@ -4,15 +4,15 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_projected_savings"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/ic_attach_money_black_24dp"
             android:title="Projected Savings" />
         <item
             android:id="@+id/nav_trips_logged"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_list_black_24dp"
             android:title="Trips Logged" />
         <item
             android:id="@+id/nav_vehicle_settings"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_settings_black_24dp"
             android:title="Vehicle/Energy Settings" />
     </group>
 

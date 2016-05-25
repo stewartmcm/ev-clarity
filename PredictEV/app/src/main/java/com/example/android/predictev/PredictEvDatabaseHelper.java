@@ -28,7 +28,7 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "predictev";
     private static final int DB_VERSION = 1;
 
-    PredictEvDatabaseHelper(Context context) {
+    public PredictEvDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 

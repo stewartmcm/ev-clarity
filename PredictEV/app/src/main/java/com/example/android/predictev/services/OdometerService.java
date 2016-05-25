@@ -14,6 +14,8 @@ import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import java.text.DecimalFormat;
+
 public class OdometerService extends Service {
     private static final String TAG = "OdometerService";
     private final IBinder binder = new OdometerBinder();
@@ -60,7 +62,19 @@ public class OdometerService extends Service {
     }
 
     public double getMiles() {
-        return this.distanceInMeters / 1609.344;
+
+        double rawMiles = this.distanceInMeters / 1609.344;
+
+        DecimalFormat decimal = new DecimalFormat("#.00");
+        double miles = Double.valueOf(decimal.format(rawMiles));
+        Log.i(TAG, "tripmileage: " + miles);
+
+        if (miles > .10) {
+            return miles;
+        } else {
+            return 0.0;
+        }
+
     }
 
     public double reset() {
