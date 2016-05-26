@@ -196,11 +196,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
 
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                        builder.setContentText( "Are you still?" );
-                        builder.setSmallIcon(R.mipmap.ic_launcher);
-                        builder.setContentTitle(getString(R.string.app_name));
-                        NotificationManagerCompat.from(this).notify(0, builder.build());
                         int permissionCheck = ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -210,13 +205,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                             if (odometer == null) {
                                 Log.i(TAG, "onReceive: odometer null");
                                 break;
-                            } else if (odometer.getMiles() != 0 && activity.getConfidence() >= 75) {
+                            } else if (odometer.getMiles() > .05) {
                                 Log.i(TAG, "onReceive: getMiles != 0 && still > 75");
                                 driving = false;
                                 Log .i(TAG, "onReceive: " + odometer.getMiles());
                                 logDrive();
                             }else {
-                                Log.i(TAG, "onReceive: getMiles == 0 && still > 75");
+                                Log.i(TAG, "onReceive: getMiles < .05");
+                                //odometer.reset??
                             }
                             break;
 
@@ -280,6 +276,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             finalTripDistance = odometer.getMiles();
             Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            builder.setContentText( "Trip Logged: " + odometer.getMiles() + " miles");
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            builder.setContentTitle(getString(R.string.app_name));
+            NotificationManagerCompat.from(this).notify(0, builder.build());
             odometer.reset();
             Log.i(TAG, "logDrive: tripOdometer: " + odometer.reset());
             unbindService(connection);

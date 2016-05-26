@@ -62,19 +62,13 @@ public class OdometerService extends Service {
     }
 
     public double getMiles() {
-
         double rawMiles = this.distanceInMeters / 1609.344;
 
         DecimalFormat decimal = new DecimalFormat("#.00");
         double miles = Double.valueOf(decimal.format(rawMiles));
         Log.i(TAG, "tripmileage: " + miles);
 
-        if (miles > .10) {
-            return miles;
-        } else {
-            return 0.0;
-        }
-
+        return miles;
     }
 
     public double reset() {
