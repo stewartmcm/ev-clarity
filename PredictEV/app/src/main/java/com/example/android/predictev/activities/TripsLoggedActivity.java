@@ -8,13 +8,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.example.android.predictev.PredictEvDatabaseHelper;
 import com.example.android.predictev.R;
+import com.example.android.predictev.TripsLoggedCursorAdapter;
 import com.example.android.predictev.services.OdometerService;
 
 public class TripsLoggedActivity extends AppCompatActivity {
@@ -34,6 +33,12 @@ public class TripsLoggedActivity extends AppCompatActivity {
         loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
         new GetLoggedTripsTask().execute(loggedTripsListView);
+
+        String[] mProjection = {
+                PredictEvDatabaseHelper.COL_ID,
+                PredictEvDatabaseHelper.COL_TRIP_MILES,
+                PredictEvDatabaseHelper.COL_DATE,
+        };
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -68,11 +73,18 @@ public class TripsLoggedActivity extends AppCompatActivity {
 
             if (success) {
                 // fill listview with data from cursor
-                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(TripsLoggedActivity.this,
-                        android.R.layout.simple_list_item_1, cursor,
-                        new String[]{"TRIP_MILES"},
-                        new int[]{android.R.id.text1}, 0);
-                loggedTripsListView.setAdapter(simpleCursorAdapter);
+
+                TripsLoggedCursorAdapter customAdapter = new TripsLoggedCursorAdapter(
+                        TripsLoggedActivity.this,
+                        cursor,
+                        0);
+                loggedTripsListView.setAdapter(customAdapter);
+
+//                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(TripsLoggedActivity.this,
+//                        android.R.layout.simple_list_item_1, cursor,
+//                        new String[]{"TRIP_MILES"},
+//                        new int[]{android.R.id.text1}, 0);
+//                loggedTripsListView.setAdapter(simpleCursorAdapter);
 
             } else {
 
