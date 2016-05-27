@@ -1,22 +1,23 @@
-package com.example.android.predictev;
+package com.example.android.predictev.activities;
 
-import android.app.SearchManager;
-import android.content.Context;
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.android.predictev.R;
 import com.example.android.predictev.models.Utility;
 import com.example.android.predictev.models.UtilityArray;
 import com.example.android.predictev.services.UtilityRateAPIService;
@@ -34,6 +35,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
     protected static final String TAG = "EnergySettingsActivity";
     private TextView currentUtilityTextView;
     private TextView utilityRateTextView;
+    private EditText gasPriceEditText;
+    private EditText mpgEditText;
+    private double gasPrice;
     private ListView utilityOptionsListView;
     private UtilityRateAPIService mService;
     private Retrofit retrofit;
@@ -41,6 +45,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private String utilityName;
     private double utilityRate;
     private String utilityRateString;
+    private String gasPriceString;
+    private String currentMPGString;
     private ArrayList<Utility> utilities;
     private ArrayAdapter<String> mAdapter;
     private String latString;
@@ -77,7 +83,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
         utilities = new ArrayList<>();
-        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
+//        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -94,36 +100,32 @@ public class EnergySettingsActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "Please set your location.");
         utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
+        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,"0.00");
+        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,"0.0");
 
         currentUtilityTextView.setText(utilityName);
-        utilityRateTextView.setText("$" + utilityRateString + " / kWh");
-    }
+        utilityRateTextView.setText(utilityRateString);
 
-    private void savePreferences(String key, String value) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
-        editor.commit();
+        gasPriceEditText.setText(gasPriceString);
+        Log.i(TAG, "loadSavedPref gasPriceString: " + gasPriceString);
+
+        mpgEditText.setText(currentMPGString);
+        Log.i(TAG, "loadSavedPref mpgString: " + currentMPGString);
+
     }
 
     private void initLayoutElements() {
 
         currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
         utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
-        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
+        gasPriceEditText = (EditText) findViewById(R.id.gas_price_edit_text);
+        mpgEditText = (EditText) findViewById(R.id.mpg_edit_text);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
-
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
 
         return true;
     }
@@ -139,6 +141,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         if (call != null) {
             call.enqueue(new Callback<UtilityArray>() {
+                @TargetApi(Build.VERSION_CODES.M)
                 @Override
                 public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
                     Utility[] utilityArray = response.body().getOutputs().getUtilities();
@@ -150,47 +153,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
                     utilityRate = response.body().getOutputs().getResidentialRate();
                     utilityRateString = String.valueOf(utilityRate);
-                    utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+                    utilityRateTextView.setText(utilityRateString);
 
-
-//                    TODO: set adapter to display utilities in listview if there are multiple utilities in the area
-//                    ArrayList<String> utilityNames = new ArrayList<String>();
-//                    utilityNames.add(utilityArray[0].getUtilityName());
-//                    mAdapter = new ArrayAdapter<>(EnergySettingsActivity.this,android.R.layout.simple_list_item_1, utilityNames);
-//                    utilityOptionsListView.setAdapter(mAdapter);
-//
-//
-//                    if (getActivity() != null) {
-//                        sharedPreferences = getActivity().getPreferences(Context.MODE_PRIVATE);
-//                        stringSharedPrefs = sharedPreferences.getString(MainActivity.KEY_SHARED_PREF_NOTIF, "");
-//                        arrayNotificationPref = stringSharedPrefs.split(",");
-//                        Log.i(TAG, "onResponse: shared prefs = " + sharedPreferences);
-//                        Log.i(TAG, "onResponse: title = " + fragTitle);
-//                        Log.i(TAG, "onResponse: prefs as string" + stringSharedPrefs);
-//
-//                        if (Arrays.asList(arrayNotificationPref).contains(fragTitle)) {
-//                            // if a notification pref is on, add those articles to the database here
-//                            // will use them as a reference point for notifications on new articles
-//                            Log.i(TAG, "onResponse: entered if statement for database entry");
-//                            DatabaseHelper searchHelper = DatabaseHelper.getInstance(getActivity());
-//                            // checks if the category articles are already in the database, if not, then add them.
-//                            Cursor articleCursor = searchHelper.findByCategory(fragTitle.toLowerCase());
-//                            if (articleCursor.getCount() == 0) {
-//                                for (Article article : articles) {
-//                                    int articleId = Integer.parseInt(article.getArticleId());
-//                                    String articleTitle = article.getArticleTitle();
-//                                    String articleCategory = article.getArticleCategory();
-//                                    String articleTimeStamp = String.valueOf(article.getArticleTimeStamp());
-//                                    // adds articles to database based on users preference notifications
-//                                    searchHelper.insertArticles(articleId, articleTitle, articleCategory, articleTimeStamp);
-//                                }
-//                            }
-//                        }
-//
-//                        int currentSize = articleAdapter.getItemCount();
-//                        articleAdapter.notifyItemRangeInserted(currentSize, articlesNew.size());
-//                        alphaAdapter.notifyItemRangeInserted(currentSize, articlesNew.size());
-//                    }
                 }
 
                 @Override
@@ -201,7 +165,28 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
     }
 
-    public void findGasPrice() {
+    private double calcSavings(double mileageDouble) {
+
+        double savings;
+        utilityRate = Double.parseDouble(utilityRateString);
+
+        if (gasPriceString.isEmpty()) {
+            gasPrice = 0.0;
+        } else {
+            gasPrice = Double.parseDouble(gasPriceString);
+        }
+
+        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
+
+
+        if ( utilityRate != 0.0) {
+            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
+
+            savings = mileageDouble * ((gasPrice / 29) - (.3 * utilityRate));
+
+            return savings;
+        }
+        return 0.00;
 
     }
 
@@ -212,12 +197,36 @@ public class EnergySettingsActivity extends AppCompatActivity {
         savedInstanceState.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
     }
 
+    private void savePreferencesString(String key, String value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, value);
+        editor.commit();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause called");
+        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
+        Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
+        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
+
+        gasPriceString = gasPriceEditText.getText().toString();
+        currentMPGString = mpgEditText.getText().toString();
+        savePreferencesString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
+        savePreferencesString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop called");
+    }
+
     @Override
     protected void onDestroy() {
-        savePreferences(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
-        Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
-        savePreferences(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
-
+        Log.i(TAG, "onDestroy called");
         super.onDestroy();
     }
 }

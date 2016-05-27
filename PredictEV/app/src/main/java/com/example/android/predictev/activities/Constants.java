@@ -1,8 +1,9 @@
-package com.example.android.predictev;
+package com.example.android.predictev.activities;
 
 import android.content.Context;
 import android.content.res.Resources;
 
+import com.example.android.predictev.R;
 import com.google.android.gms.location.DetectedActivity;
 
 /**
@@ -32,7 +33,7 @@ public final class Constants {
      * fastest possible rate. Getting frequent updates negatively impact battery life and a real
      * app may prefer to request less frequent updates.
      */
-    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 0;
+    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 3000;
 
     /**
      * An arbitrary request code that is used to grant the app access to the user's location data.
@@ -44,11 +45,14 @@ public final class Constants {
 
     public static final String KEY_SHARED_PREF_UTIL_NAME = "SHARED_PREF_UTIL_NAME";
     public static final String KEY_SHARED_PREF_UTIL_RATE = "SHARED_PREF_UTIL_RATE";
+    public static final String KEY_SHARED_PREF_GAS_PRICE = "SHARED_PREF_GAS_PRICE";
+    public static final String KEY_SHARED_PREF_CURRENT_MPG = "SHARED_PREF_CURRENT_MPG";
+    public static final String KEY_SHARED_PREF_DRIVE_TRACKING = "KEY_SHARED_PREF_DRIVE_TRACKING";
 
     /**
      * List of DetectedActivity types that we monitor in this sample.
      */
-    protected static final int[] MONITORED_ACTIVITIES = {
+    public static final int[] MONITORED_ACTIVITIES = {
             DetectedActivity.STILL,
             DetectedActivity.ON_FOOT,
             DetectedActivity.WALKING,
