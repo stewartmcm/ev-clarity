@@ -47,6 +47,7 @@ public final class Constants {
     public static final String KEY_SHARED_PREF_UTIL_RATE = "SHARED_PREF_UTIL_RATE";
     public static final String KEY_SHARED_PREF_GAS_PRICE = "SHARED_PREF_GAS_PRICE";
     public static final String KEY_SHARED_PREF_CURRENT_MPG = "SHARED_PREF_CURRENT_MPG";
+    public static final String KEY_SHARED_PREF_DRIVE_TRACKING = "KEY_SHARED_PREF_DRIVE_TRACKING";
 
     /**
      * List of DetectedActivity types that we monitor in this sample.

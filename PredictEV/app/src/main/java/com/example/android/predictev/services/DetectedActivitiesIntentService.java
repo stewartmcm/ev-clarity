@@ -165,11 +165,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
 
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                        builder.setContentText( "Are you on foot?" );
-                        builder.setSmallIcon(R.mipmap.ic_launcher);
-                        builder.setContentTitle(getString(R.string.app_name));
-                        NotificationManagerCompat.from(this).notify(0, builder.build());
                         int permissionCheck = ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -258,10 +253,15 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             @Override
             public void run() {
                 tripDistance = 0.0;
-                if (driving) {
-                    tripDistance = odometer.getMiles();
-                    Log.i(TAG, "runnable tripOdometer: " + tripDistance);
-                }
+                tripDistance = odometer.getMiles();
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(DetectedActivitiesIntentService.this);
+                builder.setContentText( "Distance travelled: " + tripDistance );
+                builder.setSmallIcon(R.mipmap.ic_launcher);
+                builder.setContentTitle(getString(R.string.app_name));
+                NotificationManagerCompat.from(DetectedActivitiesIntentService.this).notify(0, builder.build());
+
+                Log.i(TAG, "runnable tripOdometer: " + tripDistance);
 
                 handler.postDelayed(this, 1000);
             }
