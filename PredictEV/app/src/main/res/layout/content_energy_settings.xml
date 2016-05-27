@@ -17,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Your Utility Provider"
+        android:textColor="#000000"
         android:textSize="20sp"/>
 
     <LinearLayout
@@ -66,6 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Local Price of Gas"
+        android:textColor="#000000"
         android:textSize="20sp"
         android:layout_marginTop="15dp"
         android:layout_below="@+id/user_utility_details" />
@@ -81,7 +83,7 @@
             android:id="@+id/set_location_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Please enter your gas price."
+            android:text="Please enter your local gas price."
             android:layout_weight="1"
             android:textSize="14sp"
             android:layout_marginStart="10dp"
@@ -116,6 +118,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Current Vehicle MPG"
+        android:textColor="#000000"
         android:textSize="20sp"
         android:layout_marginTop="5dp"
         android:layout_below="@+id/user_gas_details" />
@@ -131,7 +134,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Please enter your current vehicle's MPG."
+            android:text="Please enter your vehicle's MPG."
             android:textSize="14sp"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="10dp" />
