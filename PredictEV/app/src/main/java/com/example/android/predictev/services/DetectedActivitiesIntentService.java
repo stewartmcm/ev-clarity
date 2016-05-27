@@ -22,7 +22,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.android.predictev.OdometerService;
 import com.example.android.predictev.activities.Constants;
 import com.example.android.predictev.PredictEvDatabaseHelper;
 import com.example.android.predictev.R;
@@ -256,12 +255,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 tripDistance = 0.0;
                 tripDistance = odometer.getMiles();
 
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(DetectedActivitiesIntentService.this);
-                builder.setContentText( "Distance travelled: " + tripDistance );
-                builder.setSmallIcon(R.mipmap.ic_launcher);
-                builder.setContentTitle(getString(R.string.app_name));
-                NotificationManagerCompat.from(DetectedActivitiesIntentService.this).notify(0, builder.build());
-
                 Log.i(TAG, "runnable tripOdometer: " + tripDistance);
 
                 handler.postDelayed(this, 1000);
@@ -279,7 +272,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             new LogTripTask().execute();
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
             builder.setContentText( "Trip Logged: " + odometer.getMiles() + " miles");
-            builder.setSmallIcon(R.mipmap.ic_launcher);
+            builder.setSmallIcon(R.drawable.ic_stat_car_icon);
             builder.setContentTitle(getString(R.string.app_name));
             NotificationManagerCompat.from(this).notify(0, builder.build());
             odometer.reset();

@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.example.android.predictev.PredictEvDatabaseHelper;
 import com.example.android.predictev.R;
 import com.example.android.predictev.TripsLoggedCursorAdapter;
-import com.example.android.predictev.OdometerService;
+import com.example.android.predictev.services.OdometerService;
 
 public class TripsLoggedActivity extends AppCompatActivity {
     SQLiteDatabase db;
