@@ -175,6 +175,31 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
     }
 
+    private double calcSavings(double mileageDouble) {
+
+        double savings;
+        utilityRate = Double.parseDouble(utilityRateString);
+
+        if (gasPriceString.isEmpty()) {
+            gasPrice = 0.0;
+        } else {
+            gasPrice = Double.parseDouble(gasPriceString);
+        }
+
+        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
+
+
+        if ( utilityRate != 0.0) {
+            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
+
+            savings = mileageDouble * ((gasPrice / 29) - (.3 * utilityRate));
+
+            return savings;
+        }
+        return 0.00;
+
+    }
+
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
@@ -190,7 +215,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause called");
         savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
         Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
         savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
@@ -199,7 +226,17 @@ public class EnergySettingsActivity extends AppCompatActivity {
         currentMPGString = mpgEditText.getText().toString();
         savePreferencesString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
         savePreferencesString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString);
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop called");
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy called");
         super.onDestroy();
     }
 }
