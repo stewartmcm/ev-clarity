@@ -81,6 +81,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         buildGoogleApiClient();
 
         odometerIntent = new Intent(this, OdometerService.class);
+        startService(odometerIntent);
         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
         Log.i(TAG, "onCreate: OdometerService now bound to DetectionActivitiesIntentService");
     }
@@ -148,16 +149,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
 
-                        if (odometer == null) {
-                            Log.i(TAG, "onReceive: odometer null");
-                            break;
-                        } else if (activity.getConfidence() >= 75) {
-                            Log.i(TAG, "onReceive: odometer not null");
-                            driving = true;
-                            recordDrive();
-                        }
-                        break;
-
                     }
 
                     break;
@@ -169,21 +160,31 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.ON_FOOT: {
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
-
                         if (odometer == null) {
                             Log.i(TAG, "onReceive: odometer null");
                             break;
-                        } else if (odometer.getMiles() >= .25) {
-                            Log.i(TAG, "onReceive: getMiles > .25");
-                            Log .i(TAG, "onReceive: " + odometer.getMiles());
-                            logDrive();
-                            driving = false;
-                        }else {
-                            Log.i(TAG, "onReceive: getMiles < .25");
-                            //odometer.reset??
+                        } else if (activity.getConfidence() >= 75) {
+                            Log.i(TAG, "onReceive: odometer not null");
+                            driving = true;
+                            recordDrive();
                         }
                         break;
                     }
+
+//                        if (odometer == null) {
+//                            Log.i(TAG, "onReceive: odometer null");
+//                            break;
+//                        } else if (odometer.getMiles() >= .25) {
+//                            Log.i(TAG, "onReceive: getMiles > .25");
+//                            Log .i(TAG, "onReceive: " + odometer.getMiles());
+//                            logDrive();
+//                            driving = false;
+//                        }else {
+//                            Log.i(TAG, "onReceive: getMiles < .25");
+//                            //odometer.reset??
+//                        }
+//                        break;
+//                    }
                     break;
                 }
                 case DetectedActivity.RUNNING: {
@@ -197,7 +198,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                         if (odometer == null) {
                             Log.i(TAG, "onReceive: odometer null");
                             break;
-                        } else if (odometer.getMiles() >= .50) {
+                        } else if (odometer.getMiles() >= .05) {
                             Log.i(TAG, "onReceive: getMiles > .50");
                             Log .i(TAG, "onReceive: " + odometer.getMiles());
                             logDrive();
