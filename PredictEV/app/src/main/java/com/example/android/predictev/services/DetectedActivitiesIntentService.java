@@ -85,6 +85,24 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         Log.i(TAG, "onCreate: OdometerService now bound to DetectionActivitiesIntentService");
     }
 
+    @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        mGoogleApiClient.connect();
+
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(ActivityRecognition.API)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
+
     /**
      * Handles incoming intents.
      * @param intent The Intent is provided (inside a PendingIntent) when requestActivityUpdates()
@@ -121,15 +139,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (bound) {
-            unbindService(connection);
-            bound = false;
-        }
-    }
-
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
         Log.i(TAG, "handleDetectedActivities: method ran");
 
@@ -139,20 +148,16 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
 
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                        builder.setContentText( "Are you driving?" );
-                        builder.setSmallIcon(R.mipmap.ic_launcher);
-                        builder.setContentTitle(getString(R.string.app_name));
-                        NotificationManagerCompat.from(this).notify(0, builder.build());
-                        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_FINE_LOCATION);
-
-                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                            Log.i(TAG, "Connected to GoogleApiClient");
-
-                        } else {
-
+                        if (odometer == null) {
+                            Log.i(TAG, "onReceive: odometer null");
+                            break;
+                        } else if (activity.getConfidence() >= 75) {
+                            Log.i(TAG, "onReceive: odometer not null");
+                            driving = true;
+                            recordDrive();
                         }
+                        break;
+
                     }
 
                     break;
@@ -165,21 +170,19 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
 
-                        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_FINE_LOCATION);
-
-                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                            Log.i(TAG, "On foot and Location Permission is granted");
-                            if (odometer == null) {
-                                Log.i(TAG, "onReceive: odometer null");
-                                break;
-                            } else if (activity.getConfidence() >= 75) {
-                                driving = true;
-                                recordDrive();
-                            }
+                        if (odometer == null) {
+                            Log.i(TAG, "onReceive: odometer null");
                             break;
-
+                        } else if (odometer.getMiles() >= .25) {
+                            Log.i(TAG, "onReceive: getMiles > .25");
+                            Log .i(TAG, "onReceive: " + odometer.getMiles());
+                            logDrive();
+                            driving = false;
+                        }else {
+                            Log.i(TAG, "onReceive: getMiles < .25");
+                            //odometer.reset??
                         }
+                        break;
                     }
                     break;
                 }
@@ -189,31 +192,22 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 }
                 case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
-                    if( activity.getConfidence() >= 75 ) {
+                    if( activity.getConfidence() >= 95 ) {
 
-                        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_FINE_LOCATION);
-
-                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                            Log.i(TAG, "Still and Location Permission is granted");
-                            Log.i("MainActivity", "Still %: " + activity.getConfidence());
-                            if (odometer == null) {
-                                Log.i(TAG, "onReceive: odometer null");
-                                break;
-                            } else if (odometer.getMiles() > .05) {
-                                Log.i(TAG, "onReceive: getMiles != 0 && still > 75");
-                                driving = false;
-                                Log .i(TAG, "onReceive: " + odometer.getMiles());
-                                logDrive();
-                            }else {
-                                Log.i(TAG, "onReceive: getMiles < .05");
-                                //odometer.reset??
-                            }
+                        if (odometer == null) {
+                            Log.i(TAG, "onReceive: odometer null");
                             break;
-
-                        } else {
-
+                        } else if (odometer.getMiles() >= .50) {
+                            Log.i(TAG, "onReceive: getMiles > .50");
+                            Log .i(TAG, "onReceive: " + odometer.getMiles());
+                            logDrive();
+                            driving = false;
+                        }else {
+                            Log.i(TAG, "onReceive: getMiles < .50");
+                            odometer.reset();
                         }
+                        break;
+
                     }
                     break;
                 }
@@ -231,17 +225,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     break;
                 }
             }
-        }
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(ActivityRecognition.API)
-                    .addApi(LocationServices.API)
-                    .build();
         }
     }
 
@@ -283,20 +266,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         return finalTripDistance;
 
     }
-
-//    public double getMiles() {
-//        return this.distanceInMeters / 1609.344;
-//    }
-
-//    public double reset() {
-//        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            return this.distanceInMeters / 1609.344;
-//        }
-//        locManager.removeUpdates(listener);
-//        distanceInMeters = 0.0;
-//        return 0.0;
-//    }
 
     //logs new trip asynchronously when executed
     private class LogTripTask extends AsyncTask<Void, Void, Boolean> {
@@ -361,13 +330,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     };
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        mGoogleApiClient.connect();
-
-    }
-
-    @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "onConnected: method called");
         int permissionCheck = ContextCompat.checkSelfPermission(this,
@@ -407,5 +369,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     public void onResult(Status status) {
         Log.i(TAG, "onResult: method called");
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (bound) {
+            unbindService(connection);
+            bound = false;
+        }
     }
 }
