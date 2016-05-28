@@ -15,6 +15,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,9 +23,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.android.predictev.activities.Constants;
 import com.example.android.predictev.PredictEvDatabaseHelper;
 import com.example.android.predictev.R;
+import com.example.android.predictev.activities.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -160,6 +161,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.ON_FOOT: {
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
+
                         if (odometer == null) {
                             Log.i(TAG, "onReceive: odometer null");
                             break;
@@ -232,7 +234,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     protected void recordDrive() {
         Log.i(TAG, "recordDrive: method called");
 
-        final android.os.Handler handler = new android.os.Handler();
+        final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -261,8 +263,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             NotificationManagerCompat.from(this).notify(0, builder.build());
             odometer.reset();
             Log.i(TAG, "logDrive: tripOdometer: " + odometer.reset());
-            unbindService(connection);
-            bound = false;
+            //TODO: test uncommenting the code below
+//            unbindService(connection);
+//            bound = false;
+            stopService(odometerIntent);
         }
         return finalTripDistance;
 
