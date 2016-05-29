@@ -15,17 +15,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.android.predictev.PredictEvDatabaseHelper;
 import com.example.android.predictev.R;
-import com.example.android.predictev.activities.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -35,7 +32,6 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -80,15 +76,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         super.onCreate();
         Log.i(TAG, "onCreate: method ran");
         buildGoogleApiClient();
-
-        odometerIntent = new Intent(this, OdometerService.class);
-        startService(odometerIntent);
-        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-        Log.i(TAG, "onCreate: OdometerService now bound to DetectionActivitiesIntentService");
+        
     }
 
     @Override
     public void onStart(Intent intent, int startId) {
+        Log.i(TAG, "onStart called");
         super.onStart(intent, startId);
         mGoogleApiClient.connect();
 
@@ -115,29 +108,35 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         Log.i(TAG, "onHandleIntent: method ran");
         if(ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
+
+            odometerIntent = new Intent(this, OdometerService.class);
+            startService(odometerIntent);
+            bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+            bound = true;
+
             handleDetectedActivities(result.getProbableActivities());
         }
 
-        ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-        Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
-
-        // Get the list of the probable activities associated with the current state of the
-        // device. Each activity is associated with a confidence level, which is an int between
-        // 0 and 100.
-        ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
-
-        // Log each activity.
-        Log.i(TAG, "activities detected");
-        for (DetectedActivity da: detectedActivities) {
-            Log.i(TAG, Constants.getActivityString(
-                            getApplicationContext(),
-                            da.getType()) + " " + da.getConfidence() + "%"
-            );
-        }
-
-        // Broadcast the list of detected activities.
-        localIntent.putExtra(Constants.ACTIVITY_EXTRA, detectedActivities);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+//        ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
+//        Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
+//
+//        // Get the list of the probable activities associated with the current state of the
+//        // device. Each activity is associated with a confidence level, which is an int between
+//        // 0 and 100.
+//        ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
+//
+//        // Log each activity.
+//        Log.i(TAG, "activities detected");
+//        for (DetectedActivity da: detectedActivities) {
+//            Log.i(TAG, Constants.getActivityString(
+//                            getApplicationContext(),
+//                            da.getType()) + " " + da.getConfidence() + "%"
+//            );
+//        }
+//
+//        // Broadcast the list of detected activities.
+//        localIntent.putExtra(Constants.ACTIVITY_EXTRA, detectedActivities);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
     }
 
@@ -162,27 +161,35 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if( activity.getConfidence() >= 75 ) {
 
-                        if (odometer == null) {
-                            Log.i(TAG, "onReceive: odometer null");
+                        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.ACCESS_FINE_LOCATION);
+
+                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+
+                            if (odometer == null) {
+                                Log.i(TAG, "onHandleDetectedActivities: odometer null");
+                                break;
+                            } else if (activity.getConfidence() >= 75) {
+                                Log.i(TAG, "onHandleDetectedActivities: odometer not null");
+                                driving = true;
+                                recordDrive();
+                            }
                             break;
-                        } else if (activity.getConfidence() >= 75) {
-                            Log.i(TAG, "onReceive: odometer not null");
-                            driving = true;
-                            recordDrive();
+                        } else {
+                            Log.i(TAG, "handleDetectedActivities: location permission not granted");
                         }
-                        break;
                     }
 
 //                        if (odometer == null) {
-//                            Log.i(TAG, "onReceive: odometer null");
+//                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
 //                            break;
 //                        } else if (odometer.getMiles() >= .25) {
-//                            Log.i(TAG, "onReceive: getMiles > .25");
-//                            Log .i(TAG, "onReceive: " + odometer.getMiles());
+//                            Log.i(TAG, "onHandleDetectedActivities: getMiles > .25");
+//                            Log .i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
 //                            logDrive();
 //                            driving = false;
 //                        }else {
-//                            Log.i(TAG, "onReceive: getMiles < .25");
+//                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .25");
 //                            //odometer.reset??
 //                        }
 //                        break;
@@ -197,17 +204,22 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
                     if( activity.getConfidence() >= 95 ) {
 
-                        if (odometer == null) {
-                            Log.i(TAG, "onReceive: odometer null");
-                            break;
-                        } else if (odometer.getMiles() >= .05) {
-                            Log.i(TAG, "onReceive: getMiles > .50");
-                            Log .i(TAG, "onReceive: " + odometer.getMiles());
-                            logDrive();
-                            driving = false;
-                        }else {
-                            Log.i(TAG, "onReceive: getMiles < .50");
-                            odometer.reset();
+                        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.ACCESS_FINE_LOCATION);
+
+                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+
+                            if (odometer == null) {
+                                Log.i(TAG, "onHandleDetectedActivities: odometer null");
+                                break;
+                            } else if (odometer.getMiles() >= .05) {
+                                Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
+                                logDrive();
+                                driving = false;
+                            } else {
+                                Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
+                                odometer.reset();
+                            }
                         }
                         break;
 
@@ -234,19 +246,21 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     protected void recordDrive() {
         Log.i(TAG, "recordDrive: method called");
 
-        final Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                tripDistance = 0.0;
-                tripDistance = odometer.getMiles();
+        tripDistance = 0.0;
+        tripDistance = odometer.getMiles();
 
-                Log.i(TAG, "runnable tripOdometer: " + tripDistance);
+        Log.i(TAG, "runnable tripOdometer: " + tripDistance);
 
-                handler.postDelayed(this, 1000);
-            }
-
-        });
+//        final Handler handler = new Handler();
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//
+//                handler.postDelayed(this, 1000);
+//            }
+//
+//        });
 
     }
 
@@ -324,12 +338,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     (OdometerService.OdometerBinder) binder;
             odometer = odometerBinder.getOdometer();
             Log.i(TAG, "onServiceConnected: odometer initiated");
-            bound = true;
 
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            Log.i(TAG, "onServiceDisconnected called");
             bound = false;
         }
     };
@@ -351,10 +365,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 Log.i(TAG, "latString: " + latString);
                 lonString = String.valueOf(mLastLocation.getLongitude());
                 Log.i(TAG, "lonString: " + lonString);
+
+                Log.i(TAG, "onConnected: OdometerService now bound to DetectionActivitiesIntentService");
             }
 
         } else {
-            Log.i(TAG, "onConnected: mLastLocation is null");
+            Log.i(TAG, "onConnected: location permission not granted");
     
         }
 
@@ -362,6 +378,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     @Override
     public void onConnectionSuspended(int i) {
+        Log.i(TAG, "onConnectionSuspended called");
 
     }
 
@@ -378,6 +395,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy called");
         super.onDestroy();
         if (bound) {
             unbindService(connection);
