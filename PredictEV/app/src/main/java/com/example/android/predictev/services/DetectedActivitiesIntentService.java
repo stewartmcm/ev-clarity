@@ -334,6 +334,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
+            Log.i(TAG, "onServiceConnected called");
             OdometerService.OdometerBinder odometerBinder =
                     (OdometerService.OdometerBinder) binder;
             odometer = odometerBinder.getOdometer();

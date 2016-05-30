@@ -33,7 +33,7 @@ public final class Constants {
      * fastest possible rate. Getting frequent updates negatively impact battery life and a real
      * app may prefer to request less frequent updates.
      */
-    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 3000;
+    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 5000;
 
     /**
      * An arbitrary request code that is used to grant the app access to the user's location data.
