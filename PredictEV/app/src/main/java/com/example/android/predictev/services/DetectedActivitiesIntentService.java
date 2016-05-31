@@ -76,7 +76,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         super.onCreate();
         Log.i(TAG, "onCreate: method ran");
         buildGoogleApiClient();
-        
+
     }
 
     @Override
@@ -100,13 +100,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     /**
      * Handles incoming intents.
+     *
      * @param intent The Intent is provided (inside a PendingIntent) when requestActivityUpdates()
      *               is called.
      */
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "onHandleIntent: method ran");
-        if(ActivityRecognitionResult.hasResult(intent)) {
+        if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 
             odometerIntent = new Intent(this, OdometerService.class);
@@ -122,11 +123,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
         Log.i(TAG, "handleDetectedActivities: method ran");
 
-        for( DetectedActivity activity : probableActivities ) {
-            switch( activity.getType() ) {
+        for (DetectedActivity activity : probableActivities) {
+            switch (activity.getType()) {
                 case DetectedActivity.IN_VEHICLE: {
                     Log.i("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
-                    if( activity.getConfidence() >= 75 ) {
+                    if (activity.getConfidence() >= 75) {
 
                         int permissionCheck = ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.ACCESS_FINE_LOCATION);
@@ -149,12 +150,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     break;
                 }
                 case DetectedActivity.ON_BICYCLE: {
-                    Log.i( "ActivityRecogition", "On Bicycle: " + activity.getConfidence() );
+                    Log.i("ActivityRecogition", "On Bicycle: " + activity.getConfidence());
                     break;
                 }
                 case DetectedActivity.ON_FOOT: {
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
-                    if( activity.getConfidence() >= 75 ) {
+                    if (activity.getConfidence() >= 75) {
 
                         int permissionCheck = ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.ACCESS_FINE_LOCATION);
@@ -178,12 +179,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     break;
                 }
                 case DetectedActivity.RUNNING: {
-                    Log.i( "ActivityRecogition", "Running: " + activity.getConfidence() );
+                    Log.i("ActivityRecogition", "Running: " + activity.getConfidence());
                     break;
                 }
                 case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
-                    if( activity.getConfidence() >= 95 ) {
+                    if (activity.getConfidence() >= 95) {
 
                         int permissionCheck = ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.ACCESS_FINE_LOCATION);
@@ -208,16 +209,16 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     break;
                 }
                 case DetectedActivity.TILTING: {
-                    Log.i( "ActivityRecogition", "Tilting: " + activity.getConfidence() );
+                    Log.i("ActivityRecogition", "Tilting: " + activity.getConfidence());
                     break;
                 }
                 case DetectedActivity.WALKING: {
-                    Log.i( "ActivityRecogition", "Walking: " + activity.getConfidence() );
+                    Log.i("ActivityRecogition", "Walking: " + activity.getConfidence());
 
                     break;
                 }
                 case DetectedActivity.UNKNOWN: {
-                    Log.i( "ActivityRecogition", "Unknown: " + activity.getConfidence() );
+                    Log.i("ActivityRecogition", "Unknown: " + activity.getConfidence());
                     break;
                 }
             }
@@ -232,17 +233,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
         Log.i(TAG, "runnable tripOdometer: " + tripDistance);
 
-//        final Handler handler = new Handler();
-//        handler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//
-//                handler.postDelayed(this, 1000);
-//            }
-//
-//        });
-
     }
 
     public double logDrive() {
@@ -252,7 +242,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setContentText( "Trip Logged: " + odometer.getMiles() + " miles");
+            builder.setContentText("Trip Logged: " + odometer.getMiles() + " miles");
             builder.setSmallIcon(R.drawable.ic_stat_car_icon);
             builder.setContentTitle(getString(R.string.app_name));
             NotificationManagerCompat.from(this).notify(0, builder.build());
@@ -286,7 +276,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     null, null, null, null, null);
             cursor.moveToLast();
             try {
-                mHelper.insertTrip(db,"2016-05-01","11:23",37.828411,-122.289890,37.805591,-122.275583,finalTripDistance);
+                mHelper.insertTrip(db, "2016-05-01", "11:23", 37.828411, -122.289890, 37.805591, -122.275583, finalTripDistance);
                 return true;
 
             } catch (SQLiteException e) {
@@ -353,7 +343,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
         } else {
             Log.i(TAG, "onConnected: location permission not granted");
-    
+
         }
 
     }

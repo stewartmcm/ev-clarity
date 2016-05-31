@@ -12,80 +12,80 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/mountain_road"/>
+        android:src="@drawable/mountain_road" />
 
     <TextView
         android:id="@+id/projected_savings_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Projected Savings"
-        android:textAlignment="center"
-        android:paddingTop="5dp"
-        android:background="#B3000000"
-        android:textColor="@android:color/white"
-        android:textSize="22sp"
         android:layout_above="@+id/savings_text_view"
         android:layout_alignEnd="@+id/savings_text_view"
-        android:layout_alignStart="@+id/savings_text_view" />
+        android:layout_alignStart="@+id/savings_text_view"
+        android:background="#B3000000"
+        android:paddingTop="5dp"
+        android:text="Projected Savings"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="22sp" />
 
     <TextView
         android:id="@+id/savings_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="$0.00"
+        android:layout_above="@+id/per_month_static"
+        android:layout_centerHorizontal="true"
+        android:background="#B3000000"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:background="#B3000000"
+        android:text="$0.00"
         android:textColor="@android:color/white"
-        android:textSize="72sp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/per_month_static" />
+        android:textSize="72sp" />
 
     <TextView
         android:id="@+id/per_month_static"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="per month"
-        android:paddingBottom="5dp"
-        android:textAlignment="center"
-        android:background="#B3000000"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:layout_centerVertical="true"
         android:layout_alignEnd="@+id/savings_text_view"
-        android:layout_alignStart="@+id/savings_text_view" />
+        android:layout_alignStart="@+id/savings_text_view"
+        android:layout_centerVertical="true"
+        android:background="#B3000000"
+        android:paddingBottom="5dp"
+        android:text="per month"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
 
     <ListView
         android:id="@+id/detected_activities_listview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/main_distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="48sp"
         android:layout_alignParentEnd="true"
-        android:singleLine="false" />
+        android:singleLine="false"
+        android:textSize="48sp" />
 
     <Switch
         android:id="@+id/tracking_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:thumbTextPadding="25dp"
-        android:layout_marginBottom="5dp"
         android:layout_above="@+id/on_off_text_view"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:thumbTextPadding="25dp" />
 
     <TextView
         android:id="@+id/on_off_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Drive Tracking OFF"
-        android:textSize="18sp"
-        android:textColor="@android:color/darker_gray"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="125dp" />
+        android:layout_marginBottom="125dp"
+        android:text="Drive Tracking OFF"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="18sp" />
 
 </RelativeLayout>

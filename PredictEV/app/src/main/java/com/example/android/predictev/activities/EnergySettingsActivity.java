@@ -100,8 +100,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "Please set your location.");
         utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
-        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,"0.00");
-        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,"0.0");
+        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, "0.00");
+        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG, "0.0");
 
         currentUtilityTextView.setText(utilityName);
         utilityRateTextView.setText(utilityRateString);
@@ -179,7 +179,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
         Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
 
 
-        if ( utilityRate != 0.0) {
+        if (utilityRate != 0.0) {
             Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
 
             savings = mileageDouble * ((gasPrice / 29) - (.3 * utilityRate));

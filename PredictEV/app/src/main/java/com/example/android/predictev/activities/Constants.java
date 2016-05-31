@@ -68,7 +68,7 @@ public final class Constants {
      */
     public static String getActivityString(Context context, int detectedActivityType) {
         Resources resources = context.getResources();
-        switch(detectedActivityType) {
+        switch (detectedActivityType) {
             case DetectedActivity.IN_VEHICLE:
                 return resources.getString(R.string.in_vehicle);
             case DetectedActivity.ON_BICYCLE:

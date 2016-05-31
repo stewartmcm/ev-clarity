@@ -10,23 +10,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/artent_design_wlppr_blk_blu"/>
+        android:src="@drawable/artent_design_wlppr_blk_blu" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="30dp"
         android:paddingLeft="5dp"
-        android:src="@mipmap/ic_launcher"/>
+        android:paddingTop="30dp"
+        android:src="@mipmap/ic_launcher" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:textSize="20sp"
-        android:text="EV Clarity"
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:text="EV Clarity"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="20sp" />
 
 </RelativeLayout>
