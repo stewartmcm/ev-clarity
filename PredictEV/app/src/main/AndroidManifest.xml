@@ -13,8 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.stewartmcm.android.evclarity.activities.MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,18 +23,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".TripLogActivity"
-            android:label="@string/title_activity_trip_log"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.android.predictev.MainActivity" />
-        </activity>
 
         <service
-            android:name=".OdometerService"
+            android:name="com.stewartmcm.android.evclarity.services.OdometerService"
             android:enabled="true"
             android:exported="false" />
         <!--
@@ -45,9 +37,10 @@
             android:value="@integer/google_play_services_version" />
         //TODO: determine if you need to remove search from Energy Settings
         <activity
-            android:name=".EnergySettingsActivity"
+            android:name="com.stewartmcm.android.evclarity.activities.EnergySettingsActivity"
             android:label="@string/title_activity_energy_settings"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.stewartmcm.android.evclarity.activities.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -55,15 +48,25 @@
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.android.predictev.MainActivity" />
+                android:value="com.stewartmcm.android.evclarity.activities.MainActivity" />
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
 
         <service
-            android:name=".services.DetectedActivitiesIntentService"
-            android:exported="false"></service>
+            android:name="com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService"
+            android:exported="false" />
+
+        <activity
+            android:name="com.stewartmcm.android.evclarity.activities.TripsLoggedActivity"
+            android:label="@string/title_activity_trips_logged"
+            android:parentActivityName="com.stewartmcm.android.evclarity.activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.stewartmcm.android.evclarity.activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
