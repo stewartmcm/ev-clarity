@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "com.example.android.predictev"
+        applicationId "com.stewartmcm.android.evclarity"
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
