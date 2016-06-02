@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0.1" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.predictev">
 
@@ -35,7 +35,6 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-        //TODO: determine if you need to remove search from Energy Settings
         <activity
             android:name="com.stewartmcm.android.evclarity.activities.EnergySettingsActivity"
             android:label="@string/title_activity_energy_settings"
