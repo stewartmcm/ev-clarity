@@ -1,6 +1,8 @@
-<?xml version="1.0.1" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.predictev">
+    package="com.example.android.predictev"
+    android:versionCode="2"
+    android:versionName="1.0.1">>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
