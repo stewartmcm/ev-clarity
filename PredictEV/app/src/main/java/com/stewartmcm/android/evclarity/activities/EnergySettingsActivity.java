@@ -12,9 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.predictev.R;
@@ -37,18 +35,12 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private TextView utilityRateTextView;
     private EditText gasPriceEditText;
     private EditText mpgEditText;
-    private double gasPrice;
-    private ListView utilityOptionsListView;
-    private UtilityRateAPIService mService;
-    private Retrofit retrofit;
-    private String userZip;
     private String utilityName;
     private double utilityRate;
     private String utilityRateString;
     private String gasPriceString;
     private String currentMPGString;
     private ArrayList<Utility> utilities;
-    private ArrayAdapter<String> mAdapter;
     private String latString;
     private String lonString;
 
@@ -83,9 +75,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
         utilities = new ArrayList<>();
-//        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,9 +123,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
     }
 
     public void findUtilities() {
-        retrofit = new Retrofit.Builder().baseUrl("http://developer.nrel.gov/api/utility_rates/")
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://developer.nrel.gov/api/utility_rates/")
                 .addConverterFactory(GsonConverterFactory.create()).build();
-        mService = retrofit.create(UtilityRateAPIService.class);
+        UtilityRateAPIService mService = retrofit.create(UtilityRateAPIService.class);
 
         Call<UtilityArray> call = null;
 
@@ -162,31 +154,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
                 }
             });
         }
-
-    }
-
-    private double calcSavings(double mileageDouble) {
-
-        double savings;
-        utilityRate = Double.parseDouble(utilityRateString);
-
-        if (gasPriceString.isEmpty()) {
-            gasPrice = 0.0;
-        } else {
-            gasPrice = Double.parseDouble(gasPriceString);
-        }
-
-        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
-
-
-        if (utilityRate != 0.0) {
-            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
-
-            savings = mileageDouble * ((gasPrice / 29) - (.3 * utilityRate));
-
-            return savings;
-        }
-        return 0.00;
 
     }
 
