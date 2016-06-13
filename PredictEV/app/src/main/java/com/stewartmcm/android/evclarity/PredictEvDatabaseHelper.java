@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by stewartmcmillan on 5/2/16.
@@ -74,6 +75,13 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
         tripValues.put(COL_DEST_LONG, destLong);
         tripValues.put(COL_TRIP_MILES, tripMiles);
         db.insert(TRIP_TABLE_NAME, null, tripValues);
+    }
+
+    public int deleteTrip(String id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Log.i("PredictEVDBHelper", "deleteTrip: " + id);
+        return db.delete(TRIP_TABLE_NAME, "_id = ?", new String[] {id});
+
     }
 
     public Cursor getTripList() {

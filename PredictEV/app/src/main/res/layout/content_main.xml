@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/savings_text_view"
         android:layout_alignStart="@+id/savings_text_view"
-        android:layout_centerVertical="true"
+        android:layout_above="@+id/second_row_ll"
         android:background="#B3000000"
         android:paddingBottom="5dp"
         android:text="per month"
@@ -55,10 +55,81 @@
         android:textColor="@android:color/white"
         android:textSize="18sp" />
 
-    <ListView
-        android:id="@+id/detected_activities_listview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:id="@+id/second_row_ll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:padding="5dp"
+            android:background="#B3000000"
+            android:orientation="vertical"
+            android:id="@+id/labels">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="Total Miles Driven"/>
+
+            <TextView
+                android:id="@+id/total_mileage_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="0"
+                android:textSize="36sp"
+                android:layout_gravity="center_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="Miles"
+                android:layout_gravity="center_horizontal" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#B3000000"
+            android:padding="5dp"
+            android:layout_margin="10dp"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="Most Recent Trip"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="0.0"
+                android:textSize="36sp"
+                android:layout_gravity="center_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="Miles"
+                android:layout_gravity="center_horizontal" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/main_distance"
