@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -52,7 +51,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
                 Log.i(TAG, "deleteTrip method, position : " + position);
                 int tripNo = position;
                 new DeleteTripTask().execute(tripNo);
-                Snackbar.make(view, "Trip deleted.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
                 new GetLoggedTripsTask().execute(loggedTripsListView);
                 return true;
@@ -114,14 +112,25 @@ public class TripsLoggedActivity extends AppCompatActivity {
 
             try {
 
-                Log.i(TAG, "doInBackground: position: " + tripNo);
-                //TODO: if deleteTrip returns > 0 then show snackbar below
+                db = mHelper.getWritableDatabase();
+                cursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
+                        null, null, null, null, null);
 
-                if (mHelper.deleteTrip(Integer.toString(tripNo)) > 0) {
-                    Log.d(TAG, "doInBackground: # of trips deleted > 0");
-                } else {
-                    Log.d(TAG, "doInBackground: NO TRIPS DELETED");
+                if(cursor.moveToPosition(tripNo)) {
+                    String rowId = cursor.getString(cursor.getColumnIndex(PredictEvDatabaseHelper.COL_ID));
+
+                    db.delete("TRIP", PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
                 }
+                db.close();
+
+//                Log.i(TAG, "doInBackground: position: " + tripNo);
+//                //TODO: if deleteTrip returns > 0 then show snackbar below
+//
+//                if (mHelper.deleteTrip(Integer.toString(tripNo)) > 0) {
+//                    Log.d(TAG, "doInBackground: # of trips deleted > 0");
+//                } else {
+//                    Log.d(TAG, "doInBackground: NO TRIPS DELETED");
+//                }
 
 //                db = mHelper.getWritableDatabase();
 //                db.delete("TRIP","_id = ?", new String[] {Integer.toString(tripNo)});
@@ -134,9 +143,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
                 toast.show();
                 return false;
 
-            } finally {
-                if (db != null)
-                    db.close();
             }
         }
 
