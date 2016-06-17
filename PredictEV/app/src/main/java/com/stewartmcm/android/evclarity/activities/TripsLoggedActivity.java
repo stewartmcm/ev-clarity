@@ -36,14 +36,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
 
         loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
 
-        //TODO: create a cursor for delete task to work with
-
-        String[] mProjection = {
-                PredictEvDatabaseHelper.COL_ID,
-                PredictEvDatabaseHelper.COL_TRIP_MILES,
-                PredictEvDatabaseHelper.COL_DATE,
-        };
-
         loggedTripsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -65,31 +57,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
         super.onStart();
         new GetLoggedTripsTask().execute(loggedTripsListView);
 
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-//        try{
-//            PredictEvDatabaseHelper mHelper = new PredictEvDatabaseHelper(this);
-//            db = mHelper.getReadableDatabase();
-//            Cursor newCursor = db.query("TRIP",
-//                    new String[]{"_id", "TRIP_MILES"},
-//                    null, null, null, null, null);
-//
-//            loggedTripsListView = (ListView) findViewById(R.id.trips_logged_list_view);
-//
-//            TripsLoggedCursorAdapter customAdapter = new TripsLoggedCursorAdapter(
-//                    TripsLoggedActivity.this,
-//                    cursor,
-//                    0);
-//            customAdapter.changeCursor(newCursor);
-//            cursor = newCursor;
-//
-//        } catch(SQLiteException e) {
-//            Toast toast = Toast.makeText(this, "Database unavailable.", Toast.LENGTH_SHORT);
-//            toast.show();
-//        }
     }
 
     //deletes trip asynchronously when executed
@@ -122,20 +89,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
                     db.delete("TRIP", PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
                 }
                 db.close();
-
-//                Log.i(TAG, "doInBackground: position: " + tripNo);
-//                //TODO: if deleteTrip returns > 0 then show snackbar below
-//
-//                if (mHelper.deleteTrip(Integer.toString(tripNo)) > 0) {
-//                    Log.d(TAG, "doInBackground: # of trips deleted > 0");
-//                } else {
-//                    Log.d(TAG, "doInBackground: NO TRIPS DELETED");
-//                }
-
-//                db = mHelper.getWritableDatabase();
-//                db.delete("TRIP","_id = ?", new String[] {Integer.toString(tripNo)});
-//                db.close();
-                //TODO: try swap cursor??
                 return true;
 
             } catch (SQLiteException e) {
@@ -149,8 +102,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean success) {
             super.onPostExecute(success);
-
-//
 
         }
     }
@@ -167,8 +118,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(ListView... params) {
             SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(TripsLoggedActivity.this);
-
-            //TODO: move cursor to first
 
             try {
                 db = mHelper.getReadableDatabase();
@@ -195,12 +144,6 @@ public class TripsLoggedActivity extends AppCompatActivity {
                         cursor,
                         0);
                 loggedTripsListView.setAdapter(customAdapter);
-
-//                CursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(TripsLoggedActivity.this,
-//                        android.R.layout.simple_list_item_1, cursor,
-//                        new String[]{"TRIP_MILES"},
-//                        new int[]{android.R.id.text1}, 0);
-//                loggedTripsListView.setAdapter(simpleCursorAdapter);
 
             } else {
 
