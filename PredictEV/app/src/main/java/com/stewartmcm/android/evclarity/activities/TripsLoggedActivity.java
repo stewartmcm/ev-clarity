@@ -49,6 +49,14 @@ public class TripsLoggedActivity extends AppCompatActivity {
             }
         });
 
+        loggedTripsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(TripsLoggedActivity.this, getString(R.string.long_click_to_delete),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
