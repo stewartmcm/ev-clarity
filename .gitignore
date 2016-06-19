@@ -1,8 +1,7 @@
 car_icon.png
 car_icon512.png
 featureGraphic.png
-
-README.md
+gradle.properties
 
 #built application files
 *.apk
@@ -26,7 +25,6 @@ local.properties
 #.idea/workspace.xml 
 .gradle/
 build/
-PredictEV/gradle.properties
 
 #NDK
 obj/
