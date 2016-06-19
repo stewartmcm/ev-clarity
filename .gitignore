@@ -33,8 +33,7 @@ Thumbs.db
 *.iml
 .idea
 #.idea/workspace.xml 
-.gradle
-PredictEV/gradle.properties
+.gradle/
 build/
 
 #NDK
