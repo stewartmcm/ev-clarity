@@ -73,7 +73,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
             initLayoutElements();
 
             currentUtilityTextView.setText(utilityName);
-            utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+            utilityRateTextView.setText(R.string.$ + utilityRateString + R.string.kWh);
 
         } else {
 

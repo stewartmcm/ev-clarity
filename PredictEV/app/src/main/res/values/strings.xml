@@ -18,12 +18,16 @@
     <string name="walking">Walking</string>
     <string name="unidentifiable_activity">Unidentifiable activity: %1$d</string>
 
+    <string name="drive_tracking_on">Drive Tracking ON</string>
+    <string name="drive_tracking_off">Drive Tracking OFF</string>
+
+    <string name="kWh"> / kWh</string>
+    <string name="$">$</string>
+
     <string name="detected_activities_title">Detected Activities</string>
 
     <string name="request_activity_updates">Turn Drive Tracking On</string>
     <string name="remove_activity_updates">Turn Drive Tracking Off</string>
-    <string name="drive_tracking_on">Drive Tracking Turned On</string>
-    <string name="drive_tracking_off">Drive Tracking Turned Off</string>
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <string name="title_activity_trips_logged">Your Logged Drives</string>
