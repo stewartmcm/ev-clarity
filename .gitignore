@@ -34,7 +34,7 @@ Thumbs.db
 .idea
 #.idea/workspace.xml 
 .gradle
-.properties
+gradle.properties
 build/
 
 #NDK
