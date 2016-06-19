@@ -137,7 +137,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         Call<UtilityArray> call = null;
 
-        call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", latString, lonString);
+        call = mService.getElectricityProviders(getString(R.string.nrel_api_key), latString, lonString);
 
         if (call != null) {
             call.enqueue(new Callback<UtilityArray>() {
