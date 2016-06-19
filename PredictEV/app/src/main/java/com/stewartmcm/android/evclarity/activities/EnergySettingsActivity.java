@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.android.predictev.BuildConfig;
 import com.example.android.predictev.R;
 import com.stewartmcm.android.evclarity.models.Utility;
 import com.stewartmcm.android.evclarity.models.UtilityArray;
@@ -66,7 +65,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
             initLayoutElements();
 
             currentUtilityTextView.setText(utilityName);
-            utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+            utilityRateTextView.setText(R.string.$ + utilityRateString + R.string.kWh);
 
         } else {
 
@@ -130,7 +129,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         Call<UtilityArray> call = null;
 
-        call = mService.getElectricityProviders(BuildConfig.THE_NREL_API_TOKEN, latString, lonString);
+        call = mService.getElectricityProviders(getString(R.string.nrel_api_key), latString, lonString);
 
         if (call != null) {
             call.enqueue(new Callback<UtilityArray>() {

@@ -272,6 +272,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
             PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(DetectedActivitiesIntentService.this);
             db = mHelper.getWritableDatabase();
+
+            //TODO: test if this code would work fine logging trips with 3 lines of code below
             cursor = db.query("TRIP", new String[]{"SUM(TRIP_MILES) AS sum"},
                     null, null, null, null, null);
             cursor.moveToLast();
