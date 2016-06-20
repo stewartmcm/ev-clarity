@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.predictev.BuildConfig;
 import com.example.android.predictev.R;
@@ -147,6 +148,8 @@ public class EnergySettingsActivity extends AppCompatActivity {
                     utilityRate = response.body().getOutputs().getResidentialRate();
                     utilityRateString = String.valueOf(utilityRate);
                     utilityRateTextView.setText(utilityRateString);
+                    Toast.makeText(EnergySettingsActivity.this, getString(R.string.utility_provider_set),
+                            Toast.LENGTH_LONG).show();
 
                 }
 

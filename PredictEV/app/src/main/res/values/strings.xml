@@ -33,4 +33,6 @@
     <string name="title_activity_trips_logged">Your Logged Drives</string>
 
     <string name="long_click_to_delete">Tap and hold to delete trip.</string>
+    <string name="utility_provider_set">Your local utility provider has been set.</string>
+
 </resources>
