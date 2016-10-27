@@ -86,7 +86,7 @@ public class TripsLoggedActivity extends AppCompatActivity {
             //TODO: move cursor to first
 
             try {
-
+`
                 db = mHelper.getWritableDatabase();
                 cursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
                         null, null, null, null, null);
