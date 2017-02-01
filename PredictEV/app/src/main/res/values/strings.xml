@@ -27,6 +27,9 @@
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <string name="title_activity_trips_logged">Your Logged Drives</string>
+    <string name="no_network_connection">Please check your network connection and try again.</string>
+    <string name="no_gps_data">Please make sure location services are enabled on your device.</string>
 
     <string name="long_click_to_delete">Tap and hold to delete trip.</string>
+
 </resources>

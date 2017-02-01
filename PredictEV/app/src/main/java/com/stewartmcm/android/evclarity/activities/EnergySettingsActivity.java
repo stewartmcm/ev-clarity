@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.predictev.R;
 import com.stewartmcm.android.evclarity.models.Utility;
@@ -140,27 +141,37 @@ public class EnergySettingsActivity extends AppCompatActivity {
         call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", latString, lonString);
 
         if (call != null) {
-            call.enqueue(new Callback<UtilityArray>() {
-                @TargetApi(Build.VERSION_CODES.M)
-                @Override
-                public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
-                    Utility[] utilityArray = response.body().getOutputs().getUtilities();
-                    ArrayList<Utility> localUtilities = new ArrayList<>(Arrays.asList(utilityArray));
-                    utilities.addAll(localUtilities);
+            if (latString != null){
+                call.enqueue(new Callback<UtilityArray>() {
+                    @TargetApi(Build.VERSION_CODES.M)
+                    @Override
+                    public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
+                        Utility[] utilityArray = response.body().getOutputs().getUtilities();
+                        ArrayList<Utility> localUtilities = new ArrayList<>(Arrays.asList(utilityArray));
+                        utilities.addAll(localUtilities);
 
-                    utilityName = utilities.get(0).getUtilityName();
-                    currentUtilityTextView.setText(utilityName);
+                        utilityName = utilities.get(0).getUtilityName();
+                        currentUtilityTextView.setText(utilityName);
 
-                    utilityRate = response.body().getOutputs().getResidentialRate();
-                    utilityRateString = String.valueOf(utilityRate);
-                    utilityRateTextView.setText(utilityRateString);
+                        utilityRate = response.body().getOutputs().getResidentialRate();
+                        utilityRateString = String.valueOf(utilityRate);
+                        utilityRateTextView.setText(utilityRateString);
 
-                }
+                    }
 
-                @Override
-                public void onFailure(Call<UtilityArray> call, Throwable t) {
-                }
-            });
+                    @Override
+                    public void onFailure(Call<UtilityArray> call, Throwable t) {
+                    }
+                });
+            } else {
+                Toast.makeText(this, getString(R.string.no_gps_data),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+
+        } else {
+            Toast.makeText(this, getString(R.string.no_network_connection),
+                    Toast.LENGTH_SHORT).show();
         }
 
     }
