@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.predictev.BuildConfig;
 import com.example.android.predictev.R;
 import com.stewartmcm.android.evclarity.models.Utility;
 import com.stewartmcm.android.evclarity.models.UtilityArray;
@@ -38,18 +39,12 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private TextView utilityRateTextView;
     private EditText gasPriceEditText;
     private EditText mpgEditText;
-    private double gasPrice;
-    private ListView utilityOptionsListView;
-    private UtilityRateAPIService mService;
-    private Retrofit retrofit;
-    private String userZip;
     private String utilityName;
     private double utilityRate;
     private String utilityRateString;
     private String gasPriceString;
     private String currentMPGString;
     private ArrayList<Utility> utilities;
-    private ArrayAdapter<String> mAdapter;
     private String latString;
     private String lonString;
 
@@ -74,7 +69,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
             initLayoutElements();
 
             currentUtilityTextView.setText(utilityName);
-            utilityRateTextView.setText("$" + utilityRateString + " / kWh");
+            utilityRateTextView.setText(R.string.$ + utilityRateString + R.string.kWh);
 
         } else {
 
@@ -84,9 +79,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
         utilities = new ArrayList<>();
-//        utilityOptionsListView = (ListView) findViewById(R.id.utility_options_list_view);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,72 +127,39 @@ public class EnergySettingsActivity extends AppCompatActivity {
     }
 
     public void findUtilities() {
-        retrofit = new Retrofit.Builder().baseUrl("http://developer.nrel.gov/api/utility_rates/")
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://developer.nrel.gov/api/utility_rates/")
                 .addConverterFactory(GsonConverterFactory.create()).build();
-        mService = retrofit.create(UtilityRateAPIService.class);
+        UtilityRateAPIService mService = retrofit.create(UtilityRateAPIService.class);
 
         Call<UtilityArray> call = null;
 
-        call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", latString, lonString);
+        call = mService.getElectricityProviders(BuildConfig.THE_NREL_API_TOKEN, latString, lonString);
 
         if (call != null) {
-            if (latString != null){
-                call.enqueue(new Callback<UtilityArray>() {
-                    @TargetApi(Build.VERSION_CODES.M)
-                    @Override
-                    public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
-                        Utility[] utilityArray = response.body().getOutputs().getUtilities();
-                        ArrayList<Utility> localUtilities = new ArrayList<>(Arrays.asList(utilityArray));
-                        utilities.addAll(localUtilities);
+            call.enqueue(new Callback<UtilityArray>() {
+                @TargetApi(Build.VERSION_CODES.M)
+                @Override
+                public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
+                    Utility[] utilityArray = response.body().getOutputs().getUtilities();
+                    ArrayList<Utility> localUtilities = new ArrayList<>(Arrays.asList(utilityArray));
+                    utilities.addAll(localUtilities);
 
-                        utilityName = utilities.get(0).getUtilityName();
-                        currentUtilityTextView.setText(utilityName);
+                    utilityName = utilities.get(0).getUtilityName();
+                    currentUtilityTextView.setText(utilityName);
 
-                        utilityRate = response.body().getOutputs().getResidentialRate();
-                        utilityRateString = String.valueOf(utilityRate);
-                        utilityRateTextView.setText(utilityRateString);
+                    utilityRate = response.body().getOutputs().getResidentialRate();
+                    utilityRateString = String.valueOf(utilityRate);
+                    utilityRateTextView.setText(utilityRateString);
+                    Toast.makeText(EnergySettingsActivity.this, getString(R.string.electricity_provider_set),
+                            Toast.LENGTH_LONG).show();
 
-                    }
+                }
 
-                    @Override
-                    public void onFailure(Call<UtilityArray> call, Throwable t) {
-                    }
-                });
-            } else {
-                Toast.makeText(this, getString(R.string.no_gps_data),
-                        Toast.LENGTH_SHORT).show();
-            }
-
-
-        } else {
-            Toast.makeText(this, getString(R.string.no_network_connection),
-                    Toast.LENGTH_SHORT).show();
+                @Override
+                public void onFailure(Call<UtilityArray> call, Throwable t) {
+                }
+            });
         }
-
-    }
-
-    private double calcSavings(double mileageDouble) {
-
-        double savings;
-        utilityRate = Double.parseDouble(utilityRateString);
-
-        if (gasPriceString.isEmpty()) {
-            gasPrice = 0.0;
-        } else {
-            gasPrice = Double.parseDouble(gasPriceString);
-        }
-
-        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
-
-
-        if (utilityRate != 0.0) {
-            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
-
-            savings = mileageDouble * ((gasPrice / 29) - (.3 * utilityRate));
-
-            return savings;
-        }
-        return 0.00;
 
     }
 

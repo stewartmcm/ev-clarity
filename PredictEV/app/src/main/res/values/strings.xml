@@ -31,5 +31,10 @@
     <string name="no_gps_data">Please make sure location services are enabled on your device.</string>
 
     <string name="long_click_to_delete">Tap and hold to delete trip.</string>
+    <string name="electricity_provider_set">Electricity provider added successfully.</string>
+    <string name="$">$</string>
+    <string name="kWh">kWh</string>
+
+
 
 </resources>
