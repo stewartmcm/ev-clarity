@@ -12,13 +12,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.predictev.BuildConfig;
 import com.example.android.predictev.R;
 import com.stewartmcm.android.evclarity.models.Utility;
 import com.stewartmcm.android.evclarity.models.UtilityArray;
@@ -133,7 +130,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         Call<UtilityArray> call = null;
 
-        call = mService.getElectricityProviders(BuildConfig.THE_NREL_API_TOKEN, latString, lonString);
+        call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", latString, lonString);
 
         if (call != null) {
             call.enqueue(new Callback<UtilityArray>() {
