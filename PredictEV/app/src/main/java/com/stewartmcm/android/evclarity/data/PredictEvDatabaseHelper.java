@@ -1,4 +1,4 @@
-package com.stewartmcm.android.evclarity;
+package com.stewartmcm.android.evclarity.data;
 
 import android.content.ContentValues;
 import android.content.Context;

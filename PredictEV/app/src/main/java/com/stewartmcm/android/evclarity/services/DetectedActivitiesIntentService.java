@@ -21,7 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.stewartmcm.android.evclarity.PredictEvDatabaseHelper;
+import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.example.android.predictev.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;

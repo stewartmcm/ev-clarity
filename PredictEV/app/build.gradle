@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion 23
@@ -14,6 +15,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            proguardFile "proguard-butterknife-7.pro"
+            proguardFile "proguard-google-play-services.pro"
+            proguardFile "proguard-guava.pro"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -24,6 +28,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
+    compile 'com.jakewharton:butterknife:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.1'
+    compile 'com.google.guava:guava:20.0'
     compile 'com.squareup.retrofit2:converter-gson:2.0.1'
     compile 'com.google.android.gms:play-services:8.4.0'}

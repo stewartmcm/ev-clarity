@@ -35,6 +35,7 @@
     <string name="$">$</string>
     <string name="kWh">kWh</string>
 
+    <string name="empty_trip_list">No Trips Recorded Yet</string>
 
 
 </resources>
