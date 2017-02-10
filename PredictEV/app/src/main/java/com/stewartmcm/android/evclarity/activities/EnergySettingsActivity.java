@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.predictev.R;
+import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.models.Utility;
 import com.stewartmcm.android.evclarity.models.UtilityArray;
 import com.stewartmcm.android.evclarity.services.UtilityRateAPIService;

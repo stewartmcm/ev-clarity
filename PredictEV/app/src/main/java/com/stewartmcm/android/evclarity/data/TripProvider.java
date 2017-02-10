@@ -59,7 +59,7 @@ public class TripProvider extends ContentProvider {
                 returnCursor = db.query(
                         Contract.Trip.TABLE_NAME,
                         projection,
-                        Contract.Trip.COLUMN_DATE_TIME + " = ?",
+                        Contract.Trip.COLUMN_DATE + " = ?",
                         new String[]{getStockFromUri(uri)},
                         null,
                         null,
@@ -134,7 +134,7 @@ public class TripProvider extends ContentProvider {
                 String symbol = Contract.Trip.getStockFromUri(uri);
                 rowsDeleted = db.delete(
                         Contract.Trip.TABLE_NAME,
-                        '"' + symbol + '"' + " =" + Contract.Trip.COLUMN_DATE_TIME,
+                        '"' + symbol + '"' + " =" + Contract.Trip.COLUMN_DATE,
                         selectionArgs
                 );
                 break;

@@ -12,16 +12,16 @@ import android.util.Log;
  */
 public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final String TRIP_TABLE_NAME = "TRIP";
+    public static final String TRIP_TABLE_NAME = Contract.Trip.TABLE_NAME;
 
-    public static final String COL_ID = "_id";
-    public static final String COL_DATE = "DATE";
-    public static final String COL_TIME = "TIME";
-    public static final String COL_ORIGIN_LAT = "ORIGIN_LAT";
-    public static final String COL_ORIGIN_LONG = "ORIGIN_LONG";
-    public static final String COL_DEST_LAT = "DEST_LAT";
-    public static final String COL_DEST_LONG = "DEST_LONG";
-    public static final String COL_TRIP_MILES = "TRIP_MILES";
+    public static final String COL_ID = Contract.Trip._ID;
+    public static final String COL_DATE = Contract.Trip.COLUMN_DATE;
+    public static final String COL_TIME = Contract.Trip.COLUMN_TIME;
+    public static final String COL_ORIGIN_LAT = Contract.Trip.COLUMN_ORIGIN_LAT;
+    public static final String COL_ORIGIN_LONG = Contract.Trip.COLUMN_ORIGIN_LONG;
+    public static final String COL_DEST_LAT = Contract.Trip.COLUMN_DEST_LAT;
+    public static final String COL_DEST_LONG = Contract.Trip.COLUMN_DEST_LONG;
+    public static final String COL_TRIP_MILES = Contract.Trip.COLUMN_TRIP_MILES;
 
     private static final String[] TRIP_COLUMNS = {COL_ID, COL_DATE, COL_TIME, COL_ORIGIN_LAT, COL_ORIGIN_LONG,
             COL_DEST_LAT, COL_DEST_LONG, COL_TRIP_MILES};

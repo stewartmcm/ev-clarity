@@ -21,8 +21,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
-import com.example.android.predictev.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -31,6 +29,8 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
+import com.stewartmcm.android.evclarity.R;
+import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 
 import java.util.List;
 

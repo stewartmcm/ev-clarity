@@ -14,6 +14,11 @@
             android:id="@+id/nav_vehicle_settings"
             android:icon="@drawable/ic_settings_black_24dp"
             android:title="Vehicle/Energy Settings" />
+        <item
+            android:id="@+id/nav_recycler_view"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="Vehicle/Recycler View" />
+
     </group>
 
     <!--<item android:title="Communicate">-->

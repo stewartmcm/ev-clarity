@@ -9,13 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.android.predictev.R;
+import com.stewartmcm.android.evclarity.activities.Main2Activity;
 import com.stewartmcm.android.evclarity.data.Contract;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by stewartmcmillan on 5/26/16.
  */
-public class TripCursorAdapter extends RecyclerView.Adapter<TripCursorAdapter.TripAdapterViewHolder> {
+public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterViewHolder> {
     final private Context mContext;
     LayoutInflater cursorInflater;
     private Cursor mCursor;
@@ -25,12 +28,15 @@ public class TripCursorAdapter extends RecyclerView.Adapter<TripCursorAdapter.Tr
 
     public class TripAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        @BindView(R.id.mileage_text_view)
         TextView mileage;
+
         TextView dateTime;
         TextView savings;
 
         public TripAdapterViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 
@@ -38,7 +44,7 @@ public class TripCursorAdapter extends RecyclerView.Adapter<TripCursorAdapter.Tr
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             mCursor.moveToPosition(adapterPosition);
-            int symbolColumn = mCursor.getColumnIndex(Contract.Trip.COLUMN_DATE_TIME);
+            int symbolColumn = mCursor.getColumnIndex(Contract.Trip.COLUMN_DATE);
             mClickHandler.onClick(mCursor.getString(symbolColumn), this);
             mICM.onClick(this);
 
@@ -48,7 +54,7 @@ public class TripCursorAdapter extends RecyclerView.Adapter<TripCursorAdapter.Tr
         void onClick(String symbol, TripAdapterViewHolder viewHolder);
     }
 
-    public TripCursorAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView, int choiceMode) {
+    public TripAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView, int choiceMode) {
         mContext = context;
         mClickHandler = clickHandler;
         mEmptyView = emptyView;
@@ -70,7 +76,7 @@ public class TripCursorAdapter extends RecyclerView.Adapter<TripCursorAdapter.Tr
         mCursor.moveToPosition(position);
 
         //TODO: build contract and content provider for trip data
-        holder.mileage.setText(mCursor.getString(Contract.Trip.POSITION_SYMBOL));
+        holder.mileage.setText(mCursor.getInt(Main2Activity.COL_TRIP_MILES));
 //        holder.dateTime.setText(dollarFormat.format(mCursor.getFloat(Contract.Quote.POSITION_PRICE)));
 //        holder.savings.setText(dollarFormat.format(mCursor.getFloat(Contract.Quote.POSITION_PRICE)));
 
@@ -94,11 +100,11 @@ public class TripCursorAdapter extends RecyclerView.Adapter<TripCursorAdapter.Tr
         notifyDataSetChanged();
     }
 
-    public String getTripAtPosition(int position) {
-
-        mCursor.moveToPosition(position);
-        return mCursor.getString(Contract.Trip.POSITION_SYMBOL);
-    }
+//    public String getTripAtPosition(int position) {
+//
+//        mCursor.moveToPosition(position);
+//        return mCursor.getString(Main2Activity.COL_DATE);
+//    }
 
     @Override
     public int getItemCount() {

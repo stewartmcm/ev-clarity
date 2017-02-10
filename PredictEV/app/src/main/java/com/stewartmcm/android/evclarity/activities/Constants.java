@@ -3,8 +3,8 @@ package com.stewartmcm.android.evclarity.activities;
 import android.content.Context;
 import android.content.res.Resources;
 
-import com.example.android.predictev.R;
 import com.google.android.gms.location.DetectedActivity;
+import com.stewartmcm.android.evclarity.R;
 
 /**
  * Created by stewartmcmillan on 5/8/16.
