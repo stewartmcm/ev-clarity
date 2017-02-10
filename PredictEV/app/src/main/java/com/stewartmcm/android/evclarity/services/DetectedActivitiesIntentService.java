@@ -278,7 +278,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     null, null, null, null, null);
             cursor.moveToLast();
             try {
-                mHelper.insertTrip(db, "2016-05-01", "11:23", 37.828411, -122.289890, 37.805591, -122.275583, finalTripDistance);
+                mHelper.insertTrip(db, "2016-05-01", "11:23", 37.828411, -122.289890, 37.805591, -122.275583, finalTripDistance, "$.25");
                 return true;
 
             } catch (SQLiteException e) {

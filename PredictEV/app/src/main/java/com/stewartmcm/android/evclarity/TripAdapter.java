@@ -28,10 +28,13 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
     public class TripAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        @BindView(R.id.mileage_text_view)
+        @BindView(R.id.list_item_mileage)
         TextView mileage;
 
+        @BindView(R.id.list_item_date)
         TextView dateTime;
+
+        @BindView(R.id.list_item_savings)
         TextView savings;
 
         public TripAdapterViewHolder(View itemView) {
@@ -75,10 +78,13 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
         mCursor.moveToPosition(position);
 
+        String date = mCursor.getString(Main2Activity.COL_DATE);
+
         //TODO: build contract and content provider for trip data
-        holder.mileage.setText(mCursor.getInt(Main2Activity.COL_TRIP_MILES));
-//        holder.dateTime.setText(dollarFormat.format(mCursor.getFloat(Contract.Quote.POSITION_PRICE)));
-//        holder.savings.setText(dollarFormat.format(mCursor.getFloat(Contract.Quote.POSITION_PRICE)));
+        holder.mileage.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
+
+        holder.dateTime.setText(date);
+        holder.savings.setText(mCursor.getString(Main2Activity.COL_SAVINGS));
 
         mICM.onBindViewHolder(holder, position);
     }

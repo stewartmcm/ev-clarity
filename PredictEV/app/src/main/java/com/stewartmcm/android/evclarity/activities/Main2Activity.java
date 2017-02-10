@@ -51,7 +51,8 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             Contract.Trip.COLUMN_ORIGIN_LONG,
             Contract.Trip.COLUMN_DEST_LAT,
             Contract.Trip.COLUMN_DEST_LONG,
-            Contract.Trip.COLUMN_TRIP_MILES
+            Contract.Trip.COLUMN_TRIP_MILES,
+            Contract.Trip.COLUMN_TRIP_SAVINGS
     };
 
     // These indices are tied to TRIP_COLUMNS.  If TRIP_COLUMNS changes, these
@@ -64,7 +65,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     static final int COL_DEST_LAT = 5;
     static final int COL_DEST_LONG = 6;
     public static final int COL_TRIP_MILES = 7;
-
+    public static final int COL_TRIP_SAVINGS = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

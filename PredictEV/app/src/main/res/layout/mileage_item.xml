@@ -4,13 +4,36 @@
     android:layout_height="60dp">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:paddingTop="15dp"
-        android:textSize="22dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#000000"
-        android:text=""
-        android:id="@+id/mileage_text_view" />
+        android:id="@+id/list_item_mileage" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Wed May 25"
+            android:id="@+id/list_item_date" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="$.25"
+            android:id="@+id/list_item_savings" />
+
+    </LinearLayout>
 
 
     <!--<LinearLayout-->
@@ -22,12 +45,6 @@
 
     <!--</LinearLayout>-->
 
-    <!--<TextView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
-    <!--android:text="Wed May 25"-->
-    <!--android:layout_below="@+id/mileage_ll"-->
-    <!--android:id="@+id/date_text_view" />-->
+
 
 </LinearLayout>

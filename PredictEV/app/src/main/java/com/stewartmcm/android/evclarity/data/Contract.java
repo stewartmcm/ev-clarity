@@ -30,6 +30,7 @@ public final class Contract {
         public static final String COLUMN_DEST_LAT = "dest_lat";
         public static final String COLUMN_DEST_LONG = "dest_long";
         public static final String COLUMN_TRIP_MILES = "trip_miles";
+        public static final String COLUMN_TRIP_SAVINGS = "trip_savings";
 
         public static Uri makeUriForTrip(String dateTime) {
             return uri.buildUpon().appendPath(dateTime).build();

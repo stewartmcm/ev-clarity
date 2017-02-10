@@ -22,9 +22,10 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_DEST_LAT = Contract.Trip.COLUMN_DEST_LAT;
     public static final String COL_DEST_LONG = Contract.Trip.COLUMN_DEST_LONG;
     public static final String COL_TRIP_MILES = Contract.Trip.COLUMN_TRIP_MILES;
+    public static final String COL_TRIP_SAVINGS = Contract.Trip.COLUMN_TRIP_SAVINGS;
 
     private static final String[] TRIP_COLUMNS = {COL_ID, COL_DATE, COL_TIME, COL_ORIGIN_LAT, COL_ORIGIN_LONG,
-            COL_DEST_LAT, COL_DEST_LONG, COL_TRIP_MILES};
+            COL_DEST_LAT, COL_DEST_LONG, COL_TRIP_MILES, COL_TRIP_SAVINGS};
 
     private static final String DB_NAME = "predictev";
     private static final int DB_VERSION = 1;
@@ -42,7 +43,8 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
                 + "ORIGIN_LONG REAL, "
                 + "DEST_LAT REAL, "
                 + "DEST_LONG REAL, "
-                + "TRIP_MILES REAL);");
+                + "TRIP_MILES REAL, "
+                + "TRIP_SAVINGS REAL);");
 
     }
 
@@ -64,7 +66,7 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void insertTrip(SQLiteDatabase db, String date, String time, double originLat,
-                                   double originLong, double destLat, double destLong, double tripMiles) {
+                                   double originLong, double destLat, double destLong, double tripMiles, String tripSavings) {
 
         ContentValues tripValues = new ContentValues();
         tripValues.put(COL_DATE, date);
@@ -74,6 +76,7 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
         tripValues.put(COL_DEST_LAT, destLat);
         tripValues.put(COL_DEST_LONG, destLong);
         tripValues.put(COL_TRIP_MILES, tripMiles);
+        tripValues.put(COL_TRIP_SAVINGS, tripSavings);
         db.insert(TRIP_TABLE_NAME, null, tripValues);
     }
 
