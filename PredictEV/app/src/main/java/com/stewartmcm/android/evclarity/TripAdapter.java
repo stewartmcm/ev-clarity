@@ -68,7 +68,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     @Override
     public TripAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.mileage_item, parent, false);
+        View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
 
         return new TripAdapterViewHolder(item);
     }
@@ -80,11 +80,10 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
         String date = mCursor.getString(Main2Activity.COL_DATE);
 
-        //TODO: build contract and content provider for trip data
         holder.mileage.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
 
         holder.dateTime.setText(date);
-        holder.savings.setText(mCursor.getString(Main2Activity.COL_SAVINGS));
+        holder.savings.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
 
         mICM.onBindViewHolder(holder, position);
     }
@@ -157,6 +156,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 //    @Override
 //    public View newView(Context context, Cursor cursor, ViewGroup parent) {
 //
-//        return cursorInflater.inflate(R.layout.mileage_item, parent, false);
+//        return cursorInflater.inflate(R.layout.list_item_trip, parent, false);
 //    }
 }

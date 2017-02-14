@@ -17,7 +17,7 @@
         <activity android:name="com.stewartmcm.android.evclarity.activities.Main2Activity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.Main">
         </activity>
         <activity android:name="com.stewartmcm.android.evclarity.activities.MainActivity"
             android:label="@string/app_name"
