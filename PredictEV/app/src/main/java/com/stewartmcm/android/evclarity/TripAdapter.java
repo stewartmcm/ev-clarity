@@ -12,13 +12,17 @@ import android.widget.TextView;
 import com.stewartmcm.android.evclarity.activities.Main2Activity;
 import com.stewartmcm.android.evclarity.data.Contract;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 /**
  * Created by stewartmcmillan on 5/26/16.
  */
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterViewHolder> {
+
+    private static final int VIEW_TYPE_SUMMARY = 0;
+    private static final int VIEW_TYPE_TRIP = 1;
+
+    // Flag to determine if we want to use a separate view for "summary".
+    private boolean mUseSummaryLayout = true;
+
     final private Context mContext;
     LayoutInflater cursorInflater;
     private Cursor mCursor;
@@ -28,18 +32,25 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
     public class TripAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        @BindView(R.id.list_item_mileage)
-        TextView mileage;
+        TextView mTotalSavingsTextView;
+        TextView mTotalMileageTextView;
+        TextView mRecentTripTextView;
 
-        @BindView(R.id.list_item_date)
-        TextView dateTime;
-
-        @BindView(R.id.list_item_savings)
-        TextView savings;
+        TextView mMileageTextView;
+        TextView mDateTimeTextView;
+        TextView mSavingsTextView;
 
         public TripAdapterViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+
+            mTotalSavingsTextView = (TextView) itemView.findViewById(R.id.savings_text_view);
+            mTotalMileageTextView = (TextView) itemView.findViewById(R.id.total_mileage_textview);
+            mRecentTripTextView = (TextView) itemView.findViewById(R.id.recent_trip_textview);
+
+            mMileageTextView = (TextView) itemView.findViewById(R.id.list_item_mileage);
+            mDateTimeTextView = (TextView) itemView.findViewById(R.id.list_item_date);
+            mSavingsTextView = (TextView) itemView.findViewById(R.id.list_item_savings);
+
             itemView.setOnClickListener(this);
         }
 
@@ -54,7 +65,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         }
     }
     public static interface TripAdapterOnClickHandler {
-        void onClick(String symbol, TripAdapterViewHolder viewHolder);
+        void onClick(String dateTime, TripAdapterViewHolder viewHolder);
     }
 
     public TripAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView, int choiceMode) {
@@ -68,22 +79,40 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     @Override
     public TripAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
+        if ( parent instanceof RecyclerView ) {
+            int layoutId = -1;
+            switch (viewType) {
+                case VIEW_TYPE_SUMMARY: {
+                    layoutId = R.layout.list_item_summary;
+                    break;
+                }
+                case VIEW_TYPE_TRIP: {
+                    layoutId = R.layout.list_item_trip;
+                    break;
+                }
+            }
+            View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
+            view.setFocusable(true);
+            return new TripAdapterViewHolder(view);
+        } else {
+            throw new RuntimeException("Not bound to RecyclerView");
+        }
 
-        return new TripAdapterViewHolder(item);
+//        View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
+//
+//        return new TripAdapterViewHolder(item);
     }
 
     @Override
     public void onBindViewHolder(TripAdapterViewHolder holder, int position) {
-
         mCursor.moveToPosition(position);
-
         String date = mCursor.getString(Main2Activity.COL_DATE);
 
-        holder.mileage.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
-
-        holder.dateTime.setText(date);
-        holder.savings.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
+        if (getItemViewType(position) == VIEW_TYPE_TRIP) {
+            holder.mMileageTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
+            holder.mDateTimeTextView.setText(date);
+            holder.mSavingsTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
+        }
 
         mICM.onBindViewHolder(holder, position);
     }
@@ -94,6 +123,10 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
     public void onSaveInstanceState(Bundle outState) {
         mICM.onSaveInstanceState(outState);
+    }
+
+    public void setUseSummaryLayout(boolean useSummaryLayout) {
+        mUseSummaryLayout = useSummaryLayout;
     }
 
     public int getSelectedItemPosition() {
@@ -110,6 +143,11 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 //        mCursor.moveToPosition(position);
 //        return mCursor.getString(Main2Activity.COL_DATE);
 //    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return (position == 0 && mUseSummaryLayout) ? VIEW_TYPE_SUMMARY : VIEW_TYPE_TRIP;
+    }
 
     @Override
     public int getItemCount() {

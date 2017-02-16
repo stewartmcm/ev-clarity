@@ -3,4 +3,9 @@
     <color name="colorPrimary">#223F43</color>
     <color name="colorPrimaryDark">#1A292C</color>
     <color name="colorAccent">#2679FD</color>
+
+    <color name="white">#FFFFFF</color>
+    <!-- the activated state color -->
+    <color name="activated">#E0E0E0</color>
+
 </resources>

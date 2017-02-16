@@ -60,19 +60,18 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     @BindView(R.id.recycler_view)
     RecyclerView tripRecyclerView;
 
+    private boolean mUseSummaryLayout, mAutoSelectView;
+
     @SuppressWarnings("WeakerAccess")
     @BindView(R.id.error)
     TextView error;
 
-//
-//    @SuppressWarnings("WeakerAccess")
-//    @BindView(R.id.on_off_text_view)
-//    TextView switchStatusText;
 
     private int mPosition = RecyclerView.NO_POSITION;
-    protected static final String TAG = "TripsLoggedActivity";
+    protected static final String TAG = "Main2Activity";
 
     private TripAdapter mTripAdapter;
+    private SwitchCompat trackingSwitch;
     private int mChoiceMode;
     private String latString;
     private String lonString;
@@ -148,8 +147,10 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         Log.i(TAG, "onCreate called");
 
         loadSavedPreferences();
-//        setTrackingSwitch();
-        new Main2Activity.SumLoggedTripsTask().execute(monthlySavingsTextView);
+
+        monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
+
+        new SumLoggedTripsTask().execute(monthlySavingsTextView);
 
         // Reuse the value of mDetectedActivities from the bundle if possible. This maintains state
         // across device orientation changes. If mDetectedActivities is not stored in the bundle,
@@ -183,6 +184,18 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         tripRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         tripRecyclerView.setAdapter(mTripAdapter);
 
+        // If there's instance state, mine it for useful information.
+        // The end-goal here is that the user never knows that turning their device sideways
+        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
+        // or magically appeared to take advantage of room, but data or place in the app was never
+        // actually *lost*.
+        if (savedInstanceState != null) {
+            mTripAdapter.onRestoreInstanceState(savedInstanceState);
+        }
+
+        mTripAdapter.setUseSummaryLayout(true);
+        setUseSummaryLayout(true);
+
         getSupportLoaderManager().initLoader(TRIP_LOADER, null, this);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -193,7 +206,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-//                String symbol = mTripAdapter.getTripAtPosition(viewHolder.getAdapterPosition());
+//                String dateTime = mTripAdapter.getTripAtPosition(viewHolder.getAdapterPosition());
                 //TODO: implement remove trip method
 //                PrefUtils.removeStock(Main2Activity.this, symbol);
 //                getContentResolver().delete(Contract.Trip.makeUriForTrip(symbol), null, null);
@@ -219,7 +232,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         loadSavedPreferences();
 //        setTrackingSwitch();
 
-        new Main2Activity.SumLoggedTripsTask().execute(monthlySavingsTextView);
+        new SumLoggedTripsTask().execute(monthlySavingsTextView);
         mGoogleApiClient.connect();
     }
 
@@ -412,16 +425,22 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
     }
 
-//    protected void setTrackingSwitch() {
-//        if (isChecked) {
-//            trackingSwitch.setChecked(true);
-//            switchStatusText.setText(R.string.drive_tracking_on);
-//        } else {
-//            trackingSwitch.setChecked(false);
-//            switchStatusText.setText(R.string.drive_tracking_off);
-//
-//        }
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        mTripAdapter.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    protected void setTrackingSwitch(SwitchCompat trackingSwitch) {
+        //TODO: make sure isChecked is set up properly
+        if (isChecked) {
+            trackingSwitch.setChecked(true);
+        } else {
+            trackingSwitch.setChecked(false);
+
+        }
+    }
 
     //sums all logged trips asynchronously when executed[onCreate]
     private class SumLoggedTripsTask extends AsyncTask<TextView, Void, Boolean> {
@@ -467,16 +486,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
                 totalMileageTextView.setText(String.format("%.0f", sumLoggedTripsDouble));
 
-                recentTripCursor.moveToLast();
-                if (recentTripCursor.getCount() ==0) {
-                    recentTrip = 0.0;
-                } else {
-                    recentTrip = recentTripCursor.getDouble(0);
-                }
-                recentTripTextView = (TextView) findViewById(R.id.recent_trip_textview);
-                recentTripTextView.setText(String.format("%.2f", recentTrip));
-
-                Log.i(TAG, "onPostExecute: Recent Trip: " + String.format("%.2f", recentTrip));
                 Log.i(TAG, "onPostExecute: savingsText: " + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
 
 
@@ -590,11 +599,21 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         mTripAdapter.swapCursor(null);
     }
 
+    public void setUseSummaryLayout(boolean useSummaryLayout) {
+        Log.i(TAG, "setUseSummaryLayout called");
+        mUseSummaryLayout = useSummaryLayout;
+        if (mTripAdapter != null) {
+            mTripAdapter.setUseSummaryLayout(mUseSummaryLayout);
+        }
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        SwitchCompat trackingSwitch = (SwitchCompat) menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchForActionBar);
+        trackingSwitch = (SwitchCompat) menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchForActionBar);
+        setTrackingSwitch(trackingSwitch);
 
         trackingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
