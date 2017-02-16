@@ -60,8 +60,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     @BindView(R.id.recycler_view)
     RecyclerView tripRecyclerView;
 
-    private boolean mUseSummaryLayout, mAutoSelectView;
-
     @SuppressWarnings("WeakerAccess")
     @BindView(R.id.error)
     TextView error;
@@ -192,9 +190,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         if (savedInstanceState != null) {
             mTripAdapter.onRestoreInstanceState(savedInstanceState);
         }
-
-        mTripAdapter.setUseSummaryLayout(true);
-        setUseSummaryLayout(true);
 
         getSupportLoaderManager().initLoader(TRIP_LOADER, null, this);
 
@@ -599,14 +594,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         mTripAdapter.swapCursor(null);
     }
 
-    public void setUseSummaryLayout(boolean useSummaryLayout) {
-        Log.i(TAG, "setUseSummaryLayout called");
-        mUseSummaryLayout = useSummaryLayout;
-        if (mTripAdapter != null) {
-            mTripAdapter.setUseSummaryLayout(mUseSummaryLayout);
-        }
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

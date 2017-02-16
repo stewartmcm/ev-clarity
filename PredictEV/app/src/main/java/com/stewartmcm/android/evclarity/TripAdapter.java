@@ -17,12 +17,6 @@ import com.stewartmcm.android.evclarity.data.Contract;
  */
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterViewHolder> {
 
-    private static final int VIEW_TYPE_SUMMARY = 0;
-    private static final int VIEW_TYPE_TRIP = 1;
-
-    // Flag to determine if we want to use a separate view for "summary".
-    private boolean mUseSummaryLayout = true;
-
     final private Context mContext;
     LayoutInflater cursorInflater;
     private Cursor mCursor;
@@ -79,28 +73,28 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     @Override
     public TripAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        if ( parent instanceof RecyclerView ) {
-            int layoutId = -1;
-            switch (viewType) {
-                case VIEW_TYPE_SUMMARY: {
-                    layoutId = R.layout.list_item_summary;
-                    break;
-                }
-                case VIEW_TYPE_TRIP: {
-                    layoutId = R.layout.list_item_trip;
-                    break;
-                }
-            }
-            View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
-            view.setFocusable(true);
-            return new TripAdapterViewHolder(view);
-        } else {
-            throw new RuntimeException("Not bound to RecyclerView");
-        }
+//        if ( parent instanceof RecyclerView ) {
+//            int layoutId = -1;
+//            switch (viewType) {
+//                case VIEW_TYPE_SUMMARY: {
+//                    layoutId = R.layout.list_item_summary;
+//                    break;
+//                }
+//                case VIEW_TYPE_TRIP: {
+//                    layoutId = R.layout.list_item_trip;
+//                    break;
+//                }
+//            }
+//            View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
+//            view.setFocusable(true);
+//            return new TripAdapterViewHolder(view);
+//        } else {
+//            throw new RuntimeException("Not bound to RecyclerView");
+//        }
 
-//        View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
-//
-//        return new TripAdapterViewHolder(item);
+        View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
+
+        return new TripAdapterViewHolder(item);
     }
 
     @Override
@@ -108,11 +102,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         mCursor.moveToPosition(position);
         String date = mCursor.getString(Main2Activity.COL_DATE);
 
-        if (getItemViewType(position) == VIEW_TYPE_TRIP) {
-            holder.mMileageTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
-            holder.mDateTimeTextView.setText(date);
-            holder.mSavingsTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
-        }
+        holder.mMileageTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
+        holder.mDateTimeTextView.setText(date);
+        holder.mSavingsTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
 
         mICM.onBindViewHolder(holder, position);
     }
@@ -123,10 +115,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
     public void onSaveInstanceState(Bundle outState) {
         mICM.onSaveInstanceState(outState);
-    }
-
-    public void setUseSummaryLayout(boolean useSummaryLayout) {
-        mUseSummaryLayout = useSummaryLayout;
     }
 
     public int getSelectedItemPosition() {
@@ -143,11 +131,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 //        mCursor.moveToPosition(position);
 //        return mCursor.getString(Main2Activity.COL_DATE);
 //    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return (position == 0 && mUseSummaryLayout) ? VIEW_TYPE_SUMMARY : VIEW_TYPE_TRIP;
-    }
 
     @Override
     public int getItemCount() {
