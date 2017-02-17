@@ -144,7 +144,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
         Log.i(TAG, "onCreate called");
 
-        loadSavedPreferences();
+        loadSharedPreferences();
 
         monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
 
@@ -224,7 +224,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         super.onStart();
         Log.i(TAG, "onStart called");
 
-        loadSavedPreferences();
+        loadSharedPreferences();
 //        setTrackingSwitch();
 
         new SumLoggedTripsTask().execute(monthlySavingsTextView);
@@ -410,7 +410,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
      * loads utility and gas settings that were set in EnergySettingsActivity;
      * stores the state of the tracking switch
      */
-    private void loadSavedPreferences() {
+    private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
         gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, "0");

@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,6 +17,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
@@ -30,16 +32,16 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.android.evclarity.R;
+import com.stewartmcm.android.evclarity.activities.Constants;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
- * <p/>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
  */
 public class DetectedActivitiesIntentService extends IntentService implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
@@ -55,6 +57,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private Location mLastLocation;
     private String latString;
     private String lonString;
+    private String currentMPGString;
+    private String utilityRateString;
+    private String gasPriceString;
+    private boolean isChecked;
     private double finalTripDistance;
     private static double distanceInMeters;
     private static Location lastLocation = null;
@@ -273,12 +279,18 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(DetectedActivitiesIntentService.this);
             db = mHelper.getWritableDatabase();
 
+            GregorianCalendar calender = new GregorianCalendar();
+            Date time = calender.getTime();
+
+            double tripSavings = calcSavings(finalTripDistance);
+
             //TODO: test if this code would work fine logging trips with 3 lines of code below
             cursor = db.query("TRIP", new String[]{"SUM(TRIP_MILES) AS sum"},
                     null, null, null, null, null);
             cursor.moveToLast();
             try {
-                mHelper.insertTrip(db, "2016-05-01", "11:23", 37.828411, -122.289890, 37.805591, -122.275583, finalTripDistance, "$.25");
+                mHelper.insertTrip(db, time.toString(), "11:23", 37.828411, -122.289890, 37.805591,
+                        -122.275583, finalTripDistance, Double.toString(tripSavings));
                 return true;
 
             } catch (SQLiteException e) {
@@ -302,6 +314,52 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 Log.i(TAG, "onPostExecute: database unavailable");
             }
         }
+    }
+
+    private double calcSavings(double mileageDouble) {
+
+        loadSharedPreferences();
+
+        double savings;
+        double utilityRate = Double.parseDouble(utilityRateString);
+        double gasPrice;
+        double currentMPG;
+
+        if (gasPriceString.isEmpty()) {
+            gasPrice = 0.0;
+        } else {
+            gasPrice = Double.parseDouble(gasPriceString);
+        }
+
+        if (currentMPGString.isEmpty()) {
+            currentMPG = 0.0;
+        } else {
+            currentMPG = Double.parseDouble(currentMPGString);
+        }
+
+        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
+
+
+        if (utilityRate != 0.0) {
+            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
+
+            // .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
+            savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
+
+            return savings;
+        }
+        return 0.00;
+
+    }
+
+    private void loadSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
+        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, "0");
+        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG, "0.0");
+        isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
+        Log.i(TAG, "loadSavedPreferences: isChecked: " + isChecked);
+
     }
 
     private ServiceConnection connection = new ServiceConnection() {

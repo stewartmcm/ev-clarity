@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,7 +15,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.models.Utility;
@@ -148,22 +148,28 @@ public class EnergySettingsActivity extends AppCompatActivity {
                         utilityRate = response.body().getOutputs().getResidentialRate();
                         utilityRateString = String.valueOf(utilityRate);
                         utilityRateTextView.setText(utilityRateString);
+                        Snackbar.make(findViewById(android.R.id.content),
+                                "Electricity provider chosen successfully.", Snackbar.LENGTH_LONG)
+                                .show();
 
                     }
 
                     @Override
                     public void onFailure(Call<UtilityArray> call, Throwable t) {
+
                     }
                 });
             } else {
-                Toast.makeText(this, getString(R.string.no_gps_data),
-                        Toast.LENGTH_SHORT).show();
+                Snackbar.make(findViewById(android.R.id.content),
+                        getString(R.string.no_gps_data), Snackbar.LENGTH_LONG)
+                        .show();
             }
 
 
         } else {
-            Toast.makeText(this, getString(R.string.no_network_connection),
-                    Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content),
+                    getString(R.string.no_network_connection), Snackbar.LENGTH_LONG)
+                    .show();
         }
 
     }
