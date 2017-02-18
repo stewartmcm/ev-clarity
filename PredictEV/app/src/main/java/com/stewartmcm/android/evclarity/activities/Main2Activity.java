@@ -25,7 +25,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -142,7 +141,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
         View emptyView = this.findViewById(R.id.recyclerview_triplog_empty);
 
-        Log.i(TAG, "onCreate called");
+//        Log.i(TAG, "onCreate called");
 
         loadSharedPreferences();
 
@@ -222,10 +221,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     protected void onStart() {
         super.onStart();
-        Log.i(TAG, "onStart called");
+//        Log.i(TAG, "onStart called");
 
         loadSharedPreferences();
-//        setTrackingSwitch();
 
         new SumLoggedTripsTask().execute(monthlySavingsTextView);
         mGoogleApiClient.connect();
@@ -234,22 +232,22 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume called");
+//        Log.i(TAG, "onResume called");
 
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Connected to GoogleApiClient");
+//            Log.i(TAG, "Connected to GoogleApiClient");
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
             if (mLastLocation != null) {
                 latString = String.valueOf(mLastLocation.getLatitude());
-                Log.i(TAG, "latString: " + latString);
+//                Log.i(TAG, "latString: " + latString);
                 lonString = String.valueOf(mLastLocation.getLongitude());
-                Log.i(TAG, "lonString: " + lonString);
+//                Log.i(TAG, "lonString: " + lonString);
             }
 
         } else {
@@ -295,16 +293,16 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Connected to GoogleApiClient");
+//            Log.i(TAG, "Connected to GoogleApiClient");
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
             if (mLastLocation != null) {
                 latString = String.valueOf(mLastLocation.getLatitude());
-                Log.i(TAG, "latString: " + latString);
+//                Log.i(TAG, "latString: " + latString);
                 lonString = String.valueOf(mLastLocation.getLongitude());
-                Log.i(TAG, "lonString: " + lonString);
+//                Log.i(TAG, "lonString: " + lonString);
             }
 
         } else {
@@ -331,15 +329,17 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     public void onConnectionFailed(ConnectionResult result) {
         // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
         // onConnectionFailed.
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+        // Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
 
     @Override
     public void onConnectionSuspended(int cause) {
         // The connection to Google Play services was lost for some reason. We call connect() to
         // attempt to re-establish the connection.
-        Log.i(TAG, "Connection suspended");
+
         mGoogleApiClient.connect();
+        // Log.i(TAG, "Connection suspended");
+
     }
 
     /**
@@ -356,10 +356,10 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             setUpdatesRequestedState(requestingUpdates);
 
         } else {
-            Log.e(TAG, "Error adding or removing activity detection: " + status.getStatusMessage());
+            // Log.e(TAG, "Error adding or removing activity detection: " + status.getStatusMessage());
             Toast.makeText(
                     this,
-                    "Unable to turn on Activity Recognition",
+                    getString(R.string.no_gps_data),
                     Toast.LENGTH_SHORT
             ).show();
         }
@@ -412,11 +412,14 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
      */
     private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
-        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, "0");
-        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG, "0.0");
+        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE,
+                getString(R.string.default_electricity_rate));
+        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,
+                getString(R.string.default_gas_price));
+        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
+                getString(R.string.default_mpg));
         isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
-        Log.i(TAG, "loadSavedPreferences: isChecked: " + isChecked);
+        // Log.i(TAG, "loadSavedPreferences: isChecked: " + isChecked);
 
     }
 
@@ -428,7 +431,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     }
 
     protected void setTrackingSwitch(SwitchCompat trackingSwitch) {
-        //TODO: make sure isChecked is set up properly
         if (isChecked) {
             trackingSwitch.setChecked(true);
         } else {
@@ -481,7 +483,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
                 totalMileageTextView.setText(String.format("%.0f", sumLoggedTripsDouble));
 
-                Log.i(TAG, "onPostExecute: savingsText: " + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
+                // Log.i(TAG, "onPostExecute: savingsText: " + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
 
 
             } else {
@@ -527,7 +529,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 recentTripTextView = (TextView) findViewById(R.id.recent_trip_textview);
                 recentTripTextView.setText(String.format("%.2f", recentTrip));
 
-                Log.i(TAG, "onPostExecute: Recent Trip: " + String.format("%.2f", recentTrip));
+                // Log.i(TAG, "onPostExecute: Recent Trip: " + String.format("%.2f", recentTrip));
 
 
             } else {
@@ -555,11 +557,11 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             currentMPG = Double.parseDouble(currentMPGString);
         }
 
-        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
+        // Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
 
 
         if (utilityRate != 0.0) {
-            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
+        // Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
 
             // .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
             savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
@@ -666,21 +668,21 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     protected void onPause() {
-        Log.i(TAG, "onPause called");
+        // Log.i(TAG, "onPause called");
         super.onPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG, "onStop called");
+        // Log.i(TAG, "onStop called");
         mGoogleApiClient.disconnect();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy called");
+        // Log.i(TAG, "onDestroy called");
     }
 
     //TODO: Create TripDetailActivity with map of individual trip

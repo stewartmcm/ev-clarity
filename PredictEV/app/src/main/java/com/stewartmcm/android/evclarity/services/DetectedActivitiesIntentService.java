@@ -104,6 +104,9 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         }
     }
 
+
+    //TODO: try starting the service after device detects it's in a vehicle, not every time activity recognition has a result
+
     /**
      * Handles incoming intents.
      *
@@ -115,11 +118,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         Log.i(TAG, "onHandleIntent: method ran");
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-
-            odometerIntent = new Intent(this, OdometerService.class);
-            startService(odometerIntent);
-            bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-            bound = true;
 
             handleDetectedActivities(result.getProbableActivities());
         }
@@ -145,6 +143,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                                 break;
                             } else if (activity.getConfidence() >= 75) {
                                 Log.i(TAG, "onHandleDetectedActivities: odometer not null");
+
+                                odometerIntent = new Intent(this, OdometerService.class);
+                                startService(odometerIntent);
+                                bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+                                bound = true;
+
                                 driving = true;
                                 recordDrive();
                             }
