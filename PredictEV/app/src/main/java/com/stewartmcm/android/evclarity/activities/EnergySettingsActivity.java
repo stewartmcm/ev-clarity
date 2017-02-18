@@ -6,15 +6,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.models.Utility;
@@ -53,15 +52,15 @@ public class EnergySettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         latString = (String) getIntent().getExtras().get(Constants.EXTRA_USER_LAT);
-        Log.i(TAG, "onCreate: latString : " + latString);
+//        Log.i(TAG, "onCreate: latString : " + latString);
         lonString = (String) getIntent().getExtras().get(Constants.EXTRA_USER_LON);
-        Log.i(TAG, "onCreate: latString : " + lonString);
+//        Log.i(TAG, "onCreate: latString : " + lonString);
 
         if (savedInstanceState != null) {
             utilityName = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_NAME);
-            Log.i(TAG, "onCreate: utilityName: " + utilityName);
+//            Log.i(TAG, "onCreate: utilityName: " + utilityName);
             utilityRateString = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_RATE);
-            Log.i(TAG, "onCreate: utilityRate: " + utilityRateString);
+//            Log.i(TAG, "onCreate: utilityRate: " + utilityRateString);
 
             initLayoutElements();
 
@@ -91,19 +90,23 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
     private void loadSavedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, "Please set your location.");
-        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, "0.0000");
-        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, "0.00");
-        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG, "0.0");
+        utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME,
+                getString(R.string.set_electricity_provider_cue));
+        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE,
+                getString(R.string.default_electricity_rate));
+        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,
+                getString(R.string.default_gas_price));
+        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
+                getString(R.string.default_mpg));
 
         currentUtilityTextView.setText(utilityName);
         utilityRateTextView.setText(utilityRateString);
 
         gasPriceEditText.setText(gasPriceString);
-        Log.i(TAG, "loadSavedPref gasPriceString: " + gasPriceString);
+//        Log.i(TAG, "loadSavedPref gasPriceString: " + gasPriceString);
 
         mpgEditText.setText(currentMPGString);
-        Log.i(TAG, "loadSavedPref mpgString: " + currentMPGString);
+//        Log.i(TAG, "loadSavedPref mpgString: " + currentMPGString);
 
     }
 
@@ -124,7 +127,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
     }
 
     public void findUtilities() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://developer.nrel.gov/api/utility_rates/")
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(getString(R.string.nrel_api_path))
                 .addConverterFactory(GsonConverterFactory.create()).build();
         UtilityRateAPIService mService = retrofit.create(UtilityRateAPIService.class);
 
@@ -148,28 +151,26 @@ public class EnergySettingsActivity extends AppCompatActivity {
                         utilityRate = response.body().getOutputs().getResidentialRate();
                         utilityRateString = String.valueOf(utilityRate);
                         utilityRateTextView.setText(utilityRateString);
-                        Snackbar.make(findViewById(android.R.id.content),
-                                "Electricity provider chosen successfully.", Snackbar.LENGTH_LONG)
-                                .show();
 
                     }
 
                     @Override
                     public void onFailure(Call<UtilityArray> call, Throwable t) {
-
                     }
+
                 });
             } else {
-                Snackbar.make(findViewById(android.R.id.content),
-                        getString(R.string.no_gps_data), Snackbar.LENGTH_LONG)
-                        .show();
+                Toast.makeText(this, getString(R.string.no_gps_data),
+                        Toast.LENGTH_SHORT).show();
+
             }
 
+            Toast.makeText(this, getString(R.string.electricity_provider_set),
+                    Toast.LENGTH_LONG).show();
 
         } else {
-            Snackbar.make(findViewById(android.R.id.content),
-                    getString(R.string.no_network_connection), Snackbar.LENGTH_LONG)
-                    .show();
+            Toast.makeText(this, getString(R.string.no_network_connection),
+                    Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -191,9 +192,9 @@ public class EnergySettingsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause called");
+//        Log.i(TAG, "onPause called");
         savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
-        Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
+//        Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
         savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
 
         gasPriceString = gasPriceEditText.getText().toString();
@@ -205,12 +206,12 @@ public class EnergySettingsActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG, "onStop called");
+//        Log.i(TAG, "onStop called");
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, "onDestroy called");
+//        Log.i(TAG, "onDestroy called");
         super.onDestroy();
     }
 }

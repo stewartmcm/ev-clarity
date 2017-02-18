@@ -25,6 +25,17 @@
     <string name="drive_tracking_on">Drive Tracking Turned On</string>
     <string name="drive_tracking_off">Drive Tracking Turned Off</string>
 
+    <!--EnergySettingsActivity-->
+
+    <string name="energy_settings_activity_log_tag">EnergySettingsActivity</string>
+
+    <string name="set_electricity_provider_cue">Please set your location.</string>
+    <string name="default_electricity_rate">0.0000</string>
+    <string name="default_gas_price">0.00</string>
+    <string name="default_mpg">0.0"</string>
+
+    <string name="nrel_api_path">GoogleApiClient not yet connected. Try again.</string>
+
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <string name="title_activity_trips_logged">Your Logged Drives</string>
     <string name="no_network_connection">Please check your network connection and try again.</string>
