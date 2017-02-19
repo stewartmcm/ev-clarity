@@ -119,11 +119,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 
-            odometerIntent = new Intent(this, OdometerService.class);
-            startService(odometerIntent);
-            bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-            bound = true;
-
             handleDetectedActivities(result.getProbableActivities());
         }
 
