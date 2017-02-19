@@ -132,58 +132,47 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
         Log.i(TAG, "handleDetectedActivities: method ran");
 
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
         for (DetectedActivity activity : probableActivities) {
             switch (activity.getType()) {
                 case DetectedActivity.IN_VEHICLE: {
                     Log.i("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 75) {
+                    if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
-                        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_FINE_LOCATION);
-
-                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-
-                            if (odometer == null) {
-                                Log.i(TAG, "onHandleDetectedActivities: odometer null");
-                                break;
-                            } else if (activity.getConfidence() >= 75) {
-                                Log.i(TAG, "onHandleDetectedActivities: odometer not null");
-                                driving = true;
-                                recordDrive();
-                            }
+                        if (odometer == null) {
+                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
                             break;
                         } else {
-                            Log.i(TAG, "handleDetectedActivities: location permission not granted");
+                            Log.i(TAG, "onHandleDetectedActivities: odometer not null");
+                            driving = true;
+                            recordDrive();
                         }
+                        break;
                     }
-                    break;
                 }
+                break;
+
                 case DetectedActivity.ON_BICYCLE: {
                     Log.i("ActivityRecogition", "On Bicycle: " + activity.getConfidence());
                     break;
                 }
                 case DetectedActivity.ON_FOOT: {
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 75) {
+                    if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
-                        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_FINE_LOCATION);
-
-                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-
-                            if (odometer == null) {
-                                Log.i(TAG, "onHandleDetectedActivities: odometer null");
-                                break;
-                            } else if (odometer.getMiles() >= .2) {
-                                Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
-                                logDrive();
-                                driving = false;
-                            } else {
-                                Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
-                                odometer.reset();
-                            }
+                        if (odometer == null) {
+                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
+                            break;
+                        } else if (odometer.getMiles() >= .2) {
+                            Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
+                            logDrive();
+                            driving = false;
+                        } else {
+                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .20");
+                            odometer.reset();
                         }
-                        break;
                     }
                     break;
                 }
@@ -193,26 +182,19 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 }
                 case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 95) {
+                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
-                        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_FINE_LOCATION);
-
-                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-
-                            if (odometer == null) {
-                                Log.i(TAG, "onHandleDetectedActivities: odometer null");
-                                break;
-                            } else if (odometer.getMiles() >= .5) {
-                                Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
-                                logDrive();
-                                driving = false;
-                            } else {
-                                Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
-                                odometer.reset();
-                            }
+                        if (odometer == null) {
+                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
+                            break;
+                        } else if (odometer.getMiles() >= .5) {
+                            Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
+                            logDrive();
+                            driving = false;
+                        } else {
+                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
+                            odometer.reset();
                         }
-                        break;
 
                     }
                     break;
