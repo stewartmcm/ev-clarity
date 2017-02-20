@@ -368,28 +368,28 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "onConnected: method called");
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "permission granted");
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-
-            if (mLastLocation != null) {
-                Log.i(TAG, "onConnected: mlastLocation not null");
-                latString = String.valueOf(mLastLocation.getLatitude());
-                Log.i(TAG, "latString: " + latString);
-                lonString = String.valueOf(mLastLocation.getLongitude());
-                Log.i(TAG, "lonString: " + lonString);
-
-                Log.i(TAG, "onConnected: OdometerService now bound to DetectionActivitiesIntentService");
-            }
-
-        } else {
-            Log.i(TAG, "onConnected: location permission not granted");
-
-        }
+//        int permissionCheck = ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION);
+//
+//        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//            Log.i(TAG, "permission granted");
+//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+//                    mGoogleApiClient);
+//
+//            if (mLastLocation != null) {
+//                Log.i(TAG, "onConnected: mlastLocation not null");
+//                latString = String.valueOf(mLastLocation.getLatitude());
+//                Log.i(TAG, "latString: " + latString);
+//                lonString = String.valueOf(mLastLocation.getLongitude());
+//                Log.i(TAG, "lonString: " + lonString);
+//
+//                Log.i(TAG, "onConnected: OdometerService now bound to DetectionActivitiesIntentService");
+//            }
+//
+//        } else {
+//            Log.i(TAG, "onConnected: location permission not granted");
+//
+//        }
 
     }
 
