@@ -119,11 +119,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 
-            odometerIntent = new Intent(this, OdometerService.class);
-            startService(odometerIntent);
-            bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-            bound = true;
-
             handleDetectedActivities(result.getProbableActivities());
         }
 
@@ -140,6 +135,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.IN_VEHICLE: {
                     Log.i("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+
+                        odometerIntent = new Intent(this, OdometerService.class);
+                        startService(odometerIntent);
+                        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+                        bound = true;
 
                         if (odometer == null) {
                             Log.i(TAG, "onHandleDetectedActivities: odometer null");
@@ -161,6 +161,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.ON_FOOT: {
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+
+                        odometerIntent = new Intent(this, OdometerService.class);
+                        startService(odometerIntent);
+                        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+                        bound = true;
 
                         if (odometer == null) {
                             Log.i(TAG, "onHandleDetectedActivities: odometer null");
