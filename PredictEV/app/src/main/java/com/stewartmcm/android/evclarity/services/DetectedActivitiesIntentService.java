@@ -162,10 +162,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
-//                        odometerIntent = new Intent(this, OdometerService.class);
-//                        startService(odometerIntent);
-//                        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-//                        bound = true;
+                        odometerIntent = new Intent(this, OdometerService.class);
+                        startService(odometerIntent);
+                        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+                        bound = true;
 
                         if (odometer == null) {
                             Log.i(TAG, "onHandleDetectedActivities: odometer null");
