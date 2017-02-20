@@ -162,10 +162,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
-                        odometerIntent = new Intent(this, OdometerService.class);
-                        startService(odometerIntent);
-                        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-                        bound = true;
+//                        odometerIntent = new Intent(this, OdometerService.class);
+//                        startService(odometerIntent);
+//                        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+//                        bound = true;
 
                         if (odometer == null) {
                             Log.i(TAG, "onHandleDetectedActivities: odometer null");
@@ -187,29 +187,29 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 }
                 case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
-
-
-
-                        if (odometer == null) {
-                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
-                            break;
-                        } else if (odometer.getMiles() >= .5) {
-
-                            odometerIntent = new Intent(this, OdometerService.class);
-                            startService(odometerIntent);
-                            bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-                            bound = true;
-
-                            Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
-                            logDrive();
-                            driving = false;
-                        } else {
-                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
-                            odometer.reset();
-                        }
-
-                    }
+//                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//
+//
+//
+//                        if (odometer == null) {
+//                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
+//                            break;
+//                        } else if (odometer.getMiles() >= .5) {
+//
+//                            odometerIntent = new Intent(this, OdometerService.class);
+//                            startService(odometerIntent);
+//                            bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+//                            bound = true;
+//
+//                            Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
+//                            logDrive();
+//                            driving = false;
+//                        } else {
+//                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
+//                            odometer.reset();
+//                        }
+//
+//                    }
                     break;
                 }
                 case DetectedActivity.TILTING: {
