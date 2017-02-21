@@ -75,7 +75,7 @@ public class OdometerService extends Service {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return this.distanceInMeters / 1609.344;
         }
-//        locManager.removeUpdates(listener);
+        locManager.removeUpdates(listener);
         distanceInMeters = 0.0;
         return 0.0;
     }
