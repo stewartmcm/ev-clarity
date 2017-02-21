@@ -49,6 +49,9 @@ public final class Constants {
     public static final String KEY_SHARED_PREF_CURRENT_MPG = "SHARED_PREF_CURRENT_MPG";
     public static final String KEY_SHARED_PREF_DRIVE_TRACKING = "KEY_SHARED_PREF_DRIVE_TRACKING";
 
+    public static final String KEY_SHARED_PREF_TRIP_DISTANCE = "SHARED_PREF_TRIP_DISTANCE";
+
+
     /**
      * List of DetectedActivity types that we monitor in this sample.
      */

@@ -162,21 +162,16 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
-                        odometerIntent = new Intent(this, OdometerService.class);
-                        startService(odometerIntent);
-                        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-                        bound = true;
-
-                        if (odometer == null) {
-                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
+                        if (tripDistance == 0.0) {
+                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
                             break;
-                        } else if (odometer.getMiles() >= .2) {
-                            Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
+                        } else if (tripDistance >= .2) {
+                            Log.i(TAG, "onHandleDetectedActivities: tripDistance " + tripDistance);
                             logDrive();
                             driving = false;
                         } else {
                             Log.i(TAG, "onHandleDetectedActivities: getMiles < .20");
-                            odometer.reset();
+                            tripDistance = 0.0;
                         }
                     }
                     break;
@@ -187,18 +182,22 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 }
                 case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                    if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
-                        if (odometer == null) {
-                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
+                        loadSharedPreferences();
+
+                        if (tripDistance == 0.0) {
+                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
                             break;
-                        } else if (odometer.getMiles() >= .5) {
-                            Log.i(TAG, "onHandleDetectedActivities: " + odometer.getMiles());
+                        } else if (tripDistance >= .3) {
+                            Log.i(TAG, "onHandleDetectedActivities: " + tripDistance);
                             logDrive();
+                            tripDistance = 0.0;
+                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
                             driving = false;
                         } else {
                             Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
-                            odometer.reset();
+                            tripDistance = 0.0;
                         }
 
                     }
@@ -226,6 +225,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
         tripDistance = 0.0;
         tripDistance = odometer.getMiles();
+        savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
+
 
         Log.i(TAG, "runnable tripOdometer: " + tripDistance);
 
@@ -233,21 +234,28 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     public double logDrive() {
         Log.i(TAG, "logDrive: method ran");
-        if (odometer != null) {
-            finalTripDistance = odometer.getMiles();
+        if (tripDistance != 0.0) {
+            finalTripDistance = tripDistance;
             Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setContentText("Trip Logged: " + odometer.getMiles() + " miles");
+            builder.setContentText("Trip Logged: " + tripDistance + " miles");
             builder.setSmallIcon(R.drawable.ic_stat_car_icon);
             builder.setContentTitle(getString(R.string.app_name));
             NotificationManagerCompat.from(this).notify(0, builder.build());
-            odometer.reset();
-            Log.i(TAG, "logDrive: tripOdometer: " + odometer.reset());
+            tripDistance = 0.0;
+            Log.i(TAG, "logDrive: tripOdometer: " + tripDistance);
             //TODO: test uncommenting the code below
-//            unbindService(connection);
-//            bound = false;
+
+            odometerIntent = new Intent(this, OdometerService.class);
+            startService(odometerIntent);
+            bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+
+//            odometer.reset();
+
             stopService(odometerIntent);
+            unbindService(connection);
+            bound = false;
         }
         return finalTripDistance;
 
@@ -348,6 +356,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, "0");
         currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG, "0.0");
         isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
+        tripDistance = sharedPreferences.getFloat(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, 0.0f);
         Log.i(TAG, "loadSavedPreferences: isChecked: " + isChecked);
 
     }
@@ -396,6 +405,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //
 //        }
 
+    }
+
+    private void savePreferencesDouble(String key, double value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        float valueFloat = (float) value;
+        editor.putFloat(key, valueFloat);
+        editor.commit();
     }
 
     @Override

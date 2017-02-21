@@ -93,4 +93,17 @@ public class OdometerService extends Service {
     public IBinder onBind(Intent intent) {
         return binder;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locManager.removeUpdates(listener);
+
+    }
 }
