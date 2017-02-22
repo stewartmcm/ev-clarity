@@ -53,7 +53,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
             int adapterPosition = getAdapterPosition();
             mCursor.moveToPosition(adapterPosition);
             int symbolColumn = mCursor.getColumnIndex(Contract.Trip.COLUMN_DATE);
-            mClickHandler.onClick(mCursor.getString(symbolColumn), this);
+
+            //TODO: uncomment to implement recyclerview clickhandler
+//            mClickHandler.onClick(mCursor.getString(symbolColumn), this);
             mICM.onClick(this);
 
         }

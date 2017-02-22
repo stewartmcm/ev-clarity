@@ -172,9 +172,12 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             @Override
             public void onClick(String dateTime, TripAdapter.TripAdapterViewHolder viewHolder) {
                 mPosition = viewHolder.getAdapterPosition();
-                onItemSelected(Contract.Trip.makeUriForTrip(dateTime),
-                        viewHolder
-                );
+
+                Toast.makeText(getApplicationContext(),"This don't do nothin", Toast.LENGTH_SHORT);
+
+//                onItemSelected(Contract.Trip.makeUriForTrip(dateTime),
+//                        viewHolder
+//                );
             }
         }, emptyView, mChoiceMode);
 

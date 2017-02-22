@@ -96,14 +96,15 @@ public class OdometerService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
 
+        //TODO: Verify that code below releases gps
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         locManager.removeUpdates(listener);
+        super.onDestroy();
 
     }
 }
