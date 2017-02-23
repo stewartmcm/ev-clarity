@@ -136,7 +136,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
         call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", latString, lonString);
 
         if (call != null) {
-            if (latString != null){
+            if (latString != null && lonString != null){
                 call.enqueue(new Callback<UtilityArray>() {
                     @TargetApi(Build.VERSION_CODES.M)
                     @Override
@@ -151,11 +151,15 @@ public class EnergySettingsActivity extends AppCompatActivity {
                         utilityRate = response.body().getOutputs().getResidentialRate();
                         utilityRateString = String.valueOf(utilityRate);
                         utilityRateTextView.setText(utilityRateString);
+                        Toast.makeText(getBaseContext(), getString(R.string.electricity_provider_set),
+                            Toast.LENGTH_LONG).show();
 
                     }
 
                     @Override
                     public void onFailure(Call<UtilityArray> call, Throwable t) {
+                        Toast.makeText(getBaseContext(), getString(R.string.no_gps_data),
+                                Toast.LENGTH_SHORT).show();
                     }
 
                 });
@@ -164,9 +168,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
 
             }
-
-            Toast.makeText(this, getString(R.string.electricity_provider_set),
-                    Toast.LENGTH_LONG).show();
 
         } else {
             Toast.makeText(this, getString(R.string.no_network_connection),

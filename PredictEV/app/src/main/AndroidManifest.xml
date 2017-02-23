@@ -52,7 +52,7 @@
             android:label="@string/title_activity_energy_settings"
             android:parentActivityName="com.stewartmcm.android.evclarity.activities.Main2Activity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.Main">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>

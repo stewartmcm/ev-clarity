@@ -48,14 +48,15 @@ import com.stewartmcm.android.evclarity.services.OdometerService;
 
 import java.util.ArrayList;
 
+import static com.stewartmcm.android.evclarity.R.id.error;
+
 public class Main2Activity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         ResultCallback<Status> {
 
 
     RecyclerView tripRecyclerView;
-    TextView error;
-
+    TextView errorTextView;
 
     private int mPosition = RecyclerView.NO_POSITION;
     protected static final String TAG = "Main2Activity";
@@ -80,6 +81,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     private String gasPriceString;
     private TextView monthlySavingsTextView;
     private TextView totalMileageTextView;
+    private TextView noTripsYetTextView;
     SQLiteDatabase db;
     private Cursor sumCursor;
     private Cursor recentTripCursor;
@@ -582,10 +584,13 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mTripAdapter.swapCursor(data);
 
-        error = (TextView) findViewById(R.id.error);
+        errorTextView = (TextView) findViewById(error);
+        noTripsYetTextView = (TextView) findViewById(R.id.recyclerview_triplog_empty);
 
         if (data.getCount() != 0) {
-            error.setVisibility(View.GONE);
+            errorTextView.setVisibility(View.GONE);
+            noTripsYetTextView.setVisibility(View.GONE);
+
         }
 //        mTripAdapter.setCursor(data);
     }

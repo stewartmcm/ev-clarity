@@ -34,7 +34,7 @@
     <string name="default_gas_price">0.00</string>
     <string name="default_mpg">0.0"</string>
 
-    <string name="nrel_api_path">GoogleApiClient not yet connected. Try again.</string>
+    <string name="nrel_api_path">http://developer.nrel.gov/api/utility_rates/</string>
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <string name="title_activity_trips_logged">Your Logged Drives</string>
