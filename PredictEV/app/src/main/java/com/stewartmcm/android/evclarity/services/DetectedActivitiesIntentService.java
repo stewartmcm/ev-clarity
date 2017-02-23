@@ -162,12 +162,16 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
+                        loadSharedPreferences();
+
                         if (tripDistance == 0.0) {
                             Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
                             break;
                         } else if (tripDistance >= .2) {
                             Log.i(TAG, "onHandleDetectedActivities: tripDistance " + tripDistance);
                             logDrive();
+                            tripDistance = 0.0;
+                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
                             driving = false;
                         } else {
                             Log.i(TAG, "onHandleDetectedActivities: getMiles < .20");
@@ -182,7 +186,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 }
                 case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         loadSharedPreferences();
 
@@ -251,8 +255,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             startService(odometerIntent);
             bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
 
-//            odometer.reset();
-
             stopService(odometerIntent);
             unbindService(connection);
             bound = false;
@@ -292,6 +294,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 return true;
 
             } catch (SQLiteException e) {
+
                 return false;
             }
         }

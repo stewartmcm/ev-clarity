@@ -104,6 +104,8 @@ public class OdometerService extends Service {
             return;
         }
         locManager.removeUpdates(listener);
+        Log.i(TAG, "onDestroy: location updates removed");
+
         super.onDestroy();
 
     }
