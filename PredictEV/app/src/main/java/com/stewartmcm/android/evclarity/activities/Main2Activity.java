@@ -48,19 +48,12 @@ import com.stewartmcm.android.evclarity.services.OdometerService;
 
 import java.util.ArrayList;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class Main2Activity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         ResultCallback<Status> {
 
-    @SuppressWarnings("WeakerAccess")
-    @BindView(R.id.recycler_view)
-    RecyclerView tripRecyclerView;
 
-    @SuppressWarnings("WeakerAccess")
-    @BindView(R.id.error)
+    RecyclerView tripRecyclerView;
     TextView error;
 
 
@@ -137,8 +130,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(0f);
 
-        ButterKnife.bind(this);
-
         View emptyView = this.findViewById(R.id.recyclerview_triplog_empty);
 
 //        Log.i(TAG, "onCreate called");
@@ -180,6 +171,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 //                );
             }
         }, emptyView, mChoiceMode);
+
+
+        tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
 
         tripRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         tripRecyclerView.setAdapter(mTripAdapter);
@@ -587,6 +581,8 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mTripAdapter.swapCursor(data);
+
+        error = (TextView) findViewById(R.id.error);
 
         if (data.getCount() != 0) {
             error.setVisibility(View.GONE);
