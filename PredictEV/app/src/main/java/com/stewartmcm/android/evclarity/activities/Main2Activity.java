@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +44,7 @@ import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.TripAdapter;
 import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
+import com.stewartmcm.android.evclarity.models.Trip;
 import com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService;
 import com.stewartmcm.android.evclarity.services.OdometerService;
 
@@ -55,8 +57,8 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         ResultCallback<Status> {
 
 
-    RecyclerView tripRecyclerView;
-    TextView errorTextView;
+    private RecyclerView tripRecyclerView;
+    private TextView errorTextView;
 
     private int mPosition = RecyclerView.NO_POSITION;
     protected static final String TAG = "Main2Activity";
@@ -83,10 +85,11 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     private TextView totalMileageTextView;
     private TextView noTripsYetTextView;
     SQLiteDatabase db;
-    private Cursor sumCursor;
-    private Cursor recentTripCursor;
-    private double recentTrip;
-    private TextView recentTripTextView;
+    private ArrayList<Trip> mTrips;
+    private int tripPosition;
+    private Cursor sumTripsCursor;
+    private Cursor deleteTripCursor;
+    private Cursor getTripsCursor;
     private double utilityRate;
     private double gasPrice;
 
@@ -137,6 +140,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 //        Log.i(TAG, "onCreate called");
 
         loadSharedPreferences();
+        getTrips();
 
         monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
 
@@ -174,7 +178,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             }
         }, emptyView, mChoiceMode);
 
-
         tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
 
         tripRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -191,7 +194,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
         getSupportLoaderManager().initLoader(TRIP_LOADER, null, this);
 
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
                 return false;
@@ -199,15 +202,156 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-//                String dateTime = mTripAdapter.getTripAtPosition(viewHolder.getAdapterPosition());
                 //TODO: implement remove trip method
-//                PrefUtils.removeStock(Main2Activity.this, symbol);
-//                getContentResolver().delete(Contract.Trip.makeUriForTrip(symbol), null, null);
+                tripPosition = viewHolder.getAdapterPosition();
+
+                Log.i(TAG, "onSwiped: position: " + tripPosition);
+
+                new DeleteTripTask().execute(tripPosition);
+                new SumLoggedTripsTask().execute(monthlySavingsTextView);
+
+                mTrips.remove(tripPosition);
+                tripRecyclerView.removeView(viewHolder.itemView);
+                mTripAdapter.notifyItemRemoved(tripPosition);
+                mTripAdapter.notifyItemRangeChanged(tripPosition + 1, mTrips.size());
+
+                //TODO: create Trip model and build array list to store trips to use with recyclerview
+
             }
-        }).attachToRecyclerView(tripRecyclerView);
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(tripRecyclerView);
 
         // Kick off the request to build GoogleApiClient.
         buildGoogleApiClient();
+
+    }
+
+    private ArrayList<Trip> getTrips() {
+        mTrips = new ArrayList<>();
+        SQLiteDatabase db = null;
+        PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(Main2Activity.this);
+        db = mHelper.getReadableDatabase();
+
+        getTripsCursor = db.query("TRIP", null, null, null, null, null, null);
+        getTripsCursor.moveToFirst();
+
+        for (int i = 0; i < 5; i++) {
+
+            Trip trip = new Trip("today",
+                                 1.1f,
+                                 1.20f);
+
+            mTrips.add(trip);
+//            getTripsCursor.moveToNext();
+        }
+
+        return mTrips;
+    }
+
+    //deletes trip asynchronously when executed
+    private class DeleteTripTask extends AsyncTask<Integer, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Integer... trips) {
+
+            int tripNo = trips[0];
+            Log.i(TAG, "DeleteTripTask: row " + tripNo + " was deleted.");
+
+
+            SQLiteDatabase db = null;
+            PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(Main2Activity.this);
+
+            try {
+
+                db = mHelper.getWritableDatabase();
+                deleteTripCursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
+                        null, null, null, null, null);
+
+                if(deleteTripCursor.moveToPosition(tripNo)) {
+                    String rowId = deleteTripCursor.getString(deleteTripCursor.getColumnIndex(PredictEvDatabaseHelper.COL_ID));
+
+                    db.delete("TRIP", PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
+                }
+
+                db.close();
+
+                return true;
+
+            } catch (SQLiteException e) {
+                Toast toast = Toast.makeText(Main2Activity.this, "Database unavailable.", Toast.LENGTH_SHORT);
+                toast.show();
+                return false;
+
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+
+        }
+    }
+
+
+    //sums all logged trips asynchronously when executed[onCreate]
+    private class SumLoggedTripsTask extends AsyncTask<TextView, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected Boolean doInBackground(TextView... params) {
+            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(Main2Activity.this);
+
+            try {
+                db = mHelper.getReadableDatabase();
+                sumTripsCursor = db.query("TRIP", new String[]{"SUM(TRIP_MILES) AS sum"},
+                        null, null, null, null, null);
+
+                return true;
+
+            } catch (SQLiteException e) {
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+
+            sumTripsCursor.moveToFirst();
+            if (success) {
+                // TODO: update comment describing code below
+                sumLoggedTripsDouble = sumTripsCursor.getDouble(0);
+                double savings = calcSavings(sumLoggedTripsDouble);
+
+                monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
+                monthlySavingsTextView.setText("$" + String.format("%.2f", savings));
+
+                totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
+                totalMileageTextView.setText(String.format("%.0f", sumLoggedTripsDouble));
+
+                // Log.i(TAG, "onPostExecute: savingsText: " + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
+
+
+            } else {
+
+                Toast toast = Toast.makeText(Main2Activity.this, "Database unavailable", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+            db.close();
+        }
     }
 
     private void savePreferencesBoolean(String key, Boolean value) {
@@ -438,107 +582,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         }
     }
 
-    //sums all logged trips asynchronously when executed[onCreate]
-    private class SumLoggedTripsTask extends AsyncTask<TextView, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-        @Override
-        protected Boolean doInBackground(TextView... params) {
-            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(Main2Activity.this);
-
-            try {
-                db = mHelper.getReadableDatabase();
-                sumCursor = db.query("TRIP", new String[]{"SUM(TRIP_MILES) AS sum"},
-                        null, null, null, null, null);
-
-                recentTripCursor = db.query("TRIP", new String[]{PredictEvDatabaseHelper.COL_TRIP_MILES},
-                        null, null, null, null, null);
-
-                return true;
-
-            } catch (SQLiteException e) {
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            super.onPostExecute(success);
-
-            sumCursor.moveToFirst();
-            if (success) {
-                // TODO: update comment describing code below
-                sumLoggedTripsDouble = sumCursor.getDouble(0);
-                double savings = calcSavings(sumLoggedTripsDouble);
-
-                monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                monthlySavingsTextView.setText("$" + String.format("%.2f", savings));
-
-                totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
-                totalMileageTextView.setText(String.format("%.0f", sumLoggedTripsDouble));
-
-                // Log.i(TAG, "onPostExecute: savingsText: " + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
-
-
-            } else {
-
-                Toast toast = Toast.makeText(Main2Activity.this, "Database unavailable", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-    }
-
-    private class RecentTripTask extends AsyncTask<TextView, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-        @Override
-        protected Boolean doInBackground(TextView... params) {
-            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(Main2Activity.this);
-
-            try {
-                db = mHelper.getReadableDatabase();
-                recentTripCursor = db.query("TRIP", new String[]{PredictEvDatabaseHelper.COL_TRIP_MILES},
-                        null, null, null, null, null);
-
-                return true;
-
-            } catch (SQLiteException e) {
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            super.onPostExecute(success);
-
-            if (success) {
-
-                recentTripCursor.moveToLast();
-                recentTrip = recentTripCursor.getDouble(0);
-                recentTripTextView = (TextView) findViewById(R.id.recent_trip_textview);
-                recentTripTextView.setText(String.format("%.2f", recentTrip));
-
-                // Log.i(TAG, "onPostExecute: Recent Trip: " + String.format("%.2f", recentTrip));
-
-
-            } else {
-
-                Toast toast = Toast.makeText(Main2Activity.this, "Database unavailable", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-    }
-
     private double calcSavings(double mileageDouble) {
 
         double savings;
@@ -592,6 +635,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             noTripsYetTextView.setVisibility(View.GONE);
 
         }
+        //TODO: try uncommenting this when testing on swipe
 //        mTripAdapter.setCursor(data);
     }
 
@@ -599,7 +643,6 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     public void onLoaderReset(Loader<Cursor> loader) {
         mTripAdapter.swapCursor(null);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -625,7 +668,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                     ).setResultCallback(Main2Activity.this);
                     isChecked = true;
                     savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
-                    Toast.makeText(Main2Activity.this, "tracking",
+                    Toast.makeText(Main2Activity.this, getString(R.string.drive_tracking_on),
                             Toast.LENGTH_SHORT).show();
 
                 } else {
@@ -642,7 +685,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                     ).setResultCallback(Main2Activity.this);
                     isChecked = false;
                     savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
-                    Toast.makeText(Main2Activity.this, "not tracking",
+                    Toast.makeText(Main2Activity.this, getString(R.string.drive_tracking_off),
                             Toast.LENGTH_SHORT).show();
                 }
             }

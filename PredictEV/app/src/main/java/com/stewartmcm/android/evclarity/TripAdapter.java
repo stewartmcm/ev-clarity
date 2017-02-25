@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.stewartmcm.android.evclarity.activities.Main2Activity;
 import com.stewartmcm.android.evclarity.data.Contract;
+import com.stewartmcm.android.evclarity.models.Trip;
+
+import java.util.ArrayList;
 
 /**
  * Created by stewartmcmillan on 5/26/16.
@@ -20,6 +22,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     final private Context mContext;
     LayoutInflater cursorInflater;
     private Cursor mCursor;
+    private ArrayList<Trip> mTrips;
     final private View mEmptyView;
     final private TripAdapterOnClickHandler mClickHandler;
     final private ItemChoiceManager mICM;
@@ -28,7 +31,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
         TextView mTotalSavingsTextView;
         TextView mTotalMileageTextView;
-        TextView mRecentTripTextView;
 
         TextView mMileageTextView;
         TextView mDateTimeTextView;
@@ -39,7 +41,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
             mTotalSavingsTextView = (TextView) itemView.findViewById(R.id.savings_text_view);
             mTotalMileageTextView = (TextView) itemView.findViewById(R.id.total_mileage_textview);
-            mRecentTripTextView = (TextView) itemView.findViewById(R.id.recent_trip_textview);
 
             mMileageTextView = (TextView) itemView.findViewById(R.id.list_item_mileage);
             mDateTimeTextView = (TextView) itemView.findViewById(R.id.list_item_date);
@@ -65,6 +66,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     }
 
     public TripAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView, int choiceMode) {
+
         mContext = context;
         mClickHandler = clickHandler;
         mEmptyView = emptyView;
@@ -101,12 +103,18 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
     @Override
     public void onBindViewHolder(TripAdapterViewHolder holder, int position) {
-        mCursor.moveToPosition(position);
-        String date = mCursor.getString(Main2Activity.COL_DATE);
+//        mCursor.moveToPosition(position);
 
-        holder.mMileageTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
-        holder.mDateTimeTextView.setText(date);
-        holder.mSavingsTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
+
+        holder.mMileageTextView.setText(Float.toString(mTrips.get(position).getMiles()));
+        holder.mSavingsTextView.setText(Float.toString(mTrips.get(position).getSavings()));
+        holder.mDateTimeTextView.setText(mTrips.get(position).getTimeStamp());
+
+//        String date = mCursor.getString(Main2Activity.COL_DATE);
+//
+//        holder.mMileageTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
+//        holder.mDateTimeTextView.setText(date);
+//        holder.mSavingsTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
 
         mICM.onBindViewHolder(holder, position);
     }

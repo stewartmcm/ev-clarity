@@ -22,8 +22,8 @@
 
     <string name="request_activity_updates">Turn Drive Tracking On</string>
     <string name="remove_activity_updates">Turn Drive Tracking Off</string>
-    <string name="drive_tracking_on">Drive Tracking Turned On</string>
-    <string name="drive_tracking_off">Drive Tracking Turned Off</string>
+    <string name="drive_tracking_on">Drive tracking turned on.</string>
+    <string name="drive_tracking_off">Drive tracking turned off.</string>
 
     <!--EnergySettingsActivity-->
 
