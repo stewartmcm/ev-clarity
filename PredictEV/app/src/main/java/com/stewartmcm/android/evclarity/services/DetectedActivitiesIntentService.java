@@ -132,7 +132,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
         for (DetectedActivity activity : probableActivities) {
             switch (activity.getType()) {
-                case DetectedActivity.IN_VEHICLE: {
+                case DetectedActivity.ON_FOOT: {
                     Log.i("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
@@ -158,7 +158,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "On Bicycle: " + activity.getConfidence());
                     break;
                 }
-                case DetectedActivity.ON_FOOT: {
+                case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
@@ -167,7 +167,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                         if (tripDistance == 0.0) {
                             Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
                             break;
-                        } else if (tripDistance >= .2) {
+                        } else if (tripDistance >= .001) {
                             Log.i(TAG, "onHandleDetectedActivities: tripDistance " + tripDistance);
                             logDrive();
                             tripDistance = 0.0;
@@ -184,29 +184,29 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i("ActivityRecogition", "Running: " + activity.getConfidence());
                     break;
                 }
-                case DetectedActivity.STILL: {
-                    Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
-
-                        loadSharedPreferences();
-
-                        if (tripDistance == 0.0) {
-                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
-                            break;
-                        } else if (tripDistance >= .3) {
-                            Log.i(TAG, "onHandleDetectedActivities: " + tripDistance);
-                            logDrive();
-                            tripDistance = 0.0;
-                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
-                            driving = false;
-                        } else {
-                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
-                            tripDistance = 0.0;
-                        }
-
-                    }
-                    break;
-                }
+//                case DetectedActivity.STILL: {
+//                    Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
+//                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//
+//                        loadSharedPreferences();
+//
+//                        if (tripDistance == 0.0) {
+//                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
+//                            break;
+//                        } else if (tripDistance >= .3) {
+//                            Log.i(TAG, "onHandleDetectedActivities: " + tripDistance);
+//                            logDrive();
+//                            tripDistance = 0.0;
+//                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
+//                            driving = false;
+//                        } else {
+//                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .50");
+//                            tripDistance = 0.0;
+//                        }
+//
+//                    }
+//                    break;
+//                }
                 case DetectedActivity.TILTING: {
                     Log.i("ActivityRecogition", "Tilting: " + activity.getConfidence());
                     break;

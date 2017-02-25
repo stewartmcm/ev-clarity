@@ -2,6 +2,7 @@ package com.stewartmcm.android.evclarity;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.stewartmcm.android.evclarity.activities.Main2Activity;
 import com.stewartmcm.android.evclarity.data.Contract;
+import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.models.Trip;
 
 import java.util.ArrayList;
@@ -26,6 +29,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     final private View mEmptyView;
     final private TripAdapterOnClickHandler mClickHandler;
     final private ItemChoiceManager mICM;
+
+
 
     public class TripAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -72,6 +77,37 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         mEmptyView = emptyView;
         mICM = new ItemChoiceManager(this);
         mICM.setChoiceMode(choiceMode);
+
+        mTrips = new ArrayList<>();
+
+        SQLiteDatabase db = null;
+        PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(mContext);
+        db = mHelper.getReadableDatabase();
+
+        mCursor = db.query("TRIP", null, null, null, null, null, null);
+        mCursor.moveToFirst();
+
+        for (int i = 0; i < mCursor.getCount(); i++) {
+
+            Trip trip = new Trip(mCursor.getString(Main2Activity.COL_DATE),
+                    mCursor.getFloat(Main2Activity.COL_TRIP_MILES),
+                    mCursor.getFloat(Main2Activity.COL_TRIP_SAVINGS));
+
+            mTrips.add(trip);
+            mCursor.moveToNext();
+        }
+        mCursor.close();
+
+
+//        for (int i = 0; i < 20; i++) {
+//
+//            Trip trip = new Trip("today",
+//                    i,
+//                    i);
+//
+//            mTrips.add(trip);
+//        }
+
     }
 
     @Override
@@ -103,8 +139,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
     @Override
     public void onBindViewHolder(TripAdapterViewHolder holder, int position) {
-//        mCursor.moveToPosition(position);
-
 
         holder.mMileageTextView.setText(Float.toString(mTrips.get(position).getMiles()));
         holder.mSavingsTextView.setText(Float.toString(mTrips.get(position).getSavings()));
@@ -145,10 +179,20 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     @Override
     public int getItemCount() {
         int count = 0;
-        if (mCursor != null) {
-            count = mCursor.getCount();
-        }
+
+        //commented out below to debug onSwipe
+//        if (mCursor != null) {
+//            count = mCursor.getCount();
+//        }
+        count = mTrips.size();
         return count;
+    }
+
+    public int removeTrip(int tripPosition) {
+        mTrips.remove(tripPosition);
+
+        return mTrips.size();
+        //todo:consider returning new array size?
     }
 
     public void swapCursor(Cursor newCursor) {

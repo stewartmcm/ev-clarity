@@ -85,7 +85,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     private TextView totalMileageTextView;
     private TextView noTripsYetTextView;
     SQLiteDatabase db;
-    private ArrayList<Trip> mTrips;
+    public ArrayList<Trip> mTrips;
     private int tripPosition;
     private Cursor sumTripsCursor;
     private Cursor deleteTripCursor;
@@ -140,7 +140,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 //        Log.i(TAG, "onCreate called");
 
         loadSharedPreferences();
-        getTrips();
+//        getTrips();
 
         monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
 
@@ -210,10 +210,11 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 new DeleteTripTask().execute(tripPosition);
                 new SumLoggedTripsTask().execute(monthlySavingsTextView);
 
-                mTrips.remove(tripPosition);
-                tripRecyclerView.removeView(viewHolder.itemView);
+//                tripRecyclerView.removeView(viewHolder.itemView);
+                int newTripArraySize = mTripAdapter.removeTrip(tripPosition);
+//                tripRecyclerView.removeViewAt(tripPosition);
                 mTripAdapter.notifyItemRemoved(tripPosition);
-                mTripAdapter.notifyItemRangeChanged(tripPosition + 1, mTrips.size());
+                mTripAdapter.notifyItemRangeChanged(tripPosition, newTripArraySize);
 
                 //TODO: create Trip model and build array list to store trips to use with recyclerview
 
@@ -237,7 +238,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         getTripsCursor = db.query("TRIP", null, null, null, null, null, null);
         getTripsCursor.moveToFirst();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 8; i++) {
 
             Trip trip = new Trip("today",
                                  1.1f,
