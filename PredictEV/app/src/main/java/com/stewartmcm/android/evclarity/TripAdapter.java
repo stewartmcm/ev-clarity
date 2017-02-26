@@ -98,7 +98,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         }
         mCursor.close();
 
-
+        //TODO: delete after validating code above adds trips to recyclerview correctly
 //        for (int i = 0; i < 20; i++) {
 //
 //            Trip trip = new Trip("today",

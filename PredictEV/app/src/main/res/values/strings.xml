@@ -48,5 +48,7 @@
 
     <string name="empty_trip_list">No trips recorded yet.</string>
 
+    <string name="savings_textview_header">Projected Savings</string>
+    <string name="savings_default_value">0.0</string>
 
 </resources>

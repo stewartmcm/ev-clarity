@@ -13,8 +13,7 @@
     android:id="@+id/col"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#fff"
-    android:elevation="8dp">
+    android:background="#fff">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -74,10 +73,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#B3000000"
+            android:background="#fff"
             android:padding="5dp"
             android:layout_margin="10dp"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:elevation="4dp">
 
             <TextView
                 android:id="@+id/projected_savings_header"
@@ -85,25 +85,16 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textSize="18sp"
-                android:textColor="@android:color/white"
-                android:text="Projected Savings"/>
+                android:textColor="@android:color/black"
+                android:text="@string/savings_textview_header"/>
 
             <TextView
                 android:id="@+id/savings_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:text="0.0"
-                android:textSize="36sp"
-                android:layout_gravity="center_horizontal" />
-
-            <TextView
-                android:id="@+id/per_month_static"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:text="per month"
+                android:textColor="@android:color/black"
+                android:text="@string/savings_default_value"
+                android:textSize="40sp"
                 android:layout_gravity="center_horizontal" />
 
         </LinearLayout>
@@ -113,14 +104,15 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:padding="5dp"
-            android:background="#B3000000"
+            android:elevation="4dp" 
+            android:background="#fff"
             android:orientation="vertical"
             android:id="@+id/labels">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/black"
                 android:textSize="18sp"
                 android:text="Total Miles Driven"/>
 
@@ -128,17 +120,9 @@
                 android:id="@+id/total_mileage_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/black"
                 android:text="0"
-                android:textSize="36sp"
-                android:layout_gravity="center_horizontal" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:text="Miles"
+                android:textSize="40sp"
                 android:layout_gravity="center_horizontal" />
 
         </LinearLayout>
