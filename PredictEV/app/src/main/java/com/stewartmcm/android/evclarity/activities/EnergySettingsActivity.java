@@ -1,8 +1,6 @@
 package com.stewartmcm.android.evclarity.activities;
 
-import android.annotation.TargetApi;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -15,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.stewartmcm.android.evclarity.BuildConfig;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.models.Utility;
 import com.stewartmcm.android.evclarity.models.UtilityArray;
@@ -43,6 +42,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
     private ArrayList<Utility> utilities;
     private String latString;
     private String lonString;
+    private String API_KEY = BuildConfig.API_KEY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,12 +133,12 @@ public class EnergySettingsActivity extends AppCompatActivity {
 
         Call<UtilityArray> call = null;
 
-        call = mService.getElectricityProviders("vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt", latString, lonString);
+        call = mService.getElectricityProviders(API_KEY, latString, lonString);
 
         if (call != null) {
             if (latString != null && lonString != null){
                 call.enqueue(new Callback<UtilityArray>() {
-                    @TargetApi(Build.VERSION_CODES.M)
+//                    @TargetApi(Build.VERSION_CODES.M)
                     @Override
                     public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
                         Utility[] utilityArray = response.body().getOutputs().getUtilities();

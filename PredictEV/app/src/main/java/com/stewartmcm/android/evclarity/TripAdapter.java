@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,10 @@ import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.models.Trip;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import static com.google.android.gms.wearable.DataMap.TAG;
 
 /**
  * Created by stewartmcmillan on 5/26/16.
@@ -140,8 +144,17 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     @Override
     public void onBindViewHolder(TripAdapterViewHolder holder, int position) {
 
-        holder.mMileageTextView.setText(Float.toString(mTrips.get(position).getMiles()));
-        holder.mSavingsTextView.setText(Float.toString(mTrips.get(position).getSavings()));
+        float miles = mTrips.get(position).getMiles();
+        float savings = mTrips.get(position).getSavings();
+
+        DecimalFormat milesFormat = new DecimalFormat("###.0");
+        DecimalFormat savingsFormat = new DecimalFormat("###.00");
+
+        String savingsString = savingsFormat.format(savings);
+        Log.i(TAG, "doInBackground: " + savingsString);
+
+        holder.mMileageTextView.setText(miles + " miles");
+        holder.mSavingsTextView.setText("$" + savingsString);
         holder.mDateTimeTextView.setText(mTrips.get(position).getTimeStamp());
 
 //        String date = mCursor.getString(Main2Activity.COL_DATE);

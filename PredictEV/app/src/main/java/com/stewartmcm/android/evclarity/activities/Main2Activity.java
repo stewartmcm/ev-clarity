@@ -20,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
@@ -40,8 +41,10 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
+import com.stewartmcm.android.evclarity.CustomDividerItemDecoration;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.TripAdapter;
+import com.stewartmcm.android.evclarity.VerticalSpaceItemDecoration;
 import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.models.Trip;
@@ -58,11 +61,10 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
 
     private RecyclerView tripRecyclerView;
+    private static final int VERTICAL_ITEM_SPACE = 100;
     private TextView errorTextView;
-
     private int mPosition = RecyclerView.NO_POSITION;
     protected static final String TAG = "Main2Activity";
-
     private TripAdapter mTripAdapter;
     private SwitchCompat trackingSwitch;
     private int mChoiceMode;
@@ -72,6 +74,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     private boolean isChecked;
     public GoogleApiClient mGoogleApiClient;
     private ArrayList<DetectedActivity> mDetectedActivities;
+    private LinearLayoutManager mLayoutManager;
     private OdometerService odometer;
     private boolean bound = false;
     private Location mLastLocation;
@@ -180,7 +183,19 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
         tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
 
-        tripRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mLayoutManager = new LinearLayoutManager(this);
+
+        CustomDividerItemDecoration customDividerItemDecoration =
+                new CustomDividerItemDecoration(tripRecyclerView.getContext(), R.drawable.divider);
+
+        VerticalSpaceItemDecoration verticalSpaceItemDecoration =
+                new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE);
+
+        DividerItemDecoration dividerItemDecoration =
+                new DividerItemDecoration(tripRecyclerView.getContext(), mLayoutManager.getOrientation());
+
+        tripRecyclerView.setLayoutManager(mLayoutManager);
+        tripRecyclerView.addItemDecoration(dividerItemDecoration);
         tripRecyclerView.setAdapter(mTripAdapter);
 
         // If there's instance state, mine it for useful information.

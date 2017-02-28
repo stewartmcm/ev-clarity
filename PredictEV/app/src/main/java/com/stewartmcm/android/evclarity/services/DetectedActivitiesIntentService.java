@@ -2,6 +2,7 @@ package com.stewartmcm.android.evclarity.services;
 
 import android.Manifest;
 import android.app.IntentService;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +34,11 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.activities.Constants;
+import com.stewartmcm.android.evclarity.activities.Main2Activity;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -242,10 +246,23 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             finalTripDistance = tripDistance;
             Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
+
+            DecimalFormat savingsFormat = new DecimalFormat("###.##");
+
+            String distanceString = savingsFormat.format(tripDistance);
+            Log.i(TAG, "doInBackground: " + distanceString);
+
+            Intent notificationIntent = new Intent(this, Main2Activity.class);
+            PendingIntent intent = PendingIntent.getActivity(this, 0,
+                    notificationIntent, 0);
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setContentText("Trip Logged: " + tripDistance + " miles");
+            builder.setContentText("Trip Logged: " + distanceString + " miles");
             builder.setSmallIcon(R.drawable.ic_stat_car_icon);
             builder.setContentTitle(getString(R.string.app_name));
+            builder.setContentIntent(intent);
+            builder.setAutoCancel(true);
+
             NotificationManagerCompat.from(this).notify(0, builder.build());
             tripDistance = 0.0;
             Log.i(TAG, "logDrive: tripOdometer: " + tripDistance);
@@ -280,17 +297,24 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             db = mHelper.getWritableDatabase();
 
             GregorianCalendar calender = new GregorianCalendar();
+
             Date time = calender.getTime();
 
             double tripSavings = calcSavings(finalTripDistance);
+            Log.i(TAG, "doInBackground: " + tripSavings);
+
+            DecimalFormat savingsFormat = new DecimalFormat("###.##");
+
+            String savingsString = savingsFormat.format(tripSavings);
+            Log.i(TAG, "doInBackground: " + savingsString);
 
             //TODO: test if this code would work fine logging trips with 3 lines of code below
             cursor = db.query("TRIP", new String[]{"SUM(TRIP_MILES) AS sum"},
                     null, null, null, null, null);
             cursor.moveToLast();
             try {
-                mHelper.insertTrip(db, time.toString(), "11:23", 37.828411, -122.289890, 37.805591,
-                        -122.275583, finalTripDistance, Double.toString(tripSavings));
+                mHelper.insertTrip(db, format(calender).toString(), "11:23", 37.828411, -122.289890, 37.805591,
+                        -122.275583, finalTripDistance, savingsString);
                 return true;
 
             } catch (SQLiteException e) {
@@ -351,6 +375,13 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         }
         return 0.00;
 
+    }
+
+    public static String format(GregorianCalendar calendar){
+        SimpleDateFormat fmt = new SimpleDateFormat("EEE, MMM dd ''yy, h:mma");
+        fmt.setCalendar(calendar);
+        String dateFormatted = fmt.format(calendar.getTime());
+        return dateFormatted;
     }
 
     private void loadSharedPreferences() {
