@@ -147,13 +147,16 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         float miles = mTrips.get(position).getMiles();
         float savings = mTrips.get(position).getSavings();
 
-        DecimalFormat milesFormat = new DecimalFormat("###.0");
+        DecimalFormat milesFormat = new DecimalFormat("##0.0");
         DecimalFormat savingsFormat = new DecimalFormat("###.00");
 
         String savingsString = savingsFormat.format(savings);
         Log.i(TAG, "doInBackground: " + savingsString);
 
-        holder.mMileageTextView.setText(miles + " miles");
+        String milesString = milesFormat.format(miles);
+        Log.i(TAG, "doInBackground: " + savingsString);
+
+        holder.mMileageTextView.setText(milesString + " miles");
         holder.mSavingsTextView.setText("$" + savingsString);
         holder.mDateTimeTextView.setText(mTrips.get(position).getTimeStamp());
 

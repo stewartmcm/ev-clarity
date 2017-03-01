@@ -135,7 +135,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         setContentView(R.layout.activity_main2);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setElevation(0f);
 
         View emptyView = this.findViewById(R.id.recyclerview_triplog_empty);
