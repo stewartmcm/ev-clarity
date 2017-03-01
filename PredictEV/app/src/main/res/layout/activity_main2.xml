@@ -69,8 +69,9 @@
             android:orientation="vertical"
             android:background="#fff"
             android:padding="5dp"
-            android:layout_margin="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
             android:elevation="4dp">
 
             <TextView
@@ -96,8 +97,10 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:padding="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
             android:elevation="4dp"
             android:background="#fff"
             android:orientation="vertical"
