@@ -165,7 +165,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.ON_FOOT: {
                     Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
-
+                        
                         loadSharedPreferences();
 
                         if (tripDistance == 0.0) {
@@ -190,6 +190,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 }
                 case DetectedActivity.STILL: {
                     Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
+
                     if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         loadSharedPreferences();
@@ -209,6 +210,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                         }
 
                     }
+
                     break;
                 }
                 case DetectedActivity.TILTING: {
