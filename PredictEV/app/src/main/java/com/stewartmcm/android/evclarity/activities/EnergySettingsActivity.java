@@ -1,11 +1,20 @@
 package com.stewartmcm.android.evclarity.activities;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -13,6 +22,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.android.evclarity.BuildConfig;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.models.Utility;
@@ -28,21 +40,25 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class EnergySettingsActivity extends AppCompatActivity {
-    protected static final String TAG = "EnergySettingsActivity";
+public class EnergySettingsActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+    protected static final String TAG = Constants.ENERGY_SETTINGS_ACTIVITY_TAG;
+    private String utilityRateString;
+    private String gasPriceString;
+    private String currentMPGString;
+    private String utilityName;
+    private String latString;
+    private String lonString;
     private TextView currentUtilityTextView;
     private TextView utilityRateTextView;
     private EditText gasPriceEditText;
     private EditText mpgEditText;
-    private String utilityName;
+    private Location mLastLocation;
+    private CoordinatorLayout mCoordinatorLayout;
+    public Location mCurrentLocation;
+    public GoogleApiClient mGoogleApiClient;
     private double utilityRate;
-    private String utilityRateString;
-    private String gasPriceString;
-    private String currentMPGString;
     private ArrayList<Utility> utilities;
-    private String latString;
-    private String lonString;
-    private String API_KEY = BuildConfig.API_KEY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +66,6 @@ public class EnergySettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_energy_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        latString = (String) getIntent().getExtras().get(Constants.EXTRA_USER_LAT);
-//        Log.i(TAG, "onCreate: latString : " + latString);
-        lonString = (String) getIntent().getExtras().get(Constants.EXTRA_USER_LON);
-//        Log.i(TAG, "onCreate: latString : " + lonString);
 
         if (savedInstanceState != null) {
             utilityName = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_NAME);
@@ -86,6 +97,15 @@ public class EnergySettingsActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        Log.i(TAG, "onResume: called");
+
+        buildGoogleApiClient();
+        mGoogleApiClient.connect();
     }
 
     private void loadSavedPreferences() {
@@ -127,9 +147,55 @@ public class EnergySettingsActivity extends AppCompatActivity {
     }
 
     public void findUtilities() {
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//            Log.i(TAG, "Connected to GoogleApiClient");
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            if (mLastLocation != null) {
+                latString = String.valueOf(mLastLocation.getLatitude());
+//                Log.i(TAG, "latString: " + latString);
+                lonString = String.valueOf(mLastLocation.getLongitude());
+//                Log.i(TAG, "lonString: " + lonString);
+            }
+
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                AlertDialog alertDialog = new AlertDialog.Builder(EnergySettingsActivity.this).create();
+                alertDialog.setTitle("Permission Needed");
+                alertDialog.setMessage("EV Clarity uses your device's location to calculate your potential savings. " +
+                        "You can grant EV Clarity permission to track your location in your device's settings.");
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+            }
+        }
+
         Retrofit retrofit = new Retrofit.Builder().baseUrl(getString(R.string.nrel_api_path))
                 .addConverterFactory(GsonConverterFactory.create()).build();
         UtilityRateAPIService mService = retrofit.create(UtilityRateAPIService.class);
+
+        String API_KEY = BuildConfig.API_KEY;
 
         Call<UtilityArray> call = null;
 
@@ -138,7 +204,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
         if (call != null) {
             if (latString != null && lonString != null){
                 call.enqueue(new Callback<UtilityArray>() {
-//                    @TargetApi(Build.VERSION_CODES.M)
+                    //                    @TargetApi(Build.VERSION_CODES.M)
                     @Override
                     public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
                         Utility[] utilityArray = response.body().getOutputs().getUtilities();
@@ -152,21 +218,16 @@ public class EnergySettingsActivity extends AppCompatActivity {
                         utilityRateString = String.valueOf(utilityRate);
                         utilityRateTextView.setText(utilityRateString);
                         Toast.makeText(getBaseContext(), getString(R.string.electricity_provider_set),
-                            Toast.LENGTH_LONG).show();
+                                Toast.LENGTH_LONG).show();
 
                     }
 
                     @Override
                     public void onFailure(Call<UtilityArray> call, Throwable t) {
-                        Toast.makeText(getBaseContext(), getString(R.string.no_gps_data),
-                                Toast.LENGTH_SHORT).show();
+
                     }
 
                 });
-            } else {
-                Toast.makeText(this, getString(R.string.no_gps_data),
-                        Toast.LENGTH_SHORT).show();
-
             }
 
         } else {
@@ -207,6 +268,7 @@ public class EnergySettingsActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        mGoogleApiClient.disconnect();
 //        Log.i(TAG, "onStop called");
     }
 
@@ -215,4 +277,76 @@ public class EnergySettingsActivity extends AppCompatActivity {
 //        Log.i(TAG, "onDestroy called");
         super.onDestroy();
     }
+
+    /**
+     * Builds a GoogleApiClient. Uses the {@code #addApi} method to request the
+     * ActivityRecognition API.
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     */
+    @Override
+    public void onConnected(Bundle connectionHint) {
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "Connected to GoogleApiClient");
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            if (mLastLocation != null) {
+                latString = String.valueOf(mLastLocation.getLatitude());
+                Log.i(TAG, "latString: " + latString);
+                lonString = String.valueOf(mLastLocation.getLongitude());
+                Log.i(TAG, "lonString: " + lonString);
+            }
+
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
+        // onConnectionFailed.
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        // The connection to Google Play services was lost for some reason. We call connect() to
+        // attempt to re-establish the connection.
+
+        mGoogleApiClient.connect();
+        // Log.i(TAG, "Connection suspended");
+
+    }
+
 }

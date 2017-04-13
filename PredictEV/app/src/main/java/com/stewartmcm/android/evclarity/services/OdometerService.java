@@ -14,10 +14,10 @@ import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import java.text.DecimalFormat;
+import com.stewartmcm.android.evclarity.activities.Constants;
 
 public class OdometerService extends Service {
-    private static final String TAG = "OdometerService";
+    private static final String TAG = Constants.ODOMETER_SERVICE_TAG;
     private final IBinder binder = new OdometerBinder();
     private static double distanceInMeters;
     private static Location lastLocation = null;
@@ -64,11 +64,11 @@ public class OdometerService extends Service {
     public double getMiles() {
         double rawMiles = this.distanceInMeters / 1609.344;
 
-        DecimalFormat decimal = new DecimalFormat("#.00");
-        double miles = Double.valueOf(decimal.format(rawMiles));
-        Log.i(TAG, "tripmileage: " + miles);
+//        DecimalFormat decimal = new DecimalFormat("#.00");
+//        double miles = Double.valueOf(decimal.format(rawMiles));
+        Log.i(TAG, "tripmileage: " + rawMiles);
 
-        return miles;
+        return rawMiles;
     }
 
     public double reset() {
@@ -107,6 +107,5 @@ public class OdometerService extends Service {
         Log.i(TAG, "onDestroy: location updates removed");
 
         super.onDestroy();
-
     }
 }

@@ -2,6 +2,8 @@ package com.stewartmcm.android.evclarity.activities;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -10,15 +12,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +31,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -59,42 +63,29 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         ResultCallback<Status> {
 
-
-    private RecyclerView tripRecyclerView;
+    protected static final String TAG = Constants.MAIN_ACTIVITY_TAG;
     private static final int VERTICAL_ITEM_SPACE = 100;
-    private TextView errorTextView;
     private int mPosition = RecyclerView.NO_POSITION;
-    protected static final String TAG = "Main2Activity";
-    private TripAdapter mTripAdapter;
-    private SwitchCompat trackingSwitch;
     private int mChoiceMode;
-    private String latString;
-    private String lonString;
+    private int tripPosition;
+    private boolean bound = false;
     private boolean driving;
     private boolean isChecked;
-    public GoogleApiClient mGoogleApiClient;
-    private ArrayList<DetectedActivity> mDetectedActivities;
-    private LinearLayoutManager mLayoutManager;
-    private OdometerService odometer;
-    private boolean bound = false;
-    private Location mLastLocation;
-    public Location mCurrentLocation;
-    private double currentMPG;
-    private double sumLoggedTripsDouble;
+    private String latString;
+    private String lonString;
     private String currentMPGString;
     private String utilityRateString;
     private String gasPriceString;
+    public GoogleApiClient mGoogleApiClient;
+    private OdometerService odometer;
+    private Location mLastLocation;
+    public Location mCurrentLocation;
     private TextView monthlySavingsTextView;
-    private TextView totalMileageTextView;
-    private TextView noTripsYetTextView;
-    SQLiteDatabase db;
+    public SQLiteDatabase db;
     public ArrayList<Trip> mTrips;
-    private int tripPosition;
+    private boolean gps_enabled;
     private Cursor sumTripsCursor;
-    private Cursor deleteTripCursor;
-    private Cursor getTripsCursor;
-    private double utilityRate;
-    private double gasPrice;
+    private TripAdapter mTripAdapter;
 
     private static final int TRIP_LOADER = 0;
     // For the forecast view we're showing only a small subset of the stored data.
@@ -129,6 +120,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     public static final int COL_TRIP_MILES = 7;
     public static final int COL_TRIP_SAVINGS = 8;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,16 +130,14 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setElevation(0f);
 
-        View emptyView = this.findViewById(R.id.recyclerview_triplog_empty);
-
 //        Log.i(TAG, "onCreate called");
 
         loadSharedPreferences();
-//        getTrips();
-
+        ArrayList<DetectedActivity> mDetectedActivities;
         monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
 
-        new SumLoggedTripsTask().execute(monthlySavingsTextView);
+        //TODO:test app without line blow and delete if tests passed
+//        new SumLoggedTripsTask().execute(monthlySavingsTextView);
 
         // Reuse the value of mDetectedActivities from the bundle if possible. This maintains state
         // across device orientation changes. If mDetectedActivities is not stored in the bundle,
@@ -167,13 +157,61 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             }
         }
 
+        // Kick off the request to build GoogleApiClient.
+        buildGoogleApiClient();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        Log.i(TAG, "onResume called");
+
+        //TODO: test both permission checks individually, you currently have two
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//            Log.i(TAG, "Connected to GoogleApiClient");
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            if (mLastLocation != null) {
+                latString = String.valueOf(mLastLocation.getLatitude());
+//                Log.i(TAG, "latString: " + latString);
+                lonString = String.valueOf(mLastLocation.getLongitude());
+//                Log.i(TAG, "lonString: " + lonString);
+            }
+
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+            }
+        }
+
+        View emptyView = this.findViewById(R.id.recyclerview_triplog_empty);
+
         mTripAdapter = new TripAdapter(this, new TripAdapter.TripAdapterOnClickHandler() {
 
             @Override
             public void onClick(String dateTime, TripAdapter.TripAdapterViewHolder viewHolder) {
                 mPosition = viewHolder.getAdapterPosition();
 
-                Toast.makeText(getApplicationContext(),"This don't do nothin", Toast.LENGTH_SHORT);
+                //TODO: implement to launch detail activity onClick of each item
 
 //                onItemSelected(Contract.Trip.makeUriForTrip(dateTime),
 //                        viewHolder
@@ -181,9 +219,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             }
         }, emptyView, mChoiceMode);
 
-        tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        RecyclerView tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
 
-        mLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
 
         CustomDividerItemDecoration customDividerItemDecoration =
                 new CustomDividerItemDecoration(tripRecyclerView.getContext(), R.drawable.divider);
@@ -198,14 +236,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         tripRecyclerView.addItemDecoration(dividerItemDecoration);
         tripRecyclerView.setAdapter(mTripAdapter);
 
-        // If there's instance state, mine it for useful information.
-        // The end-goal here is that the user never knows that turning their device sideways
-        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
-        // or magically appeared to take advantage of room, but data or place in the app was never
-        // actually *lost*.
-        if (savedInstanceState != null) {
-            mTripAdapter.onRestoreInstanceState(savedInstanceState);
-        }
+//        if (savedInstanceState != null) {
+//            mTripAdapter.onRestoreInstanceState(savedInstanceState);
+//        }
 
         getSupportLoaderManager().initLoader(TRIP_LOADER, null, this);
 
@@ -217,10 +250,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                //TODO: implement remove trip method
                 tripPosition = viewHolder.getAdapterPosition();
 
-                Log.i(TAG, "onSwiped: position: " + tripPosition);
+//                Log.i(TAG, "onSwiped: position: " + tripPosition);
 
                 new DeleteTripTask().execute(tripPosition);
                 new SumLoggedTripsTask().execute(monthlySavingsTextView);
@@ -231,40 +263,53 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 mTripAdapter.notifyItemRemoved(tripPosition);
                 mTripAdapter.notifyItemRangeChanged(tripPosition, newTripArraySize);
 
-                //TODO: create Trip model and build array list to store trips to use with recyclerview
-
             }
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(tripRecyclerView);
 
-        // Kick off the request to build GoogleApiClient.
-        buildGoogleApiClient();
+        //make sure options menu is redrawn so that changes to device settings(e.g. GPS) are detected
+        invalidateOptionsMenu();
+    }
+
+    @Override
+    public void invalidateOptionsMenu() {
+        super.supportInvalidateOptionsMenu();
 
     }
 
-    private ArrayList<Trip> getTrips() {
-        mTrips = new ArrayList<>();
-        SQLiteDatabase db = null;
-        PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(Main2Activity.this);
-        db = mHelper.getReadableDatabase();
-
-        getTripsCursor = db.query("TRIP", null, null, null, null, null, null);
-        getTripsCursor.moveToFirst();
-
-        for (int i = 0; i < 8; i++) {
-
-            Trip trip = new Trip("today",
-                                 1.1f,
-                                 1.20f);
-
-            mTrips.add(trip);
-//            getTripsCursor.moveToNext();
-        }
-
-        return mTrips;
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, gps_enabled);
+        loadSharedPreferences();
+        return super.onPrepareOptionsMenu(menu);
     }
+
+    //TODO: remove this method and test app immediately afterwards
+//    private ArrayList<Trip> getTrips() {
+//        mTrips = new ArrayList<>();
+//        SQLiteDatabase db = null;
+//        PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(MainActivity.this);
+//        db = mHelper.getReadableDatabase();
+//
+//        Cursor getTripsCursor = db.query("TRIP", null, null, null, null, null, null);
+//        getTripsCursor.moveToFirst();
+//
+//        for (int i = 0; i < 8; i++) {
+//
+//            Trip trip = new Trip("today",
+//                                 1.1f,
+//                                 1.20f);
+//
+//            mTrips.add(trip);
+////            getTripsCursor.moveToNext();
+//        }
+//
+//        return mTrips;
+//    }
 
     //deletes trip asynchronously when executed
     private class DeleteTripTask extends AsyncTask<Integer, Void, Boolean> {
@@ -279,7 +324,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         protected Boolean doInBackground(Integer... trips) {
 
             int tripNo = trips[0];
-            Log.i(TAG, "DeleteTripTask: row " + tripNo + " was deleted.");
+//            Log.i(TAG, "DeleteTripTask: row " + tripNo + " was deleted.");
 
 
             SQLiteDatabase db = null;
@@ -287,22 +332,23 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
             try {
 
+                //TODO: try replacing query columns with constants
                 db = mHelper.getWritableDatabase();
-                deleteTripCursor = db.query("TRIP", new String[]{"_id", "TRIP_MILES"},
+                Cursor deleteTripCursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"_id", "TRIP_MILES"},
                         null, null, null, null, null);
 
                 if(deleteTripCursor.moveToPosition(tripNo)) {
                     String rowId = deleteTripCursor.getString(deleteTripCursor.getColumnIndex(PredictEvDatabaseHelper.COL_ID));
 
-                    db.delete("TRIP", PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
+                    db.delete(Constants.TRIP_TABLE_NAME, PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
+                    deleteTripCursor.close();
                 }
-
-                db.close();
 
                 return true;
 
             } catch (SQLiteException e) {
-                Toast toast = Toast.makeText(Main2Activity.this, "Database unavailable.", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(Main2Activity.this, getString(R.string.database_unavailable),
+                        Toast.LENGTH_SHORT);
                 toast.show();
                 return false;
 
@@ -330,9 +376,10 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         protected Boolean doInBackground(TextView... params) {
             SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(Main2Activity.this);
 
+            //TODO: replace query with string reference and test immediately
             try {
                 db = mHelper.getReadableDatabase();
-                sumTripsCursor = db.query("TRIP", new String[]{"SUM(TRIP_MILES) AS sum"},
+                sumTripsCursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
                         null, null, null, null, null);
 
                 return true;
@@ -349,24 +396,24 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             sumTripsCursor.moveToFirst();
             if (success) {
                 // TODO: update comment describing code below
-                sumLoggedTripsDouble = sumTripsCursor.getDouble(0);
+                double sumLoggedTripsDouble = sumTripsCursor.getDouble(0);
                 double savings = calcSavings(sumLoggedTripsDouble);
 
                 monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                monthlySavingsTextView.setText("$" + String.format("%.2f", savings));
+                monthlySavingsTextView.setText(getString(R.string.dollar_symbol)
+                        + String.format(getString(R.string.savings_format), savings));
 
-                totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
-                totalMileageTextView.setText(String.format("%.0f", sumLoggedTripsDouble));
-
-                // Log.i(TAG, "onPostExecute: savingsText: " + String.format("%.2f", calcSavings(sumLoggedTripsDouble)));
-
+                TextView totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
+                totalMileageTextView.setText(String.format(getString(R.string.mileage_format),
+                        sumLoggedTripsDouble));
+                sumTripsCursor.close();
 
             } else {
 
-                Toast toast = Toast.makeText(Main2Activity.this, "Database unavailable", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(Main2Activity.this, getString(R.string.database_unavailable),
+                        Toast.LENGTH_SHORT);
                 toast.show();
             }
-            db.close();
         }
     }
 
@@ -383,50 +430,8 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 //        Log.i(TAG, "onStart called");
 
         loadSharedPreferences();
-
         new SumLoggedTripsTask().execute(monthlySavingsTextView);
         mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        Log.i(TAG, "onResume called");
-
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-//            Log.i(TAG, "Connected to GoogleApiClient");
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            if (mLastLocation != null) {
-                latString = String.valueOf(mLastLocation.getLatitude());
-//                Log.i(TAG, "latString: " + latString);
-                lonString = String.valueOf(mLastLocation.getLongitude());
-//                Log.i(TAG, "lonString: " + lonString);
-            }
-
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-                ActivityCompat.requestPermissions(this,
-                        permissions,
-                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
-            }
-        }
     }
 
     /**
@@ -448,40 +453,39 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     public void onConnected(Bundle connectionHint) {
 
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-//            Log.i(TAG, "Connected to GoogleApiClient");
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            if (mLastLocation != null) {
-                latString = String.valueOf(mLastLocation.getLatitude());
-//                Log.i(TAG, "latString: " + latString);
-                lonString = String.valueOf(mLastLocation.getLongitude());
-//                Log.i(TAG, "lonString: " + lonString);
-            }
-
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-                ActivityCompat.requestPermissions(this,
-                        permissions,
-                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
-            }
-        }
+//        int permissionCheck = ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION);
+//
+//        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+//                    mGoogleApiClient);
+//            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+//
+//            if (mLastLocation != null) {
+//                latString = String.valueOf(mLastLocation.getLatitude());
+////                Log.i(TAG, "latString: " + latString);
+//                lonString = String.valueOf(mLastLocation.getLongitude());
+////                Log.i(TAG, "lonString: " + lonString);
+//            }
+//
+//        } else {
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+//
+//                // Show an explanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//
+//            } else {
+//
+//                // No explanation needed, we can request the permission.
+//                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+//                ActivityCompat.requestPermissions(this,
+//                        permissions,
+//                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+//
+//            }
+//        }
     }
 
     @Override
@@ -590,6 +594,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     }
 
     protected void setTrackingSwitch(SwitchCompat trackingSwitch) {
+
+        loadSharedPreferences();
+
         if (isChecked) {
             trackingSwitch.setChecked(true);
         } else {
@@ -598,10 +605,24 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         }
     }
 
+    protected void flipTrackingSwitch(SwitchCompat trackingSwitch) {
+        if (isChecked) {
+            isChecked = false;
+            trackingSwitch.setChecked(true);
+        } else {
+            isChecked = true;
+            trackingSwitch.setChecked(false);
+
+        }
+    }
+
     private double calcSavings(double mileageDouble) {
 
         double savings;
-        utilityRate = Double.parseDouble(utilityRateString);
+        double currentMPG;
+        double gasPrice;
+        double utilityRate = Double.parseDouble(utilityRateString);
+
 
         if (gasPriceString.isEmpty()) {
             gasPrice = 0.0;
@@ -619,7 +640,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
 
         if (utilityRate != 0.0) {
-        // Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
+            // Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
 
             // .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
             savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
@@ -643,8 +664,8 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mTripAdapter.swapCursor(data);
 
-        errorTextView = (TextView) findViewById(error);
-        noTripsYetTextView = (TextView) findViewById(R.id.recyclerview_triplog_empty);
+        TextView errorTextView = (TextView) findViewById(error);
+        TextView noTripsYetTextView = (TextView) findViewById(R.id.recyclerview_triplog_empty);
 
         if (data.getCount() != 0) {
             errorTextView.setVisibility(View.GONE);
@@ -664,7 +685,10 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        trackingSwitch = (SwitchCompat) menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchForActionBar);
+        final SwitchCompat trackingSwitch = (SwitchCompat) menu.findItem(R.id.myswitch).getActionView()
+                .findViewById(R.id.switchForActionBar);
+
+
         setTrackingSwitch(trackingSwitch);
 
         trackingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -672,26 +696,76 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
 
-                    if (!mGoogleApiClient.isConnected()) {
+                    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+                    if (!checkLocationPermission()) {
+                        AlertDialog alertDialog = new AlertDialog.Builder(Main2Activity.this).create();
+                        alertDialog.setTitle("Permission Needed");
+                        alertDialog.setMessage("EV Clarity uses your device's location to calculate your potential savings. " +
+                                "You can grant EV Clarity permission to track your location in your device's settings.");
+                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        alertDialog.show();
+                        isChecked = false;
+                    } else if(!gps_enabled) {
+
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Main2Activity.this,
+                                R.style.NoLocationAlertDialogTheme);
+                        alertDialog.setTitle("Location Unavailable");
+                        alertDialog.setMessage("EV Clarity uses your device's location to calculate your potential savings. " +
+                                "Please turn on your GPS in your device's settings.");
+                        alertDialog.setPositiveButton("Go to settings", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                                Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(myIntent);
+                                //get gps
+                            }
+                        });
+//                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+//                                new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        dialog.dismiss();
+//                                    }
+//                                });
+                        alertDialog.show();
+                    } else if (!mGoogleApiClient.isConnected()) {
+
+                        isChecked = false;
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
                         Toast.makeText(Main2Activity.this, getString(R.string.not_connected),
                                 Toast.LENGTH_SHORT).show();
-                        return;
+
+                    } else {
+
+                        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
+                                mGoogleApiClient,
+                                Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+                                getActivityDetectionPendingIntent()
+                        ).setResultCallback(Main2Activity.this);
+                        isChecked = true;
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
+                        Toast.makeText(Main2Activity.this, getString(R.string.drive_tracking_on),
+                                Toast.LENGTH_SHORT).show();
                     }
-                    ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
-                            mGoogleApiClient,
-                            Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
-                            getActivityDetectionPendingIntent()
-                    ).setResultCallback(Main2Activity.this);
-                    isChecked = true;
-                    savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
-                    Toast.makeText(Main2Activity.this, getString(R.string.drive_tracking_on),
-                            Toast.LENGTH_SHORT).show();
 
                 } else {
+
+                    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
 
                     if (!mGoogleApiClient.isConnected()) {
                         Toast.makeText(Main2Activity.this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
                         return;
+                    } else if (!gps_enabled) {
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, gps_enabled);
+
                     }
                     // Remove all activity updates for the PendingIntent that was used to request activity
                     // updates.
@@ -704,10 +778,23 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                     Toast.makeText(Main2Activity.this, getString(R.string.drive_tracking_off),
                             Toast.LENGTH_SHORT).show();
                 }
+                setTrackingSwitch(trackingSwitch);
             }
         });
 
         return true;
+    }
+
+    private boolean checkLocationPermission() {
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

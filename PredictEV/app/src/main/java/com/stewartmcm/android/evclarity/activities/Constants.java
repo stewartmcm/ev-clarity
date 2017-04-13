@@ -14,7 +14,7 @@ public final class Constants {
     private Constants() {
     }
 
-    public static final String PACKAGE_NAME = "com.example.android.predictev";
+    public static final String PACKAGE_NAME = "com.example.android.evclarity";
 
     public static final String BROADCAST_ACTION = PACKAGE_NAME + ".BROADCAST_ACTION";
 
@@ -26,6 +26,16 @@ public final class Constants {
             ".ACTIVITY_UPDATES_REQUESTED";
 
     public static final String DETECTED_ACTIVITIES = PACKAGE_NAME + ".DETECTED_ACTIVITIES";
+
+    public static final String MAIN_ACTIVITY_TAG = "MAIN_ACTIVITY";
+
+    public static final String ENERGY_SETTINGS_ACTIVITY_TAG = "ENERGYSETTINGS_ACTIVITY";
+
+    public static final String DETECTED_ACTIVITIES_INTENT_SERVICE_TAG = "DETECT_ACTIV_INT_SERV";
+
+    public static final String ODOMETER_SERVICE_TAG = "ODOMETER_SERVICE";
+
+    public static final String TRIP_TABLE_NAME = "trip";
 
     /**
      * The desired time between activity detections. Larger values result in fewer activity
@@ -48,9 +58,11 @@ public final class Constants {
     public static final String KEY_SHARED_PREF_GAS_PRICE = "SHARED_PREF_GAS_PRICE";
     public static final String KEY_SHARED_PREF_CURRENT_MPG = "SHARED_PREF_CURRENT_MPG";
     public static final String KEY_SHARED_PREF_DRIVE_TRACKING = "KEY_SHARED_PREF_DRIVE_TRACKING";
+    public static final String KEY_SHARED_PREF_GPS_STATE = "KEY_SHARED_PREF_GPS_STATE";
 
     public static final String KEY_SHARED_PREF_TRIP_DISTANCE = "SHARED_PREF_TRIP_DISTANCE";
 
+    public static final String KEY_SHARED_PREF_ASKED_FOR_PERMISSION = "SHARED_PREF_ASKED_FOR_PERMISSION";
 
     /**
      * List of DetectedActivity types that we monitor in this sample.
