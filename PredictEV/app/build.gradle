@@ -12,7 +12,6 @@ android {
         multiDexEnabled true
         versionCode 10
         versionName "1.1"
-        buildConfigField ("String", "API_KEY", API_KEY)
     }
     buildTypes {
         release {

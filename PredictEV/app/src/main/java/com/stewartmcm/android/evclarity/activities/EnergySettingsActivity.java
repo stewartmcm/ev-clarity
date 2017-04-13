@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.stewartmcm.android.evclarity.BuildConfig;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.models.Utility;
 import com.stewartmcm.android.evclarity.models.UtilityArray;
@@ -195,7 +194,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 .addConverterFactory(GsonConverterFactory.create()).build();
         UtilityRateAPIService mService = retrofit.create(UtilityRateAPIService.class);
 
-        String API_KEY = BuildConfig.API_KEY;
+        String API_KEY = "vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt";
 
         Call<UtilityArray> call = null;
 
