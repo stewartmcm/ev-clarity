@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.stewartmcm.android.evclarity.activities.Main2Activity;
+import com.stewartmcm.android.evclarity.activities.MainActivity;
 import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.models.Trip;
@@ -93,9 +93,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
         for (int i = 0; i < mCursor.getCount(); i++) {
 
-            Trip trip = new Trip(mCursor.getString(Main2Activity.COL_DATE),
-                    mCursor.getFloat(Main2Activity.COL_TRIP_MILES),
-                    mCursor.getFloat(Main2Activity.COL_TRIP_SAVINGS));
+            Trip trip = new Trip(mCursor.getString(MainActivity.COL_DATE),
+                    mCursor.getFloat(MainActivity.COL_TRIP_MILES),
+                    mCursor.getFloat(MainActivity.COL_TRIP_SAVINGS));
 
             mTrips.add(trip);
             mCursor.moveToNext();
@@ -160,11 +160,11 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         holder.mSavingsTextView.setText("$" + savingsString);
         holder.mDateTimeTextView.setText(mTrips.get(position).getTimeStamp());
 
-//        String date = mCursor.getString(Main2Activity.COL_DATE);
+//        String date = mCursor.getString(MainActivity.COL_DATE);
 //
-//        holder.mMileageTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_MILES) + " miles");
+//        holder.mMileageTextView.setText(mCursor.getString(MainActivity.COL_TRIP_MILES) + " miles");
 //        holder.mDateTimeTextView.setText(date);
-//        holder.mSavingsTextView.setText(mCursor.getString(Main2Activity.COL_TRIP_SAVINGS));
+//        holder.mSavingsTextView.setText(mCursor.getString(MainActivity.COL_TRIP_SAVINGS));
 
         mICM.onBindViewHolder(holder, position);
     }
@@ -189,7 +189,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 //    public String getTripAtPosition(int position) {
 //
 //        mCursor.moveToPosition(position);
-//        return mCursor.getString(Main2Activity.COL_DATE);
+//        return mCursor.getString(MainActivity.COL_DATE);
 //    }
 
     @Override

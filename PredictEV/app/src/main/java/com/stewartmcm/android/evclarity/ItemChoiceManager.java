@@ -10,14 +10,14 @@ import android.util.SparseBooleanArray;
 import android.widget.AbsListView;
 import android.widget.Checkable;
 
-import com.stewartmcm.android.evclarity.activities.Main2Activity;
+import com.stewartmcm.android.evclarity.activities.MainActivity;
 
 /**
  * Created by stewartmcmillan on 1/12/17.
  */
 
 public class ItemChoiceManager {
-    private final String LOG_TAG = Main2Activity.class.getSimpleName();
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
     private final String SELECTED_ITEMS_KEY = "SIK";
     private int mChoiceMode;
 

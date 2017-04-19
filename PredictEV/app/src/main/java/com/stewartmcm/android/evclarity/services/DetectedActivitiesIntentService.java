@@ -33,7 +33,7 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.activities.Constants;
-import com.stewartmcm.android.evclarity.activities.Main2Activity;
+import com.stewartmcm.android.evclarity.activities.MainActivity;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 
 import java.text.DecimalFormat;
@@ -256,7 +256,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             String distanceString = distanceFormat.format(tripDistance);
 //            Log.i(TAG, "doInBackground: " + distanceString);
 
-            Intent notificationIntent = new Intent(this, Main2Activity.class);
+            Intent notificationIntent = new Intent(this, MainActivity.class);
             PendingIntent intent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0);
 
