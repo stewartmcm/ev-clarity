@@ -92,7 +92,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     .build();
         }
     }
-    
+
     //TODO: try starting the service after device detects it's in a vehicle, not every time activity recognition has a result
 
     /**
