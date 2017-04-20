@@ -80,7 +80,7 @@ public class OdometerService extends Service {
         return 0.0;
     }
 
-    public class OdometerBinder extends Binder {
+    class OdometerBinder extends Binder {
         OdometerService getOdometer() {
             return OdometerService.this;
         }

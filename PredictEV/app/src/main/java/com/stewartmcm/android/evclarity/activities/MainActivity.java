@@ -13,7 +13,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -49,7 +48,6 @@ import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.TripAdapter;
 import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
-import com.stewartmcm.android.evclarity.models.Trip;
 import com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService;
 
 import java.util.ArrayList;
@@ -62,8 +60,6 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         ResultCallback<Status> {
 
-    protected static final String TAG = Constants.MAIN_ACTIVITY_TAG;
-    private static final int VERTICAL_ITEM_SPACE = 100;
     private int mPosition = RecyclerView.NO_POSITION;
     private int mChoiceMode;
     private int tripPosition;
@@ -74,11 +70,9 @@ public class MainActivity extends AppCompatActivity implements
     private String utilityRateString;
     private String gasPriceString;
     public GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
     public Location mCurrentLocation;
     private TextView monthlySavingsTextView;
     public SQLiteDatabase db;
-    public ArrayList<Trip> mTrips;
     private boolean gps_enabled;
     private Cursor sumTripsCursor;
     private TripAdapter mTripAdapter;
@@ -106,16 +100,15 @@ public class MainActivity extends AppCompatActivity implements
 
     // These indices are tied to TRIP_COLUMNS.  If TRIP_COLUMNS changes, these
     // must change.
-    static final int COL_ID = 0;
     public static final int COL_DATE = 1;
-    static final int COL_TIME = 2;
-    static final int COL_ORIGIN_LAT = 3;
-    static final int COL_ORIGIN_LONG = 4;
-    static final int COL_DEST_LAT = 5;
-    static final int COL_DEST_LONG = 6;
     public static final int COL_TRIP_MILES = 7;
     public static final int COL_TRIP_SAVINGS = 8;
-
+    //    static final int COL_ID = 0;
+    //    static final int COL_TIME = 2;
+    //    static final int COL_ORIGIN_LAT = 3;
+    //    static final int COL_ORIGIN_LONG = 4;
+    //    static final int COL_DEST_LAT = 5;
+    //    static final int COL_DEST_LONG = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,21 +116,24 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main2);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
         getSupportActionBar().setElevation(0f);
 
         loadSharedPreferences();
-        ArrayList<DetectedActivity> mDetectedActivities;
+        ArrayList<DetectedActivity> detectedActivities;
         monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
 
         if (savedInstanceState != null && savedInstanceState.containsKey(Constants.DETECTED_ACTIVITIES)) {
-            mDetectedActivities = (ArrayList<DetectedActivity>) savedInstanceState.getSerializable(
+            detectedActivities = (ArrayList<DetectedActivity>) savedInstanceState.getSerializable(
                     Constants.DETECTED_ACTIVITIES);
         } else {
             // Set the confidence level of each monitored activity to zero.
-            mDetectedActivities = new ArrayList<DetectedActivity>();
+            detectedActivities = new ArrayList<>();
             for (int i = 0; i < Constants.MONITORED_ACTIVITIES.length; i++) {
-                mDetectedActivities.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i], 0));
+                detectedActivities.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i], 0));
             }
         }
 
@@ -149,18 +145,20 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
 
+        Location lastLocation;
+
         //TODO: test both permission checks individually, you currently have two
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+            lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-            if (mLastLocation != null) {
-                latString = String.valueOf(mLastLocation.getLatitude());
-                lonString = String.valueOf(mLastLocation.getLongitude());
+            if (lastLocation != null) {
+                latString = String.valueOf(lastLocation.getLatitude());
+                lonString = String.valueOf(lastLocation.getLongitude());
             }
 
         } else {
@@ -256,6 +254,8 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected Boolean doInBackground(Integer... trips) {
             int tripNo = trips[0];
+
+            //TODO: Test deleting line below and declaring db in try catch statement
             SQLiteDatabase db = null;
             PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(MainActivity.this);
 
@@ -326,8 +326,7 @@ public class MainActivity extends AppCompatActivity implements
                 double savings = calcSavings(sumLoggedTripsDouble);
 
                 monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                monthlySavingsTextView.setText(getString(R.string.dollar_symbol)
-                        + String.format(getString(R.string.savings_format), savings));
+                monthlySavingsTextView.setText(R.string.$ + String.format(getString(R.string.savings_format), savings));
 
                 TextView totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
                 totalMileageTextView.setText(String.format(getString(R.string.mileage_format),
@@ -502,8 +501,6 @@ public class MainActivity extends AppCompatActivity implements
         currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
                 getString(R.string.default_mpg));
         isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
-        // Log.i(TAG, "loadSavedPreferences: isChecked: " + isChecked);
-
     }
 
     @Override
@@ -521,21 +518,10 @@ public class MainActivity extends AppCompatActivity implements
             trackingSwitch.setChecked(true);
         } else {
             trackingSwitch.setChecked(false);
-
         }
     }
 
-    protected void flipTrackingSwitch(SwitchCompat trackingSwitch) {
-        if (isChecked) {
-            isChecked = false;
-            trackingSwitch.setChecked(true);
-        } else {
-            isChecked = true;
-            trackingSwitch.setChecked(false);
-
-        }
-    }
-
+    //TODO: test changing return type to void
     private double calcSavings(double mileageDouble) {
 
         double savings;
@@ -556,24 +542,17 @@ public class MainActivity extends AppCompatActivity implements
             currentMPG = Double.parseDouble(currentMPGString);
         }
 
-        // Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
-
-
         if (utilityRate != 0.0) {
-            // Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
-
             // .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
             savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
-
             return savings;
         }
-        return 0.00;
 
+        return 0.00;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
         return new CursorLoader(this,
                 Contract.Trip.uri,
                 TRIP_COLUMNS,
@@ -590,7 +569,6 @@ public class MainActivity extends AppCompatActivity implements
         if (data.getCount() != 0) {
             errorTextView.setVisibility(View.GONE);
             noTripsYetTextView.setVisibility(View.GONE);
-
         }
         //TODO: try uncommenting this when testing on swipe
 //        mTripAdapter.setCursor(data);
@@ -607,7 +585,6 @@ public class MainActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.main, menu);
         final SwitchCompat trackingSwitch = (SwitchCompat) menu.findItem(R.id.myswitch).getActionView()
                 .findViewById(R.id.switchForActionBar);
-
 
         setTrackingSwitch(trackingSwitch);
 
@@ -631,15 +608,13 @@ public class MainActivity extends AppCompatActivity implements
                                     }
                                 });
                         alertDialog.show();
-                        isChecked = false;
                     } else if(!gps_enabled) {
 
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this,
                                 R.style.NoLocationAlertDialogTheme);
-                        alertDialog.setTitle("Location Unavailable");
-                        alertDialog.setMessage("EV Clarity uses your device's location to calculate your potential savings. " +
-                                "Please turn on your GPS in your device's settings.");
-                        alertDialog.setPositiveButton("Go to settings", new DialogInterface.OnClickListener() {
+                        alertDialog.setTitle(R.string.location_not_avail_alert_header);
+                        alertDialog.setMessage(R.string.location_not_avail_alert_message);
+                        alertDialog.setPositiveButton(R.string.got_to_settings_button, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                                 Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -655,9 +630,7 @@ public class MainActivity extends AppCompatActivity implements
 //                                });
                         alertDialog.show();
                     } else if (!mGoogleApiClient.isConnected()) {
-
-                        isChecked = false;
-                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
                         Toast.makeText(MainActivity.this, getString(R.string.not_connected),
                                 Toast.LENGTH_SHORT).show();
 
@@ -668,8 +641,7 @@ public class MainActivity extends AppCompatActivity implements
                                 Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
                                 getActivityDetectionPendingIntent()
                         ).setResultCallback(MainActivity.this);
-                        isChecked = true;
-                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, true);
                         Toast.makeText(MainActivity.this, getString(R.string.drive_tracking_on),
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -684,7 +656,7 @@ public class MainActivity extends AppCompatActivity implements
                         Toast.makeText(MainActivity.this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
                         return;
                     } else if (!gps_enabled) {
-                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, gps_enabled);
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, false);
 
                     }
                     // Remove all activity updates for the PendingIntent that was used to request activity
@@ -693,8 +665,7 @@ public class MainActivity extends AppCompatActivity implements
                             mGoogleApiClient,
                             getActivityDetectionPendingIntent()
                     ).setResultCallback(MainActivity.this);
-                    isChecked = false;
-                    savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isChecked);
+                    savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
                     Toast.makeText(MainActivity.this, getString(R.string.drive_tracking_off),
                             Toast.LENGTH_SHORT).show();
                 }
@@ -706,15 +677,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private boolean checkLocationPermission() {
-
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
-        }
+        return permissionCheck == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -757,7 +723,7 @@ public class MainActivity extends AppCompatActivity implements
 
     //TODO: Create TripDetailActivity with map of individual trip
     //    @Override
-    public void onItemSelected(Uri contentUri, TripAdapter.TripAdapterViewHolder vh) {
+//    public void onItemSelected(Uri contentUri, TripAdapter.TripAdapterViewHolder vh) {
 
 //        Intent intent = new Intent(this, TripDetailActivity.class)
 //                .setData(contentUri);
@@ -766,6 +732,5 @@ public class MainActivity extends AppCompatActivity implements
 //                ActivityOptionsCompat.makeSceneTransitionAnimation(this,
 //                        new Pair<View, String>(vh.mIconView, getString(R.string.detail_icon_transition_name)));
 //        startActivity(intent);
-
-    }
+//    }
 }

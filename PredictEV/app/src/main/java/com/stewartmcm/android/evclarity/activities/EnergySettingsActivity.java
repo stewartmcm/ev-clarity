@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -53,7 +52,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     private EditText gasPriceEditText;
     private EditText mpgEditText;
     private Location mLastLocation;
-    private CoordinatorLayout mCoordinatorLayout;
     public Location mCurrentLocation;
     public GoogleApiClient mGoogleApiClient;
     private double utilityRate;
@@ -101,8 +99,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     @Override
     protected void onResume() {
         super.onResume();
-//        Log.i(TAG, "onResume: called");
-
         buildGoogleApiClient();
         mGoogleApiClient.connect();
     }
@@ -120,13 +116,8 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
 
         currentUtilityTextView.setText(utilityName);
         utilityRateTextView.setText(utilityRateString);
-
         gasPriceEditText.setText(gasPriceString);
-//        Log.i(TAG, "loadSavedPref gasPriceString: " + gasPriceString);
-
         mpgEditText.setText(currentMPGString);
-//        Log.i(TAG, "loadSavedPref mpgString: " + currentMPGString);
-
     }
 
     private void initLayoutElements() {
@@ -151,16 +142,13 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-//            Log.i(TAG, "Connected to GoogleApiClient");
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
             if (mLastLocation != null) {
                 latString = String.valueOf(mLastLocation.getLatitude());
-//                Log.i(TAG, "latString: " + latString);
                 lonString = String.valueOf(mLastLocation.getLongitude());
-//                Log.i(TAG, "lonString: " + lonString);
             }
 
         } else {
@@ -178,7 +166,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                             }
                         });
                 alertDialog.show();
-
             } else {
 
                 // No explanation needed, we can request the permission.
@@ -186,7 +173,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 ActivityCompat.requestPermissions(this,
                         permissions,
                         Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
             }
         }
 
@@ -218,7 +204,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                         utilityRateTextView.setText(utilityRateString);
                         Toast.makeText(getBaseContext(), getString(R.string.electricity_provider_set),
                                 Toast.LENGTH_LONG).show();
-
                     }
 
                     @Override
@@ -306,12 +291,13 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
 
             if (mLastLocation != null) {
                 latString = String.valueOf(mLastLocation.getLatitude());
-                Log.i(TAG, "latString: " + latString);
+//                Log.i(TAG, "latString: " + latString);
                 lonString = String.valueOf(mLastLocation.getLongitude());
-                Log.i(TAG, "lonString: " + lonString);
+//                Log.i(TAG, "lonString: " + lonString);
             }
 
         } else {
+            //TODO:Test removing this check, just requesting the permission.
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
@@ -326,7 +312,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 ActivityCompat.requestPermissions(this,
                         permissions,
                         Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
             }
         }
     }
@@ -342,10 +327,8 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     public void onConnectionSuspended(int cause) {
         // The connection to Google Play services was lost for some reason. We call connect() to
         // attempt to re-establish the connection.
-
         mGoogleApiClient.connect();
         // Log.i(TAG, "Connection suspended");
-
     }
 
 }

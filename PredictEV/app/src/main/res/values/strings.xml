@@ -7,6 +7,10 @@
     <string name="dollar_symbol">$</string>
     <string name="savings_format">%.2f</string>
     <string name="mileage_format">%.0f</string>
+    <string name="location_not_avail_alert_header">"Location Unavailable"</string>
+    <string name="location_not_avail_alert_message">"EV Clarity uses your device's location to" + "
+        calculate your potential savings. Please turn on your GPS in your device's settings."</string>
+    <string name="got_to_settings_button">Go to settings</string>
 
     <!--Detected Activities Intent Service-->
 

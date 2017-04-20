@@ -12,9 +12,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -38,7 +35,6 @@ import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -51,24 +47,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     protected static final String TAG = Constants.DETECTED_ACTIVITIES_INTENT_SERVICE_TAG;
 
     private GoogleApiClient mGoogleApiClient;
-    Cursor cursor;
-    SQLiteDatabase db;
+    private Cursor cursor;
     private OdometerService odometer;
-    Intent odometerIntent;
-    private boolean driving;
+    private Intent odometerIntent;
     private boolean bound = false;
-    private Location mLastLocation;
-    private String latString;
-    private String lonString;
     private String currentMPGString;
     private String utilityRateString;
     private String gasPriceString;
-    private boolean isChecked;
     private double finalTripDistance;
-    private static double distanceInMeters;
-    private static Location lastLocation = null;
-    private LocationManager locManager;
-    private LocationListener listener;
     public double tripDistance;
 
     /**
@@ -85,7 +71,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         super.onCreate();
 //        Log.i(TAG, "onCreate: method ran");
         buildGoogleApiClient();
-
     }
 
     @Override
@@ -93,7 +78,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //        Log.i(TAG, "onStart called");
         super.onStart(intent, startId);
         mGoogleApiClient.connect();
-
     }
 
 
@@ -108,8 +92,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     .build();
         }
     }
-
-
+    
     //TODO: try starting the service after device detects it's in a vehicle, not every time activity recognition has a result
 
     /**
@@ -151,7 +134,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                             break;
                         } else {
 //                            Log.i(TAG, "onHandleDetectedActivities: odometer not null");
-                            driving = true;
                             recordDrive();
                         }
                         break;
@@ -178,7 +160,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                             logDrive();
                             tripDistance = 0.0;
                             savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
-                            driving = false;
                         } else {
 //                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .20");
                             tripDistance = 0.0;
@@ -207,7 +188,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                             logDrive();
                             tripDistance = 0.0;
                             savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
-                            driving = false;
                         } else {
 //                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .30");
                             tripDistance = 0.0;
@@ -291,11 +271,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //            Log.i(TAG, "LogTripTask doInBackground: method ran");
 
             PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(DetectedActivitiesIntentService.this);
-            db = mHelper.getWritableDatabase();
+            SQLiteDatabase db = mHelper.getWritableDatabase();
 
             GregorianCalendar calender = new GregorianCalendar();
 
-            Date time = calender.getTime();
+//            Date time = calender.getTime();
 
             double tripSavings = calcSavings(finalTripDistance);
 //            Log.i(TAG, "doInBackground: " + tripSavings);
@@ -323,18 +303,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         @Override
         protected void onPostExecute(Boolean success) {
             super.onPostExecute(success);
-
             cursor.moveToFirst();
-            if (success) {
-
-                double sumLoggedTripsDouble = cursor.getDouble(0);
-
-//                Log.i(TAG, "onPostExecute: new trip added to db");
-
-            } else {
-
-//                Log.i(TAG, "onPostExecute: database unavailable");
-            }
         }
     }
 
@@ -392,8 +361,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     public String format(GregorianCalendar calendar){
         SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
         fmt.setCalendar(calendar);
-        String dateFormatted = fmt.format(calendar.getTime());
-        return dateFormatted;
+        return fmt.format(calendar.getTime());
     }
 
     private void loadSharedPreferences() {
@@ -404,7 +372,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 getString(R.string.default_gas_price));
         currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
                 getString(R.string.default_mpg));
-        isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
         tripDistance = sharedPreferences.getFloat(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, 0.0f);
 //        Log.i(TAG, "loadSavedPreferences: isChecked: " + isChecked);
 
