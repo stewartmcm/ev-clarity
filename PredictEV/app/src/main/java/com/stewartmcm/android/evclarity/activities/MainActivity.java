@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements
                 double savings = calcSavings(sumLoggedTripsDouble);
 
                 monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                monthlySavingsTextView.setText(R.string.$ + String.format(getString(R.string.savings_format), savings));
+                monthlySavingsTextView.setText(getString(R.string.$) + String.format(getString(R.string.savings_format), savings));
 
                 TextView totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
                 totalMileageTextView.setText(String.format(getString(R.string.mileage_format),

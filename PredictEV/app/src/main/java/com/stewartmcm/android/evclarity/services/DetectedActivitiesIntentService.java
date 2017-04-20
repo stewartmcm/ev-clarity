@@ -80,8 +80,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         mGoogleApiClient.connect();
     }
 
-
-
     protected synchronized void buildGoogleApiClient() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
