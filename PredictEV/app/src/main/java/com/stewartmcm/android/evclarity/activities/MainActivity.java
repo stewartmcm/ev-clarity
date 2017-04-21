@@ -78,15 +78,9 @@ public class MainActivity extends AppCompatActivity implements
     private TripAdapter mTripAdapter;
 
     private static final int TRIP_LOADER = 0;
-    // For the forecast view we're showing only a small subset of the stored data.
-    // Specify the columns we need.
     private static final String[] TRIP_COLUMNS = {
-            // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
-            // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
+            // A lot of the columns below won't be used actively in the app's current state, however
+            // a lot of these columns will be necessary planned features
             Contract.Trip._ID,
             Contract.Trip.COLUMN_DATE,
             Contract.Trip.COLUMN_TIME,
@@ -114,6 +108,28 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+        setSupportActionBar();
+        loadSharedPreferences();
+
+        ArrayList<DetectedActivity> detectedActivities;
+        monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
+
+        //TODO: test app after removing this code... detectedactivities should only be needed in services
+//        if (savedInstanceState != null && savedInstanceState.containsKey(Constants.DETECTED_ACTIVITIES)) {
+//            detectedActivities = (ArrayList<DetectedActivity>) savedInstanceState.getSerializable(
+//                    Constants.DETECTED_ACTIVITIES);
+//        } else {
+//            // Set the confidence level of each monitored activity to zero.
+//            detectedActivities = new ArrayList<>();
+//            for (int i = 0; i < Constants.MONITORED_ACTIVITIES.length; i++) {
+//                detectedActivities.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i], 0));
+//            }
+//        }
+
+        buildGoogleApiClient();
+    }
+
+    private void setSupportActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -121,44 +137,22 @@ public class MainActivity extends AppCompatActivity implements
             getSupportActionBar().setDisplayShowTitleEnabled(true);
         }
         getSupportActionBar().setElevation(0f);
-
-        loadSharedPreferences();
-        ArrayList<DetectedActivity> detectedActivities;
-        monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(Constants.DETECTED_ACTIVITIES)) {
-            detectedActivities = (ArrayList<DetectedActivity>) savedInstanceState.getSerializable(
-                    Constants.DETECTED_ACTIVITIES);
-        } else {
-            // Set the confidence level of each monitored activity to zero.
-            detectedActivities = new ArrayList<>();
-            for (int i = 0; i < Constants.MONITORED_ACTIVITIES.length; i++) {
-                detectedActivities.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i], 0));
-            }
-        }
-
-        buildGoogleApiClient();
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Location lastLocation;
-
         //TODO: test both permission checks individually, you currently have two
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
+//        int permissionCheck = ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION);
 
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
+        if (checkLocationPermission()) {
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-            if (lastLocation != null) {
-                latString = String.valueOf(lastLocation.getLatitude());
-                lonString = String.valueOf(lastLocation.getLongitude());
+            if (mCurrentLocation != null) {
+                latString = String.valueOf(mCurrentLocation.getLatitude());
+                lonString = String.valueOf(mCurrentLocation.getLongitude());
             }
 
         } else {
