@@ -71,7 +71,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         super.onCreate();
 //        Log.i(TAG, "onCreate: method ran");
         buildGoogleApiClient();
-
     }
 
     @Override
@@ -79,7 +78,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //        Log.i(TAG, "onStart called");
         super.onStart(intent, startId);
         mGoogleApiClient.connect();
-
     }
 
 
@@ -94,7 +92,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     .build();
         }
     }
-
 
     //TODO: try starting the service after device detects it's in a vehicle, not every time activity recognition has a result
 
@@ -272,13 +269,9 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         @Override
         protected Boolean doInBackground(Void... params) {
 //            Log.i(TAG, "LogTripTask doInBackground: method ran");
-
             PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(DetectedActivitiesIntentService.this);
             SQLiteDatabase db = mHelper.getWritableDatabase();
-
             GregorianCalendar calender = new GregorianCalendar();
-
-//            Date time = calender.getTime();
 
             double tripSavings = calcSavings(finalTripDistance);
 //            Log.i(TAG, "doInBackground: " + tripSavings);
@@ -288,12 +281,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             String savingsString = savingsFormat.format(tripSavings);
 //            Log.i(TAG, "doInBackground: " + savingsString);
 
-            //TODO: test if this code would work fine logging trips with 3 lines of code below
             cursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
                     null, null, null, null, null);
-            cursor.moveToLast();
+            cursor.moveToFirst();
             try {
-                mHelper.insertTrip(db, format(calender).toString(), "11:23", 37.828411, -122.289890, 37.805591,
+                mHelper.insertTrip(db, format(calender), "11:23", 37.828411, -122.289890, 37.805591,
                         -122.275583, finalTripDistance, savingsString);
                 return true;
 
@@ -360,7 +352,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     }
 
-    //TODO: if this crashes app, make the method static
     public String format(GregorianCalendar calendar){
         SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
         fmt.setCalendar(calendar);
@@ -400,29 +391,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     @Override
     public void onConnected(Bundle bundle) {
-//        Log.i(TAG, "onConnected: method called");
-//        int permissionCheck = ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION);
-//
-//        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-//            Log.i(TAG, "permission granted");
-//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-//                    mGoogleApiClient);
-//
-//            if (mLastLocation != null) {
-//                Log.i(TAG, "onConnected: mlastLocation not null");
-//                latString = String.valueOf(mLastLocation.getLatitude());
-//                Log.i(TAG, "latString: " + latString);
-//                lonString = String.valueOf(mLastLocation.getLongitude());
-//                Log.i(TAG, "lonString: " + lonString);
-//
-//                Log.i(TAG, "onConnected: OdometerService now bound to DetectionActivitiesIntentService");
-//            }
-//
-//        } else {
-//            Log.i(TAG, "onConnected: location permission not granted");
-//
-//        }
 
     }
 
