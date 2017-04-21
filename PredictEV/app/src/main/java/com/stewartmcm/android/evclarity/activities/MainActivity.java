@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements
         RecyclerView tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setReverseLayout(true);
 
         DividerItemDecoration dividerItemDecoration =
                 new DividerItemDecoration(tripRecyclerView.getContext(), mLayoutManager.getOrientation());

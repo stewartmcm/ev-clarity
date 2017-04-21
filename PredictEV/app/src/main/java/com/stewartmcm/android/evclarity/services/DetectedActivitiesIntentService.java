@@ -80,8 +80,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         mGoogleApiClient.connect();
     }
 
-
-
     protected synchronized void buildGoogleApiClient() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -92,8 +90,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     .build();
         }
     }
-
-    //TODO: try starting the service after device detects it's in a vehicle, not every time activity recognition has a result
 
     /**
      * Handles incoming intents.
@@ -106,10 +102,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //        Log.i(TAG, "onHandleIntent: method ran");
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-
             handleDetectedActivities(result.getProbableActivities());
         }
-
     }
 
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
@@ -250,7 +244,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             NotificationManagerCompat.from(this).notify(0, builder.build());
             tripDistance = 0.0;
 //            Log.i(TAG, "logDrive: tripOdometer: " + tripDistance);
-            //TODO: test uncommenting the code below
             turnOffOdometer();
         }
         return finalTripDistance;
@@ -283,7 +276,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
             cursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
                     null, null, null, null, null);
-            cursor.moveToFirst();
+            cursor.moveToLast();
             try {
                 mHelper.insertTrip(db, format(calender), "11:23", 37.828411, -122.289890, 37.805591,
                         -122.275583, finalTripDistance, savingsString);
