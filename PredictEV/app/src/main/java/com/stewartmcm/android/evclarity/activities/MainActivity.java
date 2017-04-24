@@ -42,15 +42,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.TripAdapter;
 import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService;
-
-import java.util.ArrayList;
 
 import static com.stewartmcm.android.evclarity.R.id.error;
 
@@ -71,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements
     private String gasPriceString;
     public GoogleApiClient mGoogleApiClient;
     public Location mCurrentLocation;
-    private TextView monthlySavingsTextView;
     public SQLiteDatabase db;
     private boolean gps_enabled;
     private Cursor sumTripsCursor;
@@ -111,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar();
         loadSharedPreferences();
 
-        ArrayList<DetectedActivity> detectedActivities;
-        monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
+//        ArrayList<DetectedActivity> detectedActivities;
+//        monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
 
         //TODO: test app after removing this code... detectedactivities should only be needed in services
 //        if (savedInstanceState != null && savedInstanceState.containsKey(Constants.DETECTED_ACTIVITIES)) {
@@ -143,35 +139,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
 
-        //TODO: test both permission checks individually, you currently have two
-//        int permissionCheck = ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (checkLocationPermission()) {
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            if (mCurrentLocation != null) {
-                latString = String.valueOf(mCurrentLocation.getLatitude());
-                lonString = String.valueOf(mCurrentLocation.getLongitude());
-            }
-
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-                // No explanation needed, we can request the permission.
-                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-                ActivityCompat.requestPermissions(this,
-                        permissions,
-                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-            }
-        }
-
         View emptyView = this.findViewById(R.id.recyclerview_triplog_empty);
 
         mTripAdapter = new TripAdapter(this, new TripAdapter.TripAdapterOnClickHandler() {
@@ -181,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements
                 mPosition = viewHolder.getAdapterPosition();
 
                 //TODO: implement to launch detail activity onClick of each item
-
                 //onItemSelected(Contract.Trip.makeUriForTrip(dateTime),
                 //viewHolder
                 //);
@@ -189,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements
         }, emptyView, mChoiceMode);
 
         RecyclerView tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
-
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setReverseLayout(true);
 
@@ -212,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 tripPosition = viewHolder.getAdapterPosition();
                 new DeleteTripTask().execute(tripPosition);
-                new SumLoggedTripsTask().execute(monthlySavingsTextView);
+                new SumLoggedTripsTask().execute();
                 int newTripArraySize = mTripAdapter.removeTrip(tripPosition);
                 mTripAdapter.notifyItemRemoved(tripPosition);
                 mTripAdapter.notifyItemRangeChanged(tripPosition, newTripArraySize);
@@ -284,9 +249,8 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
     //sums all logged trips asynchronously when executed[onCreate]
-    private class SumLoggedTripsTask extends AsyncTask<TextView, Void, Boolean> {
+    private class SumLoggedTripsTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -294,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         @Override
-        protected Boolean doInBackground(TextView... params) {
+        protected Boolean doInBackground(Void... params) {
             SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
 
             //TODO: replace query with string reference and test immediately
@@ -320,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements
                 double sumLoggedTripsDouble = sumTripsCursor.getDouble(0);
                 double savings = calcSavings(sumLoggedTripsDouble);
 
-                monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
+                TextView monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
                 monthlySavingsTextView.setText(getString(R.string.$) + String.format(getString(R.string.savings_format), savings));
 
                 TextView totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
@@ -347,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         loadSharedPreferences();
-        new SumLoggedTripsTask().execute(monthlySavingsTextView);
+        new SumLoggedTripsTask().execute();
         mGoogleApiClient.connect();
     }
 
@@ -370,39 +334,33 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle connectionHint) {
 
-//        int permissionCheck = ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION);
-//
-//        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-//                    mGoogleApiClient);
-//            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-//
-//            if (mLastLocation != null) {
-//                latString = String.valueOf(mLastLocation.getLatitude());
-////                Log.i(TAG, "latString: " + latString);
-//                lonString = String.valueOf(mLastLocation.getLongitude());
-////                Log.i(TAG, "lonString: " + lonString);
-//            }
-//
-//        } else {
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-//
-//                // Show an explanation to the user *asynchronously* -- don't block
-//                // this thread waiting for the user's response! After the user
-//                // sees the explanation, try again to request the permission.
-//
-//            } else {
-//
-//                // No explanation needed, we can request the permission.
-//                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-//                ActivityCompat.requestPermissions(this,
-//                        permissions,
-//                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-//
-//            }
-//        }
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (checkLocationPermission()) {
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        }
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            if (mCurrentLocation != null) {
+                latString = String.valueOf(mCurrentLocation.getLatitude());
+//                Log.i(TAG, "latString: " + latString);
+                lonString = String.valueOf(mCurrentLocation.getLongitude());
+//                Log.i(TAG, "lonString: " + lonString);
+            }
+
+        } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+        }
     }
 
     @Override

@@ -189,7 +189,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         if (call != null) {
             if (latString != null && lonString != null){
                 call.enqueue(new Callback<UtilityArray>() {
-                    //                    @TargetApi(Build.VERSION_CODES.M)
                     @Override
                     public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
                         Utility[] utilityArray = response.body().getOutputs().getUtilities();
@@ -208,9 +207,9 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
 
                     @Override
                     public void onFailure(Call<UtilityArray> call, Throwable t) {
-
+                        Toast.makeText(getBaseContext(), getString(R.string.no_network_connection),
+                                Toast.LENGTH_SHORT).show();
                     }
-
                 });
             }
 
@@ -218,7 +217,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
             Toast.makeText(this, getString(R.string.no_network_connection),
                     Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override

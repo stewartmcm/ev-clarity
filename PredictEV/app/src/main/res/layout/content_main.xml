@@ -8,12 +8,6 @@
     tools:context="com.stewartmcm.android.evclarity.activities.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/mountain_road" />
-
     <TextView
         android:id="@+id/projected_savings_header"
         android:layout_width="wrap_content"
