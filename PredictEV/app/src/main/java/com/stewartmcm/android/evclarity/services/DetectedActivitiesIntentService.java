@@ -225,7 +225,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //            Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
 
-            DecimalFormat distanceFormat = new DecimalFormat("###.#");
+            DecimalFormat distanceFormat = new DecimalFormat(getString(R.string.distance_decimal_format));
 
             String distanceString = distanceFormat.format(tripDistance);
 //            Log.i(TAG, "doInBackground: " + distanceString);

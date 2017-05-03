@@ -27,7 +27,7 @@ public class OdometerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "onCreate: OdometerService is running");
+//        Log.i(TAG, "onCreate: OdometerService is running");
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -63,7 +63,6 @@ public class OdometerService extends Service {
 
     public double getMiles() {
         double rawMiles = this.distanceInMeters / 1609.344;
-        
 //        Log.i(TAG, "tripmileage: " + rawMiles);
 
         return rawMiles;
