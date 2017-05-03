@@ -38,10 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- */
 public class DetectedActivitiesIntentService extends IntentService implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
     protected static final String TAG = Constants.DETECTED_ACTIVITIES_INTENT_SERVICE_TAG;
@@ -57,12 +53,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private double finalTripDistance;
     public double tripDistance;
 
-    /**
-     * This constructor is required, and calls the super IntentService(String)
-     * constructor with the name for a worker thread.
-     */
     public DetectedActivitiesIntentService() {
-        // Use the TAG to name the worker thread.
         super(TAG);
     }
 
@@ -190,32 +181,17 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     }
                     break;
                 }
-                case DetectedActivity.TILTING: {
-//                    Log.i("ActivityRecogition", "Tilting: " + activity.getConfidence());
-                    break;
-                }
-                case DetectedActivity.WALKING: {
-//                    Log.i("ActivityRecogition", "Walking: " + activity.getConfidence());
-
-                    break;
-                }
-                case DetectedActivity.UNKNOWN: {
-//                    Log.i("ActivityRecogition", "Unknown: " + activity.getConfidence());
-                    break;
-                }
             }
         }
     }
 
     protected void recordDrive() {
 //        Log.i(TAG, "recordDrive: method called");
-
         tripDistance = 0.0;
         tripDistance = odometer.getMiles();
         savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
 
 //        Log.i(TAG, "runnable tripOdometer: " + tripDistance);
-
     }
 
     public double logDrive() {
@@ -224,31 +200,33 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             finalTripDistance = tripDistance;
 //            Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
-
-            DecimalFormat distanceFormat = new DecimalFormat(getString(R.string.distance_decimal_format));
-
-            String distanceString = distanceFormat.format(tripDistance);
-//            Log.i(TAG, "doInBackground: " + distanceString);
-
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-            PendingIntent intent = PendingIntent.getActivity(this, 0,
-                    notificationIntent, 0);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setContentText(getString(R.string.notification_copy_1) + distanceString +
-                    getString(R.string.notification_copy_2));
-            builder.setSmallIcon(R.drawable.ic_stat_car_icon);
-            builder.setContentTitle(getString(R.string.app_name));
-            builder.setContentIntent(intent);
-            builder.setAutoCancel(true);
-
-            NotificationManagerCompat.from(this).notify(0, builder.build());
+            buildNotification(tripDistance);
             tripDistance = 0.0;
-//            Log.i(TAG, "logDrive: tripOdometer: " + tripDistance);
+//            Log.i(TAG, "tripOdometer reset to: " + tripDistance);
             turnOffOdometer();
         }
         return finalTripDistance;
 
+    }
+
+    private void buildNotification(double distance) {
+        DecimalFormat distanceFormat = new DecimalFormat(getString(R.string.distance_decimal_format));
+        String distanceString = distanceFormat.format(distance);
+//            Log.i(TAG, "doInBackground: " + distanceString);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent intent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setContentText(getString(R.string.notification_copy_1) + distanceString +
+                getString(R.string.notification_copy_2));
+        builder.setSmallIcon(R.drawable.ic_stat_car_icon);
+        builder.setContentTitle(getString(R.string.app_name));
+        builder.setContentIntent(intent);
+        builder.setAutoCancel(true);
+
+        NotificationManagerCompat.from(this).notify(0, builder.build());
     }
 
     //logs new trip asynchronously when executed
@@ -271,7 +249,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //            Log.i(TAG, "doInBackground: " + tripSavings);
 
             DecimalFormat savingsFormat = new DecimalFormat("###.##");
-
             String savingsString = savingsFormat.format(tripSavings);
 //            Log.i(TAG, "doInBackground: " + savingsString);
 
@@ -324,6 +301,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         } else {
             gasPrice = Double.parseDouble(gasPriceString);
         }
+//        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
+
 
         if (currentMPGString.isEmpty()) {
             currentMPG = 0.0;
@@ -331,15 +310,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             currentMPG = Double.parseDouble(currentMPGString);
         }
 
-//        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
-
-
         if (utilityRate != 0.0) {
 //            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
-
-            // .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
             savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
-
+//            .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
+            
             return savings;
         }
         return 0.00;
