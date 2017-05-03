@@ -235,7 +235,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     notificationIntent, 0);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setContentText("Trip Logged: " + distanceString + " miles");
+            builder.setContentText(getString(R.string.notification_copy_1) + distanceString + " miles");
             builder.setSmallIcon(R.drawable.ic_stat_car_icon);
             builder.setContentTitle(getString(R.string.app_name));
             builder.setContentIntent(intent);
