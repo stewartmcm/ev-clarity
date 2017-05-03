@@ -19,13 +19,12 @@ import com.stewartmcm.android.evclarity.models.Trip;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import static com.google.android.gms.wearable.DataMap.TAG;
-
 /**
  * Created by stewartmcmillan on 5/26/16.
  */
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterViewHolder> {
 
+    protected static final String TAG = "TRIP_ADAPTER";
     final private Context mContext;
     LayoutInflater cursorInflater;
     private Cursor mCursor;
