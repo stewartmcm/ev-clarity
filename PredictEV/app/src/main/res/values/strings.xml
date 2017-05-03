@@ -16,8 +16,8 @@
     <string name="distance_decimal_format">###.#</string>
     <string name="savings_decimal_format">###.##</string>
     <string name="date_format">EEE, MMM dd \'\'yy, h:mma</string>
-    <string name="notification_copy_1">Trip Logged:&#032;</string>
-    <string name="notification_copy_2"> miles</string>
+    <string name="notification_copy_1">Trip Logged:&#160;</string>
+    <string name="notification_copy_2">&#160;miles</string>
     <string name="default_utility_rate">0.0000</string>
 
     <!--Odometer Service-->
