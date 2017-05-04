@@ -49,6 +49,10 @@
 
     <string name="energy_settings_activity_log_tag">EnergySettingsActivity</string>
 
+    <string name="location_permission_alert_header">Permission Needed</string>
+    <string name="location_permission_alert">EV Clarity uses your device\'s location to
+    calculate your potential savings. You can grant EV Clarity permission to track your location in your device's settings.</string>
+
     <string name="set_electricity_provider_cue">Please set your location.</string>
     <string name="default_electricity_rate">0.0000</string>
     <string name="default_gas_price">0.00</string>

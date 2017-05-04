@@ -121,7 +121,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     }
 
     private void initLayoutElements() {
-
         currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
         utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
         gasPriceEditText = (EditText) findViewById(R.id.gas_price_edit_text);
@@ -138,43 +137,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
 
     public void findUtilities() {
 
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            if (mLastLocation != null) {
-                latString = String.valueOf(mLastLocation.getLatitude());
-                lonString = String.valueOf(mLastLocation.getLongitude());
-            }
-
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                AlertDialog alertDialog = new AlertDialog.Builder(EnergySettingsActivity.this).create();
-                alertDialog.setTitle("Permission Needed");
-                alertDialog.setMessage("EV Clarity uses your device's location to calculate your potential savings. " +
-                        "You can grant EV Clarity permission to track your location in your device's settings.");
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.show();
-            } else {
-
-                // No explanation needed, we can request the permission.
-                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-                ActivityCompat.requestPermissions(this,
-                        permissions,
-                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-            }
-        }
+        checkLocationPermission();
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl(getString(R.string.nrel_api_path))
                 .addConverterFactory(GsonConverterFactory.create()).build();
@@ -196,9 +159,9 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                         utilities.addAll(localUtilities);
 
                         utilityName = utilities.get(0).getUtilityName();
-                        currentUtilityTextView.setText(utilityName);
-
                         utilityRate = response.body().getOutputs().getResidentialRate();
+
+                        currentUtilityTextView.setText(utilityName);
                         utilityRateString = String.valueOf(utilityRate);
                         utilityRateTextView.setText(utilityRateString);
                         Toast.makeText(getBaseContext(), getString(R.string.electricity_provider_set),
@@ -216,6 +179,45 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         } else {
             Toast.makeText(this, getString(R.string.no_network_connection),
                     Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void checkLocationPermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            if (mLastLocation != null) {
+                latString = String.valueOf(mLastLocation.getLatitude());
+                lonString = String.valueOf(mLastLocation.getLongitude());
+            }
+
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                AlertDialog alertDialog = new AlertDialog.Builder(EnergySettingsActivity.this).create();
+                alertDialog.setTitle(getString(R.string.location_permission_alert_header));
+                alertDialog.setMessage(getString(R.string.location_permission_alert));
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.dialog_ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+
+                // No explanation needed, we can request the permission.
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+            }
         }
     }
 
@@ -260,10 +262,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         super.onDestroy();
     }
 
-    /**
-     * Builds a GoogleApiClient. Uses the {@code #addApi} method to request the
-     * ActivityRecognition API.
-     */
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -272,9 +270,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 .build();
     }
 
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     */
     @Override
     public void onConnected(Bundle connectionHint) {
 
@@ -282,7 +277,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Connected to GoogleApiClient");
+//            Log.i(TAG, "Connected to GoogleApiClient");
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);

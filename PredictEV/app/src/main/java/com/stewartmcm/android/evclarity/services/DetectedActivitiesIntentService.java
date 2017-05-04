@@ -314,7 +314,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 //            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
             savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
 //            .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
-            
+
             return savings;
         }
         return 0.00;
