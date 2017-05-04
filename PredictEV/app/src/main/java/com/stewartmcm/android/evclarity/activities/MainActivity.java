@@ -285,9 +285,9 @@ public class MainActivity extends AppCompatActivity implements
                 double savings = calcSavings(sumLoggedTripsDouble);
 
                 TextView monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                monthlySavingsTextView.setText(getString(R.string.$) + String.format(getString(R.string.savings_format), savings));
-
                 TextView totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
+
+                monthlySavingsTextView.setText(getString(R.string.$) + String.format(getString(R.string.savings_format), savings));
                 totalMileageTextView.setText(String.format(getString(R.string.mileage_format),
                         sumLoggedTripsDouble));
                 sumTripsCursor.close();
@@ -315,10 +315,6 @@ public class MainActivity extends AppCompatActivity implements
         mGoogleApiClient.connect();
     }
 
-    /**
-     * Builds a GoogleApiClient. Uses the {@code #addApi} method to request the
-     * ActivityRecognition API.
-     */
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -328,9 +324,6 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
     }
 
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     */
     @Override
     public void onConnected(Bundle connectionHint) {
 
@@ -603,7 +596,6 @@ public class MainActivity extends AppCompatActivity implements
 
                     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
 
                     if (!mGoogleApiClient.isConnected()) {
                         Toast.makeText(MainActivity.this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
