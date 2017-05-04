@@ -544,10 +544,9 @@ public class MainActivity extends AppCompatActivity implements
 
                     if (!checkLocationPermission()) {
                         AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                        alertDialog.setTitle("Permission Needed");
-                        alertDialog.setMessage("EV Clarity uses your device's location to calculate your potential savings. " +
-                                "You can grant EV Clarity permission to track your location in your device's settings.");
-                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                        alertDialog.setTitle(getString(R.string.location_permission_alert_header));
+                        alertDialog.setMessage(getString(R.string.location_permission_alert));
+                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.dialog_ok),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();

@@ -8,7 +8,8 @@
     <string name="savings_format">%.2f</string>
     <string name="mileage_format">%.0f</string>
     <string name="location_not_avail_alert_header">Location Unavailable</string>
-    <string name="location_not_avail_alert_message">EV Clarity uses your device\'s location to calculate your potential savings. Please turn on your GPS in your device\'s settings.</string>
+    <string name="location_not_avail_alert_message">EV Clarity uses your device\'s location to
+        calculate your potential savings. Please turn on your GPS in your device\'s settings.</string>
     <string name="got_to_settings_button">Go to settings</string>
 
     <!--Detected Activities Intent Service-->
@@ -51,7 +52,8 @@
 
     <string name="location_permission_alert_header">Permission Needed</string>
     <string name="location_permission_alert">EV Clarity uses your device\'s location to
-    calculate your potential savings. You can grant EV Clarity permission to track your location in your device\'s settings.</string>
+    calculate your potential savings. You can grant EV Clarity permission to track your location in
+        your device\'s settings.</string>
 
     <string name="set_electricity_provider_cue">Please set your location.</string>
     <string name="default_electricity_rate">0.0000</string>
