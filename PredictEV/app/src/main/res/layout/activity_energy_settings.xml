@@ -24,11 +24,13 @@
     <include layout="@layout/content_energy_settings" />
 
     <android.support.design.widget.FloatingActionButton
+        app:fabSize="auto"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        app:fabSize="auto"
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/ic_menu_mylocation" />
 
