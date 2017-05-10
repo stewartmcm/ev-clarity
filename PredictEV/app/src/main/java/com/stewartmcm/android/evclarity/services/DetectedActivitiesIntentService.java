@@ -19,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -90,7 +91,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
      */
     @Override
     protected void onHandleIntent(Intent intent) {
-//        Log.i(TAG, "onHandleIntent: method ran");
+        Log.i(TAG, "onHandleIntent: method ran");
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             handleDetectedActivities(result.getProbableActivities());
@@ -98,7 +99,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     }
 
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
-//        Log.i(TAG, "handleDetectedActivities: method ran");
+        Log.i(TAG, "handleDetectedActivities: method ran");
 
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
@@ -106,7 +107,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         for (DetectedActivity activity : probableActivities) {
             switch (activity.getType()) {
                 case DetectedActivity.IN_VEHICLE: {
-//                    Log.i("ActivityRecogition", "In Vehicle: " + activity.getConfidence());
+                    Log.i(TAG, "In Vehicle: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         odometerIntent = new Intent(this, OdometerService.class);
@@ -115,10 +116,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                         bound = true;
 
                         if (odometer == null) {
-//                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
+                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
                             break;
                         } else {
-//                            Log.i(TAG, "onHandleDetectedActivities: odometer not null");
+                            Log.i(TAG, "onHandleDetectedActivities: odometer not null");
                             recordDrive();
                         }
                         break;
@@ -127,26 +128,26 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 break;
 
                 case DetectedActivity.ON_BICYCLE: {
-//                    Log.i("ActivityRecogition", "On Bicycle: " + activity.getConfidence());
+                    Log.i(TAG, "On Bicycle: " + activity.getConfidence());
                     break;
                 }
                 case DetectedActivity.ON_FOOT: {
-//                    Log.i("ActivityRecogition", "On Foot: " + activity.getConfidence());
+                    Log.i(TAG, "On Foot: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         loadSharedPreferences();
 
                         if (tripDistance == 0.0) {
-//                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
+                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
                             turnOffOdometer();
                             break;
                         } else if (tripDistance >= .25) {
-//                            Log.i(TAG, "onHandleDetectedActivities: tripDistance " + tripDistance);
+                            Log.i(TAG, "onHandleDetectedActivities: tripDistance " + tripDistance);
                             logDrive();
                             tripDistance = 0.0;
                             savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
                         } else {
-//                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .20");
+                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .20");
                             tripDistance = 0.0;
                             turnOffOdometer();
                         }
@@ -154,31 +155,31 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     break;
                 }
                 case DetectedActivity.RUNNING: {
-//                    Log.i("ActivityRecogition", "Running: " + activity.getConfidence());
+                    Log.i(TAG, "Running: " + activity.getConfidence());
                     break;
                 }
                 case DetectedActivity.STILL: {
-//                    Log.i("ActivityRecogition", "Still: " + activity.getConfidence());
+                    Log.i(TAG, "Still: " + activity.getConfidence());
 
-                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
-
-                        loadSharedPreferences();
-
-                        if (tripDistance == 0.0) {
+//                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//
+//                        loadSharedPreferences();
+//
+//                        if (tripDistance == 0.0) {
 //                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
-                            turnOffOdometer();
-                            break;
-                        } else if (tripDistance >= .25) {
+//                            turnOffOdometer();
+//                            break;
+//                        } else if (tripDistance >= .25) {
 //                            Log.i(TAG, "onHandleDetectedActivities: " + tripDistance);
-                            logDrive();
-                            tripDistance = 0.0;
-                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
-                        } else {
+//                            logDrive();
+//                            tripDistance = 0.0;
+//                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
+//                        } else {
 //                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .30");
-                            tripDistance = 0.0;
-                            turnOffOdometer();
-                        }
-                    }
+//                            tripDistance = 0.0;
+//                            turnOffOdometer();
+//                        }
+//                    }
                     break;
                 }
             }
@@ -186,23 +187,23 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     }
 
     protected void recordDrive() {
-//        Log.i(TAG, "recordDrive: method called");
+        Log.i(TAG, "recordDrive: method called");
         tripDistance = 0.0;
         tripDistance = odometer.getMiles();
         savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
 
-//        Log.i(TAG, "runnable tripOdometer: " + tripDistance);
+        Log.i(TAG, "tripDistance" + tripDistance);
     }
 
     public double logDrive() {
-//        Log.i(TAG, "logDrive: method ran");
+        Log.i(TAG, "logDrive: method ran");
         if (tripDistance != 0.0) {
             finalTripDistance = tripDistance;
-//            Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
+            Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
             new LogTripTask().execute();
             buildNotification(tripDistance);
             tripDistance = 0.0;
-//            Log.i(TAG, "tripOdometer reset to: " + tripDistance);
+            Log.i(TAG, "tripOdometer reset to: " + tripDistance);
             turnOffOdometer();
         }
         return finalTripDistance;
@@ -212,7 +213,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private void buildNotification(double distance) {
         DecimalFormat distanceFormat = new DecimalFormat(getString(R.string.distance_decimal_format));
         String distanceString = distanceFormat.format(distance);
-//            Log.i(TAG, "doInBackground: " + distanceString);
+            Log.i(TAG, "doInBackground: " + distanceString);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent intent = PendingIntent.getActivity(this, 0,
@@ -240,17 +241,17 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
         @Override
         protected Boolean doInBackground(Void... params) {
-//            Log.i(TAG, "LogTripTask doInBackground: method ran");
+            Log.i(TAG, "LogTripTask doInBackground: method ran");
             PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(DetectedActivitiesIntentService.this);
             SQLiteDatabase db = mHelper.getWritableDatabase();
             GregorianCalendar calender = new GregorianCalendar();
 
             double tripSavings = calcSavings(finalTripDistance);
-//            Log.i(TAG, "doInBackground: " + tripSavings);
+            Log.i(TAG, "doInBackground: " + tripSavings);
 
             DecimalFormat savingsFormat = new DecimalFormat("###.##");
             String savingsString = savingsFormat.format(tripSavings);
-//            Log.i(TAG, "doInBackground: " + savingsString);
+            Log.i(TAG, "doInBackground: " + savingsString);
 
             cursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
                     null, null, null, null, null);
@@ -336,24 +337,23 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
                 getString(R.string.default_mpg));
         tripDistance = sharedPreferences.getFloat(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, 0.0f);
-//        Log.i(TAG, "loadSavedPreferences: isChecked: " + isChecked);
 
     }
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
-//            Log.i(TAG, "onServiceConnected called");
+            Log.i(TAG, "onServiceConnected called");
             OdometerService.OdometerBinder odometerBinder =
                     (OdometerService.OdometerBinder) binder;
             odometer = odometerBinder.getOdometer();
-//            Log.i(TAG, "onServiceConnected: odometer initiated");
+            Log.i(TAG, "onServiceConnected: odometer initiated");
 
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-//            Log.i(TAG, "onServiceDisconnected called");
+            Log.i(TAG, "onServiceDisconnected called");
             bound = false;
         }
     };
@@ -373,23 +373,23 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     @Override
     public void onConnectionSuspended(int i) {
-//        Log.i(TAG, "onConnectionSuspended called");
+        Log.i(TAG, "onConnectionSuspended called");
 
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-//        Log.i(TAG, "onConnectionFailed: method called");
+        Log.i(TAG, "onConnectionFailed: method called");
     }
 
     @Override
     public void onResult(Status status) {
-//        Log.i(TAG, "onResult: method called");
+        Log.i(TAG, "onResult: method called");
     }
 
     @Override
     public void onDestroy() {
-//        Log.i(TAG, "onDestroy called");
+        Log.i(TAG, "onDestroy called");
         super.onDestroy();
         if (bound) {
             unbindService(connection);

@@ -556,7 +556,7 @@ public class MainActivity extends AppCompatActivity implements
                     } else if(!gps_enabled) {
 
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this,
-                                R.style.NoLocationAlertDialogTheme);
+                                R.style.MyAlertDialogStyle);
                         alertDialog.setTitle(R.string.location_not_avail_alert_header);
                         alertDialog.setMessage(R.string.location_not_avail_alert_message);
                         alertDialog.setPositiveButton(R.string.got_to_settings_button, new DialogInterface.OnClickListener() {

@@ -27,7 +27,7 @@ public class OdometerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-//        Log.i(TAG, "onCreate: OdometerService is running");
+        Log.i(TAG, "onCreate: OdometerService is running");
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -55,7 +55,9 @@ public class OdometerService extends Service {
         };
 
         locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
@@ -63,13 +65,15 @@ public class OdometerService extends Service {
 
     public double getMiles() {
         double rawMiles = this.distanceInMeters / 1609.344;
-//        Log.i(TAG, "tripmileage: " + rawMiles);
+        Log.i(TAG, "tripmileage: " + rawMiles);
 
         return rawMiles;
     }
 
     public double reset() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return this.distanceInMeters / 1609.344;
         }
         locManager.removeUpdates(listener);
@@ -94,14 +98,14 @@ public class OdometerService extends Service {
     @Override
     public void onDestroy() {
 
-        //TODO: Verify that code below releases gps
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        locManager.removeUpdates(listener);
-        Log.i(TAG, "onDestroy: location updates removed");
+//        //TODO: Verify that code below releases gps
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+//                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            return;
+//        }
+//        locManager.removeUpdates(listener);
+//        Log.i(TAG, "onDestroy: location updates removed");
 
         super.onDestroy();
     }
