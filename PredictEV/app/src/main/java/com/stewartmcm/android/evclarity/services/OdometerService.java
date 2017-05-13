@@ -24,6 +24,21 @@ public class OdometerService extends Service {
     private LocationManager locManager;
     private LocationListener listener;
 
+    class OdometerBinder extends Binder {
+        OdometerService getOdometer() {
+            return OdometerService.this;
+        }
+    }
+
+    public OdometerService() {
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -63,6 +78,14 @@ public class OdometerService extends Service {
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
     }
 
+    @Override
+    public void onDestroy() {
+        locManager.removeUpdates(listener);
+        Log.i(TAG, "onDestroy: location updates removed");
+
+        super.onDestroy();
+    }
+
     public double getMiles() {
         double rawMiles = this.distanceInMeters / 1609.344;
         Log.i(TAG, "tripmileage: " + rawMiles);
@@ -71,42 +94,9 @@ public class OdometerService extends Service {
     }
 
     public double reset() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return this.distanceInMeters / 1609.344;
-        }
+        //TODO: do we need to remove updates here? onDestroy() removes updates too.
         locManager.removeUpdates(listener);
         distanceInMeters = 0.0;
         return 0.0;
-    }
-
-    class OdometerBinder extends Binder {
-        OdometerService getOdometer() {
-            return OdometerService.this;
-        }
-    }
-
-    public OdometerService() {
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
-    @Override
-    public void onDestroy() {
-
-//        //TODO: Verify that code below releases gps
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-//                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-//                this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            return;
-//        }
-//        locManager.removeUpdates(listener);
-//        Log.i(TAG, "onDestroy: location updates removed");
-
-        super.onDestroy();
     }
 }

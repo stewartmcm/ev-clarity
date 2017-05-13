@@ -111,6 +111,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         odometerIntent = new Intent(this, OdometerService.class);
+                        //TODO: shouldn't start and bind service
                         startService(odometerIntent);
                         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
                         bound = true;
@@ -161,25 +162,25 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 case DetectedActivity.STILL: {
                     Log.i(TAG, "Still: " + activity.getConfidence());
 
-//                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
-//
-//                        loadSharedPreferences();
-//
-//                        if (tripDistance == 0.0) {
-//                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
-//                            turnOffOdometer();
-//                            break;
-//                        } else if (tripDistance >= .25) {
-//                            Log.i(TAG, "onHandleDetectedActivities: " + tripDistance);
-//                            logDrive();
-//                            tripDistance = 0.0;
-//                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
-//                        } else {
-//                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .30");
-//                            tripDistance = 0.0;
-//                            turnOffOdometer();
-//                        }
-//                    }
+                    if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
+
+                        loadSharedPreferences();
+
+                        if (tripDistance == 0.0) {
+                            Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
+                            turnOffOdometer();
+                            break;
+                        } else if (tripDistance >= .25) {
+                            Log.i(TAG, "onHandleDetectedActivities: " + tripDistance);
+                            logDrive();
+                            tripDistance = 0.0;
+                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
+                        } else {
+                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .30");
+                            tripDistance = 0.0;
+                            turnOffOdometer();
+                        }
+                    }
                     break;
                 }
             }
