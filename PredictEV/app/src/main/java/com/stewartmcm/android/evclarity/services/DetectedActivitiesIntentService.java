@@ -112,9 +112,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
                         odometerIntent = new Intent(this, OdometerService.class);
                         //TODO: shouldn't start and bind service
-                        startService(odometerIntent);
+//                        startService(odometerIntent);
                         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
-                        bound = true;
 
                         if (odometer == null) {
                             Log.i(TAG, "onHandleDetectedActivities: odometer null");
@@ -277,16 +276,18 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     private void turnOffOdometer() {
         odometerIntent = new Intent(this, OdometerService.class);
-        startService(odometerIntent);
-        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+//        startService(odometerIntent);
+//        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
 
         if (odometer != null) {
             odometer.reset();
         }
 
-        stopService(odometerIntent);
-        unbindService(connection);
-        bound = false;
+//        stopService(odometerIntent);
+        if (bound) {
+            unbindService(connection);
+            bound = false;
+        }
     }
 
     private double calcSavings(double mileageDouble) {
@@ -348,6 +349,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             OdometerService.OdometerBinder odometerBinder =
                     (OdometerService.OdometerBinder) binder;
             odometer = odometerBinder.getOdometer();
+            bound = true;
             Log.i(TAG, "onServiceConnected: odometer initiated");
 
         }
@@ -392,9 +394,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     public void onDestroy() {
         Log.i(TAG, "onDestroy called");
         super.onDestroy();
-        if (bound) {
-            unbindService(connection);
-            bound = false;
-        }
+        //TODO: odometerservice should unbind after user starts walking
+//        if (bound) {
+//            unbindService(connection);
+//            bound = false;
+//        }
     }
 }
