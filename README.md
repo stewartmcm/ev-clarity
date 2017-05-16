@@ -1,5 +1,4 @@
-# ev-clarity
-Electric Vehicle Savings Calculator
+# ev-clarity: Electric Vehicle Savings Calculator
 
 The EV Clarity app helps drivers answer one question: will you save money by switching to an electric vehicle?
 
