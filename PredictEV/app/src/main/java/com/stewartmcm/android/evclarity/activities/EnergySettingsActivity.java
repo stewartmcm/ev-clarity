@@ -143,7 +143,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 .addConverterFactory(GsonConverterFactory.create()).build();
         UtilityRateAPIService mService = retrofit.create(UtilityRateAPIService.class);
 
-        String API_KEY = "vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt";
+        String API_KEY = "*******";
 
         Call<UtilityArray> call = null;
 
