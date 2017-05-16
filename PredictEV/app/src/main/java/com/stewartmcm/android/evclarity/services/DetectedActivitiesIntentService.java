@@ -111,8 +111,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         odometerIntent = new Intent(this, OdometerService.class);
-                        //TODO: shouldn't start and bind service
-//                        startService(odometerIntent);
                         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
 
                         if (odometer == null) {
@@ -276,14 +274,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     private void turnOffOdometer() {
         odometerIntent = new Intent(this, OdometerService.class);
-//        startService(odometerIntent);
-//        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+        bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
 
         if (odometer != null) {
             odometer.reset();
         }
 
-//        stopService(odometerIntent);
         if (bound) {
             unbindService(connection);
             bound = false;
@@ -394,10 +390,5 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     public void onDestroy() {
         Log.i(TAG, "onDestroy called");
         super.onDestroy();
-        //TODO: odometerservice should unbind after user starts walking
-//        if (bound) {
-//            unbindService(connection);
-//            bound = false;
-//        }
     }
 }
