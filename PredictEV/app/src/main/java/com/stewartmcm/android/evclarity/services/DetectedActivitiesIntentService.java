@@ -116,13 +116,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
                         bound = true;
 
-                        if (odometer == null) {
-                            Log.i(TAG, "onHandleDetectedActivities: odometer null");
-                            break;
-                        } else {
-                            Log.i(TAG, "onHandleDetectedActivities: odometer not null");
-                            recordDrive();
-                        }
+                        recordDrive();
                         break;
                     }
                 }
@@ -189,10 +183,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     protected void recordDrive() {
         Log.i(TAG, "recordDrive: method called");
-        tripDistance = 0.0;
-        tripDistance = odometer.getMiles();
-        savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
+//        tripDistance = 0.0;
+        loadSharedPreferences();
 
+        if (odometer != null) {
+            tripDistance = odometer.getMiles();
+        }
+
+        savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
         Log.i(TAG, "tripDistance" + tripDistance);
     }
 
