@@ -27,15 +27,13 @@ public class OdometerService extends Service {
     private LocationListener listener;
 
     class OdometerBinder extends Binder {
-        //TODO: implement singleton here
         OdometerService getOdometer() {
             return OdometerService.this;
         }
     }
 
-        //TODO: is this constructor needed since the binder above creates an OdometerService instance?
-//    public OdometerService() {
-//    }
+    public OdometerService() {
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -77,7 +75,8 @@ public class OdometerService extends Service {
 
         locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED) {
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
@@ -86,10 +85,7 @@ public class OdometerService extends Service {
 
     @Override
     public void onDestroy() {
-
-        //TODO: do we even need this removeupdates call? The location updates stop when the DetectedActivities
-        // unbinds from OdometerService
-//        locManager.removeUpdates(listener);
+        locManager.removeUpdates(listener);
         Log.i(TAG, "onDestroy: location updates removed");
 
         super.onDestroy();
@@ -104,7 +100,7 @@ public class OdometerService extends Service {
 
     public double reset() {
         //TODO: do we need to remove updates here? onDestroy() removes updates too.
-//        locManager.removeUpdates(listener);
+        locManager.removeUpdates(listener);
         distanceInMeters = 0.0;
         return 0.0;
     }
