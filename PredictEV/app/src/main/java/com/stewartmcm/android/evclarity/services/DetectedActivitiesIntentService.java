@@ -111,7 +111,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         odometerIntent = new Intent(this, OdometerService.class);
+                        //TODO: shouldn't start and bind service
+                        startService(odometerIntent);
                         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
+                        bound = true;
 
                         recordDrive();
                         break;
@@ -209,7 +212,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private void buildNotification(double distance) {
         DecimalFormat distanceFormat = new DecimalFormat(getString(R.string.distance_decimal_format));
         String distanceString = distanceFormat.format(distance);
-            Log.i(TAG, "doInBackground: " + distanceString);
+        Log.i(TAG, "doInBackground: " + distanceString);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent intent = PendingIntent.getActivity(this, 0,
@@ -272,16 +275,16 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     private void turnOffOdometer() {
         odometerIntent = new Intent(this, OdometerService.class);
+        startService(odometerIntent);
         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
 
         if (odometer != null) {
             odometer.reset();
         }
 
-        if (bound) {
-            unbindService(connection);
-            bound = false;
-        }
+        stopService(odometerIntent);
+        unbindService(connection);
+        bound = false;
     }
 
     private double calcSavings(double mileageDouble) {
@@ -343,7 +346,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
             OdometerService.OdometerBinder odometerBinder =
                     (OdometerService.OdometerBinder) binder;
             odometer = odometerBinder.getOdometer();
-            bound = true;
             Log.i(TAG, "onServiceConnected: odometer initiated");
 
         }
@@ -388,5 +390,9 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     public void onDestroy() {
         Log.i(TAG, "onDestroy called");
         super.onDestroy();
+        if (bound) {
+            unbindService(connection);
+            bound = false;
+        }
     }
 }
