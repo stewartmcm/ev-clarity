@@ -57,6 +57,7 @@ public final class Constants {
     public static final String KEY_SHARED_PREF_UTIL_RATE = "SHARED_PREF_UTIL_RATE";
     public static final String KEY_SHARED_PREF_GAS_PRICE = "SHARED_PREF_GAS_PRICE";
     public static final String KEY_SHARED_PREF_CURRENT_MPG = "SHARED_PREF_CURRENT_MPG";
+    public static final String KEY_SHARED_PREF_DRIVING_BOOL = "SHARED_PREF_DRIVING_BOOL";
     public static final String KEY_SHARED_PREF_DRIVE_TRACKING = "KEY_SHARED_PREF_DRIVE_TRACKING";
     public static final String KEY_SHARED_PREF_GPS_STATE = "KEY_SHARED_PREF_GPS_STATE";
 

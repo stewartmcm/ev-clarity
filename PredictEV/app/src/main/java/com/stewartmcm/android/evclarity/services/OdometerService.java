@@ -25,6 +25,7 @@ public class OdometerService extends Service {
     private static Location lastLocation = null;
     private LocationManager locManager;
     private LocationListener listener;
+    private boolean driving;
 
     class OdometerBinder extends Binder {
         OdometerService getOdometer() {
@@ -45,12 +46,20 @@ public class OdometerService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "onCreate: OdometerService is running");
+
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                loadSharedPreferences();
+
                 if (lastLocation == null) {
                     lastLocation = location;
                 }
+
+                if (driving ==false) {
+                    distanceInMeters = 0.0;
+                }
+
                 distanceInMeters += location.distanceTo(lastLocation);
                 lastLocation = location;
                 savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, distanceInMeters / 1609.344);
@@ -103,6 +112,13 @@ public class OdometerService extends Service {
         locManager.removeUpdates(listener);
         distanceInMeters = 0.0;
         return 0.0;
+    }
+
+    private void loadSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        driving = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVING_BOOL,
+                false);
+
     }
 
     private void savePreferencesDouble(String key, double value) {

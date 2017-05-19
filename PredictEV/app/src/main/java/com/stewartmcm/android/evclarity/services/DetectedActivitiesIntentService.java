@@ -48,6 +48,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     private OdometerService odometer;
     private Intent odometerIntent;
     private boolean bound = false;
+    private boolean driving = false;
     private String currentMPGString;
     private String utilityRateString;
     private String gasPriceString;
@@ -110,6 +111,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     Log.i(TAG, "In Vehicle: " + activity.getConfidence());
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
+                        driving = true;
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVING_BOOL, driving);
                         odometerIntent = new Intent(this, OdometerService.class);
                         //TODO: shouldn't start and bind service
                         startService(odometerIntent);
@@ -131,6 +134,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     if (activity.getConfidence() >= 75 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         loadSharedPreferences();
+                        driving = false;
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVING_BOOL, driving);
 
                         if (tripDistance == 0.0) {
                             Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
@@ -159,6 +164,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                     if (activity.getConfidence() >= 95 && permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                         loadSharedPreferences();
+                        driving = false;
+                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVING_BOOL, driving);
 
                         if (tripDistance == 0.0) {
                             Log.i(TAG, "onHandleDetectedActivities: tripDistance: 0.0");
@@ -168,9 +175,8 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                             Log.i(TAG, "onHandleDetectedActivities: " + tripDistance);
                             logDrive();
                             tripDistance = 0.0;
-                            savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, tripDistance);
                         } else {
-                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .30");
+                            Log.i(TAG, "onHandleDetectedActivities: getMiles < .25");
                             tripDistance = 0.0;
                             turnOffOdometer();
                         }
@@ -274,6 +280,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     }
 
     private void turnOffOdometer() {
+        savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, 0.0);
         odometerIntent = new Intent(this, OdometerService.class);
         startService(odometerIntent);
         bindService(odometerIntent, connection, Context.BIND_AUTO_CREATE);
@@ -367,6 +374,14 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         SharedPreferences.Editor editor = sharedPreferences.edit();
         float valueFloat = (float) value;
         editor.putFloat(key, valueFloat);
+        editor.commit();
+    }
+
+    private void savePreferencesBoolean(String key, boolean value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        boolean valueBoolean = (boolean) value;
+        editor.putBoolean(key, valueBoolean);
         editor.commit();
     }
 
