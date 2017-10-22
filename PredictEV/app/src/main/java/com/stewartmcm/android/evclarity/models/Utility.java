@@ -10,6 +10,7 @@ public class Utility {
 
     @SerializedName("company_id")
     String companyId;
+
     @SerializedName("utility_name")
     String utilityName;
 

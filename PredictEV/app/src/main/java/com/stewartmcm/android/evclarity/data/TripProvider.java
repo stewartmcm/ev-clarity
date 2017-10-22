@@ -22,14 +22,6 @@ public class TripProvider extends ContentProvider {
 
     private PredictEvDatabaseHelper dbHelper;
 
-    private static UriMatcher buildUriMatcher() {
-        UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        matcher.addURI(Contract.AUTHORITY, Contract.PATH_TRIP, TRIP);
-        matcher.addURI(Contract.AUTHORITY, Contract.PATH_TRIP_WITH_DATETIME, TRIP_FOR_DATETIME);
-        return matcher;
-    }
-
-
     @Override
     public boolean onCreate() {
         dbHelper = new PredictEvDatabaseHelper(getContext());
@@ -188,7 +180,12 @@ public class TripProvider extends ContentProvider {
             default:
                 return super.bulkInsert(uri, values);
         }
+    }
 
-
+    private static UriMatcher buildUriMatcher() {
+        UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        matcher.addURI(Contract.AUTHORITY, Contract.PATH_TRIP, TRIP);
+        matcher.addURI(Contract.AUTHORITY, Contract.PATH_TRIP_WITH_DATETIME, TRIP_FOR_DATETIME);
+        return matcher;
     }
 }

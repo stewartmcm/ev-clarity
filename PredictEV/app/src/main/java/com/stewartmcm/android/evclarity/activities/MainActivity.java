@@ -51,11 +51,8 @@ import com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService
 
 import static com.stewartmcm.android.evclarity.R.id.error;
 
-public class MainActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor>,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        ResultCallback<Status> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
 
     private int mPosition = RecyclerView.NO_POSITION;
     private int mChoiceMode;
@@ -103,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_main);
         setSupportActionBar();
         loadSharedPreferences();
 

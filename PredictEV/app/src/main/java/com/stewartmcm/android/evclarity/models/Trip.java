@@ -5,8 +5,11 @@ package com.stewartmcm.android.evclarity.models;
  */
 
 public class Trip {
+
     private float miles;
+
     private String timeStamp;
+
     private float savings;
 
     //TODO: determine if array below needed if we already have db table for trips set up

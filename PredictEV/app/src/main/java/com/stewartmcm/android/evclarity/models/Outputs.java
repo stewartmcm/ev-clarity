@@ -2,23 +2,25 @@ package com.stewartmcm.android.evclarity.models;
 
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Created by stewartmcmillan on 5/6/16.
- */
 public class Outputs {
 
     @SerializedName("company_id")
-    String companyId;
+    private String companyId;
+
     @SerializedName("utility_name")
-    String utilityName;
+    private String utilityName;
+
     @SerializedName("utility_info")
-    Utility [] utilities;
+    private Utility [] utilities;
+
     @SerializedName("commercial")
-    double commercialRate;
+    private double commercialRate;
+
     @SerializedName("industrial")
-    double industrialRate;
+    private double industrialRate;
+
     @SerializedName("residential")
-    double residentialRate;
+    private double residentialRate;
 
 
     public Utility[] getUtilities() {
