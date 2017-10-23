@@ -104,21 +104,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setSupportActionBar();
         loadSharedPreferences();
 
-//        ArrayList<DetectedActivity> detectedActivities;
-//        monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-
-        //TODO: test app after removing this code... detectedactivities should only be needed in services
-//        if (savedInstanceState != null && savedInstanceState.containsKey(Constants.DETECTED_ACTIVITIES)) {
-//            detectedActivities = (ArrayList<DetectedActivity>) savedInstanceState.getSerializable(
-//                    Constants.DETECTED_ACTIVITIES);
-//        } else {
-//            // Set the confidence level of each monitored activity to zero.
-//            detectedActivities = new ArrayList<>();
-//            for (int i = 0; i < Constants.MONITORED_ACTIVITIES.length; i++) {
-//                detectedActivities.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i], 0));
-//            }
-//        }
-
         buildGoogleApiClient();
     }
 
@@ -246,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    //sums all logged trips asynchronously when executed[onCreate]
     private class SumLoggedTripsTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
@@ -258,14 +242,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         protected Boolean doInBackground(Void... params) {
             SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
 
-            //TODO: replace query with string reference and test immediately
             try {
                 db = mHelper.getReadableDatabase();
                 sumTripsCursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
                         null, null, null, null, null);
-
                 return true;
-
             } catch (SQLiteException e) {
                 return false;
             }
@@ -277,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             sumTripsCursor.moveToFirst();
             if (success) {
-                // TODO: update comment describing code below
                 double sumLoggedTripsDouble = sumTripsCursor.getDouble(0);
                 double savings = calcSavings(sumLoggedTripsDouble);
 
@@ -338,9 +318,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             if (mCurrentLocation != null) {
                 latString = String.valueOf(mCurrentLocation.getLatitude());
-//                Log.i(TAG, "latString: " + latString);
                 lonString = String.valueOf(mCurrentLocation.getLongitude());
-//                Log.i(TAG, "lonString: " + lonString);
             }
 
         } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -360,28 +338,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onConnectionSuspended(int cause) {
-        // The connection to Google Play services was lost for some reason. Call connect() to
-        // attempt to re-establish the connection.
-
         mGoogleApiClient.connect();
-        // Log.i(TAG, "Connection suspended");
     }
 
-    /**
-     * Runs when the result of calling requestActivityUpdates() and removeActivityUpdates() becomes
-     * available. Either method can complete successfully or with an error.
-     *
-     * @param status The Status returned through a PendingIntent when requestActivityUpdates()
-     *               or removeActivityUpdates() are called.
-     */
     public void onResult(Status status) {
         if (status.isSuccess()) {
-            // Toggle the status of activity updates requested, and save in shared preferences.
             boolean requestingUpdates = !getUpdatesRequestedState();
             setUpdatesRequestedState(requestingUpdates);
 
         } else {
-            // Log.e(TAG, "Error adding or removing activity detection: " + status.getStatusMessage());
             Toast.makeText(
                     this,
                     getString(R.string.no_gps_data),
@@ -390,40 +355,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    /**
-     * Gets a PendingIntent to be sent for each activity detection.
-     */
     private PendingIntent getActivityDetectionPendingIntent() {
         Intent intent = new Intent(this, DetectedActivitiesIntentService.class);
 
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // requestActivityUpdates() and removeActivityUpdates().
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    /**
-     * Retrieves a SharedPreference object used to store or read values in this app. If a
-     * preferences file passed as the first argument to {@link #getSharedPreferences}
-     * does not exist, it is created when {@link SharedPreferences.Editor} is used to commit
-     * data.
-     */
     private SharedPreferences getSharedPreferencesInstance() {
         return getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
     }
 
-    /**
-     * Retrieves the boolean from SharedPreferences that tracks whether we are requesting activity
-     * updates.
-     */
     private boolean getUpdatesRequestedState() {
         return getSharedPreferencesInstance()
                 .getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false);
     }
 
-    /**
-     * Sets the boolean in SharedPreferences that tracks whether we are requesting activity
-     * updates.
-     */
     private void setUpdatesRequestedState(boolean requestingUpdates) {
         getSharedPreferencesInstance()
                 .edit()
@@ -431,10 +377,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .commit();
     }
 
-    /**
-     * loads utility and gas settings that were set in EnergySettingsActivity;
-     * stores the state of the tracking switch
-     */
     private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE,
@@ -448,13 +390,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // When tablets rotate, the currently selected list item needs to be saved.
         mTripAdapter.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
     protected void setTrackingSwitch(SwitchCompat trackingSwitch) {
-
         loadSharedPreferences();
 
         if (isChecked) {
@@ -464,9 +404,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    //TODO: test changing return type to void
     private double calcSavings(double mileageDouble) {
-
         double savings;
         double currentMPG;
         double gasPrice;
@@ -524,7 +462,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         final SwitchCompat trackingSwitch = (SwitchCompat) menu.findItem(R.id.myswitch).getActionView()
                 .findViewById(R.id.switchForActionBar);
@@ -564,12 +501,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                                 //get gps
                             }
                         });
-//                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-//                                new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        dialog.dismiss();
-//                                    }
-//                                });
                         alertDialog.show();
                     } else if (!mGoogleApiClient.isConnected()) {
                         savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
@@ -626,12 +557,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, EnergySettingsActivity.class);
             intent.putExtra(Constants.EXTRA_USER_LAT, latString);
@@ -645,21 +572,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     protected void onPause() {
-        // Log.i(TAG, "onPause called");
         super.onPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        // Log.i(TAG, "onStop called");
         mGoogleApiClient.disconnect();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Log.i(TAG, "onDestroy called");
     }
 
     //TODO: Create TripDetailActivity with map of individual trip

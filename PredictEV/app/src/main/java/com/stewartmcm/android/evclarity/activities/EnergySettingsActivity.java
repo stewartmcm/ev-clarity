@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -239,13 +238,12 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     @Override
     protected void onPause() {
         super.onPause();
-//        Log.i(TAG, "onPause called");
         savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
-//        Log.i(TAG, "onDestroy: utitlityName: " + utilityName);
         savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
 
         gasPriceString = gasPriceEditText.getText().toString();
         currentMPGString = mpgEditText.getText().toString();
+
         savePreferencesString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
         savePreferencesString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString);
     }
@@ -254,12 +252,10 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     protected void onStop() {
         super.onStop();
         mGoogleApiClient.disconnect();
-//        Log.i(TAG, "onStop called");
     }
 
     @Override
     protected void onDestroy() {
-//        Log.i(TAG, "onDestroy called");
         super.onDestroy();
     }
 
@@ -278,16 +274,13 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-//            Log.i(TAG, "Connected to GoogleApiClient");
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
             if (mLastLocation != null) {
                 latString = String.valueOf(mLastLocation.getLatitude());
-//                Log.i(TAG, "latString: " + latString);
                 lonString = String.valueOf(mLastLocation.getLongitude());
-//                Log.i(TAG, "lonString: " + lonString);
             }
 
         } else {
@@ -300,8 +293,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 // sees the explanation, try again to request the permission.
 
             } else {
-
-                // No explanation needed, we can request the permission.
                 String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
                 ActivityCompat.requestPermissions(this,
                         permissions,
@@ -312,17 +303,12 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
-        // onConnectionFailed.
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+//        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
 
     @Override
     public void onConnectionSuspended(int cause) {
-        // The connection to Google Play services was lost for some reason. We call connect() to
-        // attempt to re-establish the connection.
         mGoogleApiClient.connect();
-        // Log.i(TAG, "Connection suspended");
     }
 
 }
