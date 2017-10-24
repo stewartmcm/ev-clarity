@@ -40,7 +40,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class EnergySettingsActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    protected static final String TAG = Constants.ENERGY_SETTINGS_ACTIVITY_TAG;
     private String utilityRateString;
     private String gasPriceString;
     private String currentMPGString;
@@ -52,10 +51,10 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     private EditText gasPriceEditText;
     private EditText mpgEditText;
     private Location mLastLocation;
-    public Location mCurrentLocation;
-    public GoogleApiClient mGoogleApiClient;
     private double utilityRate;
     private ArrayList<Utility> utilities;
+    public Location mCurrentLocation;
+    public GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

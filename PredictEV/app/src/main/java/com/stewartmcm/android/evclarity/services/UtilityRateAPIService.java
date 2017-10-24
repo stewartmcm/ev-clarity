@@ -6,10 +6,6 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-
-/**
- * Created by stewartmcmillan on 5/6/16.
- */
 public interface UtilityRateAPIService {
 
     @GET("v3.json")

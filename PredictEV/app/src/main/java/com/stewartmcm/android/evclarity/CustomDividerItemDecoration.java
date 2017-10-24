@@ -7,28 +7,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-/**
- * Created by stewartmcmillan on 2/26/17.
- */
-
 public class CustomDividerItemDecoration extends RecyclerView.ItemDecoration{
 
     private static final int[] ATTRS = new int[]{android.R.attr.listDivider};
 
     private Drawable divider;
 
-//    /**
-//     * Default divider will be used
-//     */
-//    public CustomDividerItemDecoration(Context context) {
-//        final TypedArray styledAttributes = context.obtainStyledAttributes(ATTRS);
-//        divider = styledAttributes.getDrawable(0);
-//        styledAttributes.recycle();
-//    }
-
-    /**
-     * Custom divider will be used
-     */
     public CustomDividerItemDecoration(Context context, int resId) {
         divider = ContextCompat.getDrawable(context, resId);
     }

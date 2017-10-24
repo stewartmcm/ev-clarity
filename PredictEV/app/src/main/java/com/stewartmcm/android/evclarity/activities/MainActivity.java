@@ -63,12 +63,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private String currentMPGString;
     private String utilityRateString;
     private String gasPriceString;
-    public GoogleApiClient mGoogleApiClient;
-    public Location mCurrentLocation;
-    public SQLiteDatabase db;
     private boolean gps_enabled;
     private Cursor sumTripsCursor;
     private TripAdapter mTripAdapter;
+    public GoogleApiClient mGoogleApiClient;
+    public Location mCurrentLocation;
+    public SQLiteDatabase db;
 
     private static final int TRIP_LOADER = 0;
     private static final String[] TRIP_COLUMNS = {
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }, emptyView, mChoiceMode);
 
-        RecyclerView tripRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        RecyclerView tripRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setReverseLayout(true);
 
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Cursor deleteTripCursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"_id", "TRIP_MILES"},
                         null, null, null, null, null);
 
-                if(deleteTripCursor.moveToPosition(tripNo)) {
+                if (deleteTripCursor.moveToPosition(tripNo)) {
                     String rowId = deleteTripCursor.getString(deleteTripCursor.getColumnIndex(PredictEvDatabaseHelper.COL_ID));
 
                     db.delete(Constants.TRIP_TABLE_NAME, PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
@@ -324,10 +324,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-                ActivityCompat.requestPermissions(this,
-                        permissions,
-                        Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+            String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
         }
     }
 
@@ -487,7 +487,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                                     }
                                 });
                         alertDialog.show();
-                    } else if(!gps_enabled) {
+                    } else if (!gps_enabled) {
 
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this,
                                 R.style.MyAlertDialogStyle);
@@ -496,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         alertDialog.setPositiveButton(R.string.got_to_settings_button, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                                Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                                 startActivity(myIntent);
                                 //get gps
                             }

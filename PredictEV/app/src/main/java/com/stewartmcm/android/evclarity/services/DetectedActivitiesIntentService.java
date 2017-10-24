@@ -62,13 +62,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     @Override
     public void onCreate() {
         super.onCreate();
-//        Log.i(TAG, "onCreate: method ran");
         buildGoogleApiClient();
     }
 
     @Override
     public void onStart(Intent intent, int startId) {
-//        Log.i(TAG, "onStart called");
         super.onStart(intent, startId);
         mGoogleApiClient.connect();
     }
@@ -84,12 +82,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         }
     }
 
-    /**
-     * Handles incoming intents.
-     *
-     * @param intent The Intent is provided (inside a PendingIntent) when requestActivityUpdates()
-     *               is called.
-     */
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "onHandleIntent: method ran");
@@ -189,7 +181,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
 
     protected void recordDrive() {
         Log.i(TAG, "recordDrive: method called");
-//        tripDistance = 0.0;
         loadSharedPreferences();
 
         if (odometer != null) {
@@ -235,13 +226,11 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         NotificationManagerCompat.from(this).notify(0, builder.build());
     }
 
-    //logs new trip asynchronously when executed
     private class LogTripTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
         }
 
         @Override
@@ -267,7 +256,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
                 return true;
 
             } catch (SQLiteException e) {
-
                 return false;
             }
         }
@@ -295,7 +283,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     }
 
     private double calcSavings(double mileageDouble) {
-
         loadSharedPreferences();
 
         double savings;
@@ -318,7 +305,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         }
 
         if (utilityRate != 0.0) {
-//            Log.i(TAG, "calcSavings: utilityRateString: " + utilityRateString);
             savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
 //            .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
 
