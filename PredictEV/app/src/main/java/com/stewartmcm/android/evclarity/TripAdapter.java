@@ -19,9 +19,6 @@ import com.stewartmcm.android.evclarity.models.Trip;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-/**
- * Created by stewartmcmillan on 5/26/16.
- */
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterViewHolder> {
 
     protected static final String TAG = "TRIP_ADAPTER";
@@ -31,7 +28,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     private ArrayList<Trip> mTrips;
     final private View mEmptyView;
     final private TripAdapterOnClickHandler mClickHandler;
-    final private ItemChoiceManager mICM;
+//    final private ItemChoiceManager mICM;
 
 
 
@@ -65,7 +62,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
             //TODO: uncomment to implement recyclerview clickhandler
 //            mClickHandler.onClick(mCursor.getString(symbolColumn), this);
-            mICM.onClick(this);
+//            mICM.onClick(this);
 
         }
     }
@@ -73,13 +70,13 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         void onClick(String dateTime, TripAdapterViewHolder viewHolder);
     }
 
-    public TripAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView, int choiceMode) {
+    public TripAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView) {
 
         mContext = context;
         mClickHandler = clickHandler;
         mEmptyView = emptyView;
-        mICM = new ItemChoiceManager(this);
-        mICM.setChoiceMode(choiceMode);
+//        mICM = new ItemChoiceManager(this);
+//        mICM.setChoiceMode(choiceMode);
 
         mTrips = new ArrayList<>();
 
@@ -165,20 +162,20 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 //        holder.mDateTimeTextView.setText(date);
 //        holder.mSavingsTextView.setText(mCursor.getString(MainActivity.COL_TRIP_SAVINGS));
 
-        mICM.onBindViewHolder(holder, position);
+//        mICM.onBindViewHolder(holder, position);
     }
 
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        mICM.onRestoreInstanceState(savedInstanceState);
+//        mICM.onRestoreInstanceState(savedInstanceState);
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        mICM.onSaveInstanceState(outState);
+//        mICM.onSaveInstanceState(outState);
     }
 
-    public int getSelectedItemPosition() {
-        return mICM.getSelectedItemPosition();
-    }
+//    public int getSelectedItemPosition() {
+//        return mICM.getSelectedItemPosition();
+//    }
 
     public void setCursor(Cursor cursor) {
         mCursor = cursor;

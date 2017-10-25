@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 //viewHolder
                 //);
             }
-        }, noTripsYetTextView, mChoiceMode);
+        }, noTripsYetTextView);
 
         RecyclerView tripRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
