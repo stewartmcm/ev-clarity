@@ -49,10 +49,28 @@ import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static com.stewartmcm.android.evclarity.R.id.error;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
+
+    @BindView(R.id.savings_text_view)
+    TextView monthlySavingsTextView;
+
+    @BindView(R.id.total_mileage_textview)
+    TextView totalMileageTextView;
+
+    @BindView(error)
+    TextView errorTextView;
+
+    @BindView(R.id.recyclerview_triplog_empty)
+    TextView noTripsYetTextView;
+
+//    @BindView(R.id.recyclerview_triplog_empty)
+//    View emptyView;
 
     private int mPosition = RecyclerView.NO_POSITION;
     private int mChoiceMode;
@@ -63,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private String currentMPGString;
     private String utilityRateString;
     private String gasPriceString;
-    private boolean gps_enabled;
+    private boolean mGpsEnabled;
     private Cursor sumTripsCursor;
     private TripAdapter mTripAdapter;
     public GoogleApiClient mGoogleApiClient;
@@ -103,8 +121,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         setSupportActionBar();
         loadSharedPreferences();
-
         buildGoogleApiClient();
+
+        ButterKnife.bind(this);
     }
 
     private void setSupportActionBar() {
@@ -121,8 +140,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onResume() {
         super.onResume();
 
-        View emptyView = this.findViewById(R.id.recyclerview_triplog_empty);
-
         mTripAdapter = new TripAdapter(this, new TripAdapter.TripAdapterOnClickHandler() {
 
             @Override
@@ -134,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 //viewHolder
                 //);
             }
-        }, emptyView, mChoiceMode);
+        }, noTripsYetTextView, mChoiceMode);
 
         RecyclerView tripRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -179,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, gps_enabled);
+        mGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, mGpsEnabled);
         loadSharedPreferences();
         return super.onPrepareOptionsMenu(menu);
     }
@@ -261,9 +278,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 double sumLoggedTripsDouble = sumTripsCursor.getDouble(0);
                 double savings = calcSavings(sumLoggedTripsDouble);
 
-                TextView monthlySavingsTextView = (TextView) findViewById(R.id.savings_text_view);
-                TextView totalMileageTextView = (TextView) findViewById(R.id.total_mileage_textview);
-
                 monthlySavingsTextView.setText(getString(R.string.$) + String.format(getString(R.string.savings_format), savings));
                 totalMileageTextView.setText(String.format(getString(R.string.mileage_format),
                         sumLoggedTripsDouble));
@@ -307,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
-        if (checkLocationPermission()) {
+        if (hasLocationPermission()) {
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         }
 
@@ -374,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getSharedPreferencesInstance()
                 .edit()
                 .putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
-                .commit();
+                .apply();
     }
 
     private void loadSharedPreferences() {
@@ -444,9 +458,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mTripAdapter.swapCursor(data);
 
-        TextView errorTextView = (TextView) findViewById(error);
-        TextView noTripsYetTextView = (TextView) findViewById(R.id.recyclerview_triplog_empty);
-
         if (data.getCount() != 0) {
             errorTextView.setVisibility(View.GONE);
             noTripsYetTextView.setVisibility(View.GONE);
@@ -474,9 +485,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 if (isChecked) {
 
                     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                    mGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-                    if (!checkLocationPermission()) {
+                    if (!hasLocationPermission()) {
                         AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                         alertDialog.setTitle(getString(R.string.location_permission_alert_header));
                         alertDialog.setMessage(getString(R.string.location_permission_alert));
@@ -487,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                                     }
                                 });
                         alertDialog.show();
-                    } else if (!gps_enabled) {
+                    } else if (!mGpsEnabled) {
 
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this,
                                 R.style.MyAlertDialogStyle);
@@ -508,38 +519,29 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                                 Toast.LENGTH_SHORT).show();
 
                     } else {
-
-                        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
-                                mGoogleApiClient,
-                                Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
-                                getActivityDetectionPendingIntent()
-                        ).setResultCallback(MainActivity.this);
-                        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, true);
-                        Toast.makeText(MainActivity.this, getString(R.string.drive_tracking_on),
-                                Toast.LENGTH_SHORT).show();
+                        setDriveTracking(true);
                     }
 
                 } else {
 
                     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                    mGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
                     if (!mGoogleApiClient.isConnected()) {
                         Toast.makeText(MainActivity.this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
                         return;
-                    } else if (!gps_enabled) {
+                    } else if (!mGpsEnabled) {
                         savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, false);
 
                     }
                     // Remove all activity updates for the PendingIntent that was used to request activity
                     // updates.
+                    setDriveTracking(false);
                     ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
                             mGoogleApiClient,
                             getActivityDetectionPendingIntent()
                     ).setResultCallback(MainActivity.this);
                     savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
-                    Toast.makeText(MainActivity.this, getString(R.string.drive_tracking_off),
-                            Toast.LENGTH_SHORT).show();
                 }
                 setTrackingSwitch(trackingSwitch);
             }
@@ -548,7 +550,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return true;
     }
 
-    private boolean checkLocationPermission() {
+    private void setDriveTracking(boolean isTracking) {
+        if (isTracking) {
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
+                    mGoogleApiClient,
+                    Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+                    getActivityDetectionPendingIntent()
+            ).setResultCallback(MainActivity.this);
+            Toast.makeText(MainActivity.this, getString(R.string.drive_tracking_on),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
+                    mGoogleApiClient,
+                    getActivityDetectionPendingIntent()
+            ).setResultCallback(MainActivity.this);
+            Toast.makeText(MainActivity.this, getString(R.string.drive_tracking_off),
+                    Toast.LENGTH_SHORT).show();
+        }
+        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isTracking);
+
+    }
+
+    private boolean hasLocationPermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -561,12 +584,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, EnergySettingsActivity.class);
-            intent.putExtra(Constants.EXTRA_USER_LAT, latString);
-            intent.putExtra(Constants.EXTRA_USER_LON, lonString);
             startActivity(intent);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

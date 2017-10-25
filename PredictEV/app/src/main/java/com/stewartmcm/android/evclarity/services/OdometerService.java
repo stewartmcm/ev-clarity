@@ -25,7 +25,7 @@ public class OdometerService extends Service {
     private static Location lastLocation = null;
     private LocationManager locManager;
     private LocationListener listener;
-    private boolean driving;
+    private boolean mDriving;
 
     class OdometerBinder extends Binder {
         OdometerService getOdometer() {
@@ -56,7 +56,7 @@ public class OdometerService extends Service {
                     lastLocation = location;
                 }
 
-                if (driving ==false) {
+                if (mDriving ==false) {
                     distanceInMeters = 0.0;
                 }
 
@@ -116,7 +116,7 @@ public class OdometerService extends Service {
 
     private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        driving = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVING_BOOL,
+        mDriving = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVING_BOOL,
                 false);
 
     }

@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -15,7 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +29,9 @@ import com.stewartmcm.android.evclarity.services.UtilityRateAPIService;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,16 +41,24 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class EnergySettingsActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    @BindView(R.id.current_utility_text_view)
+    TextView currentUtilityTextView;
+
+    @BindView(R.id.utility_rate_text_view)
+    TextView utilityRateTextView;
+
+    @BindView(R.id.gas_price_edit_text)
+    EditText gasPriceEditText;
+
+    @BindView(R.id.mpg_edit_text)
+    EditText mpgEditText;
+
     private String utilityRateString;
     private String gasPriceString;
     private String currentMPGString;
     private String utilityName;
     private String latString;
     private String lonString;
-    private TextView currentUtilityTextView;
-    private TextView utilityRateTextView;
-    private EditText gasPriceEditText;
-    private EditText mpgEditText;
     private Location mLastLocation;
     private double utilityRate;
     private ArrayList<Utility> utilities;
@@ -62,37 +71,25 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         setContentView(R.layout.activity_energy_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ButterKnife.bind(this);
 
         if (savedInstanceState != null) {
             utilityName = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_NAME);
-//            Log.i(TAG, "onCreate: utilityName: " + utilityName);
             utilityRateString = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_RATE);
-//            Log.i(TAG, "onCreate: utilityRate: " + utilityRateString);
-
-            initLayoutElements();
 
             currentUtilityTextView.setText(utilityName);
             utilityRateTextView.setText(R.string.$ + utilityRateString + R.string.kWh);
 
         } else {
-
-            initLayoutElements();
             loadSavedPreferences();
         }
 
         // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
         utilities = new ArrayList<>();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        assert fab != null;
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                findUtilities();
-            }
-        });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     @Override
@@ -119,13 +116,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         mpgEditText.setText(currentMPGString);
     }
 
-    private void initLayoutElements() {
-        currentUtilityTextView = (TextView) findViewById(R.id.current_utility_text_view);
-        utilityRateTextView = (TextView) findViewById(R.id.utility_rate_text_view);
-        gasPriceEditText = (EditText) findViewById(R.id.gas_price_edit_text);
-        mpgEditText = (EditText) findViewById(R.id.mpg_edit_text);
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -134,6 +124,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         return true;
     }
 
+    @OnClick(R.id.fab)
     public void findUtilities() {
 
         checkLocationPermission();
@@ -231,7 +222,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     @Override
