@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        mTripAdapter.onSaveInstanceState(outState);
+//        mTripAdapter.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 

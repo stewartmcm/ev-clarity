@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.stewartmcm.android.evclarity.activities.MainActivity;
-import com.stewartmcm.android.evclarity.data.Contract;
 import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.models.Trip;
 
@@ -21,22 +20,18 @@ import java.util.ArrayList;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterViewHolder> {
 
-    protected static final String TAG = "TRIP_ADAPTER";
+    static final String TAG = "TRIP_ADAPTER";
     final private Context mContext;
-    LayoutInflater cursorInflater;
     private Cursor mCursor;
     private ArrayList<Trip> mTrips;
     final private View mEmptyView;
     final private TripAdapterOnClickHandler mClickHandler;
-//    final private ItemChoiceManager mICM;
 
 
 
-    public class TripAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
+    public static class TripAdapterViewHolder extends RecyclerView.ViewHolder {
         TextView mTotalSavingsTextView;
         TextView mTotalMileageTextView;
-
         TextView mMileageTextView;
         TextView mDateTimeTextView;
         TextView mSavingsTextView;
@@ -50,33 +45,17 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
             mMileageTextView = (TextView) itemView.findViewById(R.id.list_item_mileage);
             mDateTimeTextView = (TextView) itemView.findViewById(R.id.list_item_date);
             mSavingsTextView = (TextView) itemView.findViewById(R.id.list_item_savings);
-
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            mCursor.moveToPosition(adapterPosition);
-            int symbolColumn = mCursor.getColumnIndex(Contract.Trip.COLUMN_DATE);
-
-            //TODO: uncomment to implement recyclerview clickhandler
-//            mClickHandler.onClick(mCursor.getString(symbolColumn), this);
-//            mICM.onClick(this);
-
         }
     }
     public static interface TripAdapterOnClickHandler {
         void onClick(String dateTime, TripAdapterViewHolder viewHolder);
     }
 
+    //TODO: use factory method instead
     public TripAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView) {
-
         mContext = context;
         mClickHandler = clickHandler;
         mEmptyView = emptyView;
-//        mICM = new ItemChoiceManager(this);
-//        mICM.setChoiceMode(choiceMode);
 
         mTrips = new ArrayList<>();
 
@@ -97,41 +76,10 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
             mCursor.moveToNext();
         }
         mCursor.close();
-
-        //TODO: delete after validating code above adds trips to recyclerview correctly
-//        for (int i = 0; i < 20; i++) {
-//
-//            Trip trip = new Trip("today",
-//                    i,
-//                    i);
-//
-//            mTrips.add(trip);
-//        }
-
     }
 
     @Override
     public TripAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-//        if ( parent instanceof RecyclerView ) {
-//            int layoutId = -1;
-//            switch (viewType) {
-//                case VIEW_TYPE_SUMMARY: {
-//                    layoutId = R.layout.list_item_summary;
-//                    break;
-//                }
-//                case VIEW_TYPE_TRIP: {
-//                    layoutId = R.layout.list_item_trip;
-//                    break;
-//                }
-//            }
-//            View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
-//            view.setFocusable(true);
-//            return new TripAdapterViewHolder(view);
-//        } else {
-//            throw new RuntimeException("Not bound to RecyclerView");
-//        }
-
         View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
 
         return new TripAdapterViewHolder(item);
@@ -155,27 +103,11 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
         holder.mMileageTextView.setText(milesString + " miles");
         holder.mSavingsTextView.setText("$" + savingsString);
         holder.mDateTimeTextView.setText(mTrips.get(position).getTimeStamp());
-
-//        String date = mCursor.getString(MainActivity.COL_DATE);
-//
-//        holder.mMileageTextView.setText(mCursor.getString(MainActivity.COL_TRIP_MILES) + " miles");
-//        holder.mDateTimeTextView.setText(date);
-//        holder.mSavingsTextView.setText(mCursor.getString(MainActivity.COL_TRIP_SAVINGS));
-
-//        mICM.onBindViewHolder(holder, position);
-    }
-
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-//        mICM.onRestoreInstanceState(savedInstanceState);
     }
 
     public void onSaveInstanceState(Bundle outState) {
 //        mICM.onSaveInstanceState(outState);
     }
-
-//    public int getSelectedItemPosition() {
-//        return mICM.getSelectedItemPosition();
-//    }
 
     public void setCursor(Cursor cursor) {
         mCursor = cursor;
@@ -191,11 +123,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     @Override
     public int getItemCount() {
         int count = 0;
-
-        //commented out below to debug onSwipe
-//        if (mCursor != null) {
-//            count = mCursor.getCount();
-//        }
         count = mTrips.size();
         return count;
     }
@@ -216,33 +143,4 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
     public Cursor getCursor() {
         return mCursor;
     }
-
-    public void selectView(RecyclerView.ViewHolder viewHolder) {
-        if ( viewHolder instanceof TripAdapterViewHolder ) {
-            TripAdapterViewHolder vfh = (TripAdapterViewHolder)viewHolder;
-            vfh.onClick(vfh.itemView);
-        }
-    }
-
-//    =========== Old ListView code below; new RecyclerView code above
-
-//    @Override
-//    public void bindView(View view, Context context, Cursor cursor) {
-//        TextView tripMileageTextView = (TextView) view.findViewById(R.id.mileage_text_view);
-////        TextView dateTextView = (TextView) view.findViewById(R.id.date_text_view);
-//        // might not need textview below
-//        TextView staticMilesTextView;
-//
-//        String mileage = cursor.getString( cursor.getColumnIndex( PredictEvDatabaseHelper.COL_TRIP_MILES ) );
-//        tripMileageTextView.setText(mileage + " miles");
-//
-////        String date = cursor.getString( cursor.getColumnIndex(PredictEvDatabaseHelper.COL_DATE));
-////        dateTextView.setText(date);
-//    }
-//
-//    @Override
-//    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-//
-//        return cursorInflater.inflate(R.layout.list_item_trip, parent, false);
-//    }
 }
