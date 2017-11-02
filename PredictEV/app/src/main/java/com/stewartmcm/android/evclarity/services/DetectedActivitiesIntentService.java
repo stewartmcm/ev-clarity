@@ -9,10 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -29,14 +25,12 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
+import com.stewartmcm.android.evclarity.LogTripTask;
 import com.stewartmcm.android.evclarity.R;
 import com.stewartmcm.android.evclarity.activities.Constants;
 import com.stewartmcm.android.evclarity.activities.MainActivity;
-import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class DetectedActivitiesIntentService extends IntentService implements GoogleApiClient.ConnectionCallbacks,
@@ -44,14 +38,10 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
     protected static final String TAG = Constants.DETECTED_ACTIVITIES_INTENT_SERVICE_TAG;
 
     private GoogleApiClient mGoogleApiClient;
-    private Cursor cursor;
     private OdometerService odometer;
     private Intent odometerIntent;
     private boolean bound = false;
     private boolean driving = false;
-    private String currentMPGString;
-    private String utilityRateString;
-    private String gasPriceString;
     private double finalTripDistance;
     public double tripDistance;
 
@@ -179,7 +169,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         }
     }
 
-    protected void recordDrive() {
+    private void recordDrive() {
         Log.i(TAG, "recordDrive: method called");
         loadSharedPreferences();
 
@@ -191,12 +181,12 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         Log.i(TAG, "tripDistance" + tripDistance);
     }
 
-    public double logDrive() {
+    private double logDrive() {
         Log.i(TAG, "logDrive: method ran");
         if (tripDistance != 0.0) {
             finalTripDistance = tripDistance;
             Log.i(TAG, "finalTripOdometer: " + finalTripDistance);
-            new LogTripTask().execute();
+            new LogTripTask(this, finalTripDistance).execute();
             buildNotification(tripDistance);
             tripDistance = 0.0;
             Log.i(TAG, "tripOdometer reset to: " + tripDistance);
@@ -226,47 +216,6 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         NotificationManagerCompat.from(this).notify(0, builder.build());
     }
 
-    private class LogTripTask extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            Log.i(TAG, "LogTripTask doInBackground: method ran");
-            PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(DetectedActivitiesIntentService.this);
-            SQLiteDatabase db = mHelper.getWritableDatabase();
-            GregorianCalendar calender = new GregorianCalendar();
-
-            double tripSavings = calcSavings(finalTripDistance);
-            Log.i(TAG, "doInBackground: " + tripSavings);
-
-            DecimalFormat savingsFormat = new DecimalFormat("###.##");
-            String savingsString = savingsFormat.format(tripSavings);
-            Log.i(TAG, "doInBackground: " + savingsString);
-
-            cursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
-                    null, null, null, null, null);
-            cursor.moveToLast();
-            try {
-                mHelper.insertTrip(db, format(calender), "11:23", 37.828411, -122.289890, 37.805591,
-                        -122.275583, finalTripDistance, savingsString);
-                return true;
-
-            } catch (SQLiteException e) {
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            super.onPostExecute(success);
-            cursor.moveToFirst();
-        }
-    }
-
     private void turnOffOdometer() {
         savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, 0.0);
         odometerIntent = new Intent(this, OdometerService.class);
@@ -282,54 +231,9 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         bound = false;
     }
 
-    private double calcSavings(double mileageDouble) {
-        loadSharedPreferences();
-
-        double savings;
-        double utilityRate = Double.parseDouble(utilityRateString);
-        double gasPrice;
-        double currentMPG;
-
-        if (gasPriceString.isEmpty()) {
-            gasPrice = 0.0;
-        } else {
-            gasPrice = Double.parseDouble(gasPriceString);
-        }
-//        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
-
-
-        if (currentMPGString.isEmpty()) {
-            currentMPG = 0.0;
-        } else {
-            currentMPG = Double.parseDouble(currentMPGString);
-        }
-
-        if (utilityRate != 0.0) {
-            savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
-//            .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
-
-            return savings;
-        }
-        return 0.00;
-
-    }
-
-    public String format(GregorianCalendar calendar){
-        SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
-        fmt.setCalendar(calendar);
-        return fmt.format(calendar.getTime());
-    }
-
     private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE,
-                getString(R.string.default_utility_rate));
-        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,
-                getString(R.string.default_gas_price));
-        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
-                getString(R.string.default_mpg));
         tripDistance = sharedPreferences.getFloat(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, 0.0f);
-
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -360,7 +264,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         SharedPreferences.Editor editor = sharedPreferences.edit();
         float valueFloat = (float) value;
         editor.putFloat(key, valueFloat);
-        editor.commit();
+        editor.apply();
     }
 
     private void savePreferencesBoolean(String key, boolean value) {
@@ -368,7 +272,7 @@ public class DetectedActivitiesIntentService extends IntentService implements Go
         SharedPreferences.Editor editor = sharedPreferences.edit();
         boolean valueBoolean = (boolean) value;
         editor.putBoolean(key, valueBoolean);
-        editor.commit();
+        editor.apply();
     }
 
     @Override

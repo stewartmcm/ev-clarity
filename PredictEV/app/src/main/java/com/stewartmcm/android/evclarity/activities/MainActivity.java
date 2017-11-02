@@ -8,12 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -43,10 +38,11 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationServices;
+import com.stewartmcm.android.evclarity.DeleteTripTask;
 import com.stewartmcm.android.evclarity.R;
+import com.stewartmcm.android.evclarity.SumLoggedTripsTask;
 import com.stewartmcm.android.evclarity.TripAdapter;
 import com.stewartmcm.android.evclarity.data.Contract;
-import com.stewartmcm.android.evclarity.data.PredictEvDatabaseHelper;
 import com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService;
 
 import butterknife.BindView;
@@ -57,36 +53,17 @@ import static com.stewartmcm.android.evclarity.R.id.error;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
 
-    @BindView(R.id.savings_text_view)
-    TextView monthlySavingsTextView;
-
-    @BindView(R.id.total_mileage_textview)
-    TextView totalMileageTextView;
-
     @BindView(error)
     TextView errorTextView;
 
     @BindView(R.id.recyclerview_triplog_empty)
     TextView noTripsYetTextView;
 
-//    @BindView(R.id.recyclerview_triplog_empty)
-//    View emptyView;
-
-    private int mPosition = RecyclerView.NO_POSITION;
-    private int mChoiceMode;
     private int tripPosition;
     private boolean isChecked;
-    private String latString;
-    private String lonString;
-    private String currentMPGString;
-    private String utilityRateString;
-    private String gasPriceString;
     private boolean mGpsEnabled;
-    private Cursor sumTripsCursor;
     private TripAdapter mTripAdapter;
-    public GoogleApiClient mGoogleApiClient;
-    public Location mCurrentLocation;
-    public SQLiteDatabase db;
+    private GoogleApiClient mGoogleApiClient;
 
     private static final int TRIP_LOADER = 0;
     private static final String[] TRIP_COLUMNS = {
@@ -122,36 +99,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setSupportActionBar();
         loadSharedPreferences();
         buildGoogleApiClient();
-
-        ButterKnife.bind(this);
     }
 
-    private void setSupportActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-        }
-        getSupportActionBar().setElevation(0f);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadSharedPreferences();
+        new SumLoggedTripsTask(this).execute();
+        ButterKnife.bind(this);
+        mGoogleApiClient.connect();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        mTripAdapter = new TripAdapter(this, new TripAdapter.TripAdapterOnClickHandler() {
-
-            @Override
-            public void onClick(String dateTime, TripAdapter.TripAdapterViewHolder viewHolder) {
-                mPosition = viewHolder.getAdapterPosition();
-
-                //TODO: implement to launch detail activity onClick of each item
-                //onItemSelected(Contract.Trip.makeUriForTrip(dateTime),
-                //viewHolder
-                //);
-            }
-        }, noTripsYetTextView);
+        mTripAdapter = new TripAdapter(this, null, noTripsYetTextView);
 
         RecyclerView tripRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -175,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 tripPosition = viewHolder.getAdapterPosition();
-                new DeleteTripTask().execute(tripPosition);
-                new SumLoggedTripsTask().execute();
+                new DeleteTripTask(getApplicationContext()).execute(tripPosition);
+                new SumLoggedTripsTask(MainActivity.this).execute();
                 int newTripArraySize = mTripAdapter.removeTrip(tripPosition);
                 mTripAdapter.notifyItemRemoved(tripPosition);
                 mTripAdapter.notifyItemRangeChanged(tripPosition, newTripArraySize);
@@ -186,6 +149,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(tripRecyclerView);
         invalidateOptionsMenu();
+    }
+
+    private void setSupportActionBar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
+        getSupportActionBar().setElevation(0f);
     }
 
     @Override
@@ -202,108 +175,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return super.onPrepareOptionsMenu(menu);
     }
 
-    //deletes trip asynchronously when executed
-    private class DeleteTripTask extends AsyncTask<Integer, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Boolean doInBackground(Integer... trips) {
-            int tripNo = trips[0];
-
-            //TODO: Test deleting line below and declaring db in try catch statement
-            SQLiteDatabase db = null;
-            PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(MainActivity.this);
-
-            try {
-                //TODO: try replacing query columns with constants
-                db = mHelper.getWritableDatabase();
-                Cursor deleteTripCursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"_id", "TRIP_MILES"},
-                        null, null, null, null, null);
-
-                if (deleteTripCursor.moveToPosition(tripNo)) {
-                    String rowId = deleteTripCursor.getString(deleteTripCursor.getColumnIndex(PredictEvDatabaseHelper.COL_ID));
-
-                    db.delete(Constants.TRIP_TABLE_NAME, PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
-                    deleteTripCursor.close();
-                }
-
-                return true;
-
-            } catch (SQLiteException e) {
-                Toast toast = Toast.makeText(MainActivity.this, getString(R.string.database_unavailable),
-                        Toast.LENGTH_SHORT);
-                toast.show();
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            super.onPostExecute(success);
-
-        }
-    }
-
-    private class SumLoggedTripsTask extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(MainActivity.this);
-
-            try {
-                db = mHelper.getReadableDatabase();
-                sumTripsCursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
-                        null, null, null, null, null);
-                return true;
-            } catch (SQLiteException e) {
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            super.onPostExecute(success);
-
-            sumTripsCursor.moveToFirst();
-            if (success) {
-                double sumLoggedTripsDouble = sumTripsCursor.getDouble(0);
-                double savings = calcSavings(sumLoggedTripsDouble);
-
-                monthlySavingsTextView.setText(getString(R.string.$) + String.format(getString(R.string.savings_format), savings));
-                totalMileageTextView.setText(String.format(getString(R.string.mileage_format),
-                        sumLoggedTripsDouble));
-                sumTripsCursor.close();
-
-            } else {
-                Toast toast = Toast.makeText(MainActivity.this, getString(R.string.database_unavailable),
-                        Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-    }
-
     private void savePreferencesBoolean(String key, Boolean value) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(key, value);
-        editor.commit();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        loadSharedPreferences();
-        new SumLoggedTripsTask().execute();
-        mGoogleApiClient.connect();
+        editor.apply();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -317,27 +193,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onConnected(Bundle connectionHint) {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
 
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (hasLocationPermission()) {
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        }
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            if (mCurrentLocation != null) {
-                latString = String.valueOf(mCurrentLocation.getLatitude());
-                lonString = String.valueOf(mCurrentLocation.getLongitude());
-            }
-
-        } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED && !ActivityCompat.shouldShowRequestPermissionRationale (this,
                 Manifest.permission.ACCESS_FINE_LOCATION)) {
-
             String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
             ActivityCompat.requestPermissions(this,
                     permissions,
@@ -393,12 +252,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE,
-                getString(R.string.default_electricity_rate));
-        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,
-                getString(R.string.default_gas_price));
-        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
-                getString(R.string.default_mpg));
         isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
     }
 
@@ -418,34 +271,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    private double calcSavings(double mileageDouble) {
-        double savings;
-        double currentMPG;
-        double gasPrice;
-        double utilityRate = Double.parseDouble(utilityRateString);
-
-
-        if (gasPriceString.isEmpty()) {
-            gasPrice = 0.0;
-        } else {
-            gasPrice = Double.parseDouble(gasPriceString);
-        }
-
-        if (currentMPGString.isEmpty()) {
-            currentMPG = 0.0;
-        } else {
-            currentMPG = Double.parseDouble(currentMPGString);
-        }
-
-        if (utilityRate != 0.0) {
-            // .3 is Nissan Leaf's kWh per mile driven (EV equivalent of mpg)
-            savings = mileageDouble * ((gasPrice / currentMPG) - (.3 * utilityRate));
-            return savings;
-        }
-
-        return 0.00;
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
@@ -462,8 +287,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             errorTextView.setVisibility(View.GONE);
             noTripsYetTextView.setVisibility(View.GONE);
         }
-        //TODO: try uncommenting this when testing on swipe
-//        mTripAdapter.setCursor(data);
     }
 
     @Override
@@ -591,31 +414,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         mGoogleApiClient.disconnect();
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    //TODO: Create TripDetailActivity with map of individual trip
-    //    @Override
-//    public void onItemSelected(Uri contentUri, TripAdapter.TripAdapterViewHolder vh) {
-
-//        Intent intent = new Intent(this, TripDetailActivity.class)
-//                .setData(contentUri);
-
-//        ActivityOptionsCompat activityOptions =
-//                ActivityOptionsCompat.makeSceneTransitionAnimation(this,
-//                        new Pair<View, String>(vh.mIconView, getString(R.string.detail_icon_transition_name)));
-//        startActivity(intent);
-//    }
 }

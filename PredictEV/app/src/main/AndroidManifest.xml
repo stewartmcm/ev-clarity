@@ -10,8 +10,7 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name="android.support.multidex.MultiDexApplication">
+        android:theme="@style/AppTheme">
         <activity android:name="com.stewartmcm.android.evclarity.activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"

@@ -64,7 +64,7 @@
                 android:text="@string/savings_textview_header"/>
 
             <TextView
-                android:id="@+id/savings_text_view"
+                android:id="@+id/savings_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
