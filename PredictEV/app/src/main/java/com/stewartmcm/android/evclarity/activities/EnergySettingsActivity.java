@@ -81,7 +81,11 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
             utilityRateTextView.setText(R.string.$ + utilityRateString + R.string.kWh);
 
         } else {
-            loadSavedPreferences();
+            loadSharedPreferences();
+            currentUtilityTextView.setText(utilityName);
+            utilityRateTextView.setText(utilityRateString);
+            gasPriceEditText.setText(gasPriceString);
+            mpgEditText.setText(currentMPGString);
         }
 
         // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
@@ -99,7 +103,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         mGoogleApiClient.connect();
     }
 
-    private void loadSavedPreferences() {
+    private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME,
                 getString(R.string.set_electricity_provider_cue));
@@ -109,11 +113,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 getString(R.string.default_gas_price));
         currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
                 getString(R.string.default_mpg));
-
-        currentUtilityTextView.setText(utilityName);
-        utilityRateTextView.setText(utilityRateString);
-        gasPriceEditText.setText(gasPriceString);
-        mpgEditText.setText(currentMPGString);
     }
 
     @Override
@@ -133,7 +132,7 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
                 .addConverterFactory(GsonConverterFactory.create()).build();
         UtilityRateAPIService mService = retrofit.create(UtilityRateAPIService.class);
 
-        String API_KEY = "vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt";
+        String API_KEY = "";
 
         Call<UtilityArray> call = null;
 
@@ -226,38 +225,6 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
-        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
-
-        gasPriceString = gasPriceEditText.getText().toString();
-        currentMPGString = mpgEditText.getText().toString();
-
-        savePreferencesString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
-        savePreferencesString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-    }
-
-    @Override
     public void onConnected(Bundle connectionHint) {
 
         int permissionCheck = ContextCompat.checkSelfPermission(this,
@@ -301,4 +268,35 @@ public class EnergySettingsActivity extends AppCompatActivity implements GoogleA
         mGoogleApiClient.connect();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
+        savePreferencesString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
+
+        gasPriceString = gasPriceEditText.getText().toString();
+        currentMPGString = mpgEditText.getText().toString();
+
+        savePreferencesString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
+        savePreferencesString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
 }

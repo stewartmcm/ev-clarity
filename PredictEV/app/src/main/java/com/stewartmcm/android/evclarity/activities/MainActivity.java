@@ -67,30 +67,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int TRIP_LOADER = 0;
     private static final String[] TRIP_COLUMNS = {
-            // A lot of the columns below won't be used actively in the app's current state, however
-            // a lot of these columns will be necessary planned features
             Contract.Trip._ID,
             Contract.Trip.COLUMN_DATE,
-            Contract.Trip.COLUMN_TIME,
-            Contract.Trip.COLUMN_ORIGIN_LAT,
-            Contract.Trip.COLUMN_ORIGIN_LONG,
-            Contract.Trip.COLUMN_DEST_LAT,
-            Contract.Trip.COLUMN_DEST_LONG,
             Contract.Trip.COLUMN_TRIP_MILES,
             Contract.Trip.COLUMN_TRIP_SAVINGS
     };
 
-    // These indices are tied to TRIP_COLUMNS.  If TRIP_COLUMNS changes, these
-    // must change.
     public static final int COL_DATE = 1;
     public static final int COL_TRIP_MILES = 7;
     public static final int COL_TRIP_SAVINGS = 8;
-    //    static final int COL_ID = 0;
-    //    static final int COL_TIME = 2;
-    //    static final int COL_ORIGIN_LAT = 3;
-    //    static final int COL_ORIGIN_LONG = 4;
-    //    static final int COL_DEST_LAT = 5;
-    //    static final int COL_DEST_LONG = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +136,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         invalidateOptionsMenu();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+    }
+
     private void setSupportActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -159,139 +150,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             getSupportActionBar().setDisplayShowTitleEnabled(true);
         }
         getSupportActionBar().setElevation(0f);
-    }
-
-    @Override
-    public void invalidateOptionsMenu() {
-        super.supportInvalidateOptionsMenu();
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, mGpsEnabled);
-        loadSharedPreferences();
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    private void savePreferencesBoolean(String key, Boolean value) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(ActivityRecognition.API)
-                .addApi(LocationServices.API)
-                .build();
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED && !ActivityCompat.shouldShowRequestPermissionRationale (this,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-            ActivityCompat.requestPermissions(this,
-                    permissions,
-                    Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        mGoogleApiClient.connect();
-    }
-
-    public void onResult(Status status) {
-        if (status.isSuccess()) {
-            boolean requestingUpdates = !getUpdatesRequestedState();
-            setUpdatesRequestedState(requestingUpdates);
-
-        } else {
-            Toast.makeText(
-                    this,
-                    getString(R.string.no_gps_data),
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
-    }
-
-    private PendingIntent getActivityDetectionPendingIntent() {
-        Intent intent = new Intent(this, DetectedActivitiesIntentService.class);
-
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private SharedPreferences getSharedPreferencesInstance() {
-        return getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-    }
-
-    private boolean getUpdatesRequestedState() {
-        return getSharedPreferencesInstance()
-                .getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false);
-    }
-
-    private void setUpdatesRequestedState(boolean requestingUpdates) {
-        getSharedPreferencesInstance()
-                .edit()
-                .putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
-                .apply();
-    }
-
-    private void loadSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-//        mTripAdapter.onSaveInstanceState(outState);
-        super.onSaveInstanceState(outState);
-    }
-
-    protected void setTrackingSwitch(SwitchCompat trackingSwitch) {
-        loadSharedPreferences();
-
-        if (isChecked) {
-            trackingSwitch.setChecked(true);
-        } else {
-            trackingSwitch.setChecked(false);
-        }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this,
-                Contract.Trip.uri,
-                TRIP_COLUMNS,
-                null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mTripAdapter.swapCursor(data);
-
-        if (data.getCount() != 0) {
-            errorTextView.setVisibility(View.GONE);
-            noTripsYetTextView.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mTripAdapter.swapCursor(null);
     }
 
     @Override
@@ -369,8 +227,135 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 setTrackingSwitch(trackingSwitch);
             }
         });
-
         return true;
+    }
+
+    @Override
+    public void invalidateOptionsMenu() {
+        super.supportInvalidateOptionsMenu();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, mGpsEnabled);
+        loadSharedPreferences();
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(ActivityRecognition.API)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED && !ActivityCompat.shouldShowRequestPermissionRationale (this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        mGoogleApiClient.connect();
+    }
+
+    public void onResult(Status status) {
+        if (status.isSuccess()) {
+            boolean requestingUpdates = !getUpdatesRequestedState();
+            setUpdatesRequestedState(requestingUpdates);
+
+        } else {
+            Toast.makeText(
+                    this,
+                    getString(R.string.no_gps_data),
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
+    }
+
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(this, DetectedActivitiesIntentService.class);
+
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private boolean getUpdatesRequestedState() {
+        return getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+                .getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false);
+    }
+
+    private void setUpdatesRequestedState(boolean requestingUpdates) {
+        getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+                .edit()
+                .putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
+                .apply();
+    }
+
+    private void loadSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        isChecked = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false);
+    }
+
+    private void savePreferencesBoolean(String key, Boolean value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    private void setTrackingSwitch(SwitchCompat trackingSwitch) {
+        loadSharedPreferences();
+
+        if (isChecked) {
+            trackingSwitch.setChecked(true);
+        } else {
+            trackingSwitch.setChecked(false);
+        }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(this,
+                Contract.Trip.uri,
+                TRIP_COLUMNS,
+                null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mTripAdapter.swapCursor(data);
+
+        if (data.getCount() != 0) {
+            errorTextView.setVisibility(View.GONE);
+            noTripsYetTextView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mTripAdapter.swapCursor(null);
     }
 
     private void setDriveTracking(boolean isTracking) {
@@ -411,11 +396,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
     }
 }
