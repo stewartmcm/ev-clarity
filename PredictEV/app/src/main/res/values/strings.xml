@@ -4,7 +4,6 @@
     <!--MainActivity-->
 
     <string name="database_unavailable">Database unavailable.</string>
-    <string name="dollar_symbol">$</string>
     <string name="savings_format">%.2f</string>
     <string name="mileage_format">%.0f</string>
     <string name="location_not_avail_alert_header">Location Unavailable</string>
@@ -69,7 +68,7 @@
 
     <string name="long_click_to_delete">Tap and hold to delete trip.</string>
     <string name="electricity_provider_set">Electricity provider added successfully.</string>
-    <string name="$">$</string>
+    <string name="dollar_sign">$</string>
     <string name="kWh">kWh</string>
 
     <string name="empty_trip_list">No trips recorded yet.</string>

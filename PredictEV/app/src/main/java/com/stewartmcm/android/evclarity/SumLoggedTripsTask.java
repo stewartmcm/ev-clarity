@@ -55,7 +55,7 @@ public class SumLoggedTripsTask extends AsyncTask<Void, Void, Boolean> {
             TextView monthlySavingsTextView = (TextView) mActivity.findViewById(R.id.savings_textview);
             TextView totalMileageTextView = (TextView) mActivity.findViewById(R.id.total_mileage_textview);
 
-            monthlySavingsTextView.setText(mActivity.getString(R.string.$) + String.format(mActivity.getString(R.string.savings_format), savings));
+            monthlySavingsTextView.setText(mActivity.getString(R.string.dollar_sign) + String.format(mActivity.getString(R.string.savings_format), savings));
             totalMileageTextView.setText(String.format(mActivity.getString(R.string.mileage_format),
                     sumLoggedTripsDouble));
             mCursor.close();
