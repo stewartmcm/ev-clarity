@@ -1,0 +1,185 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:2:1-67:12
+	package
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:3:5-47
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:2:11-69
+	android:versionCode
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+uses-permission#android.permission.INTERNET
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:5:5-67
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:5:22-64
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:6:5-79
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:6:22-76
+uses-permission#com.google.android.gms.permission.ACTIVITY_RECOGNITION
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:7:5-94
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:7:22-91
+application
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:9:5-65:19
+MERGED from [com.android.support:design:25.3.1] /Users/stewartmcmillan/.android/build-cache/8a2f01eece5b6877b31eef23b2fb091370bb73cd/output/AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:appcompat-v7:25.3.1] /Users/stewartmcmillan/.android/build-cache/c216c5ecdea6e516db7f83500b7a687a6be9af5a/output/AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] /Users/stewartmcmillan/.android/build-cache/d076831032e46a485291f67370dfa0fbe868eba8/output/AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:support-vector-drawable:25.3.1] /Users/stewartmcmillan/.android/build-cache/c899826f4d5a34e59d2c1e79bcfd45582923868d/output/AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:transition:25.3.1] /Users/stewartmcmillan/.android/build-cache/978b2bf29043674142c8c59958f56577d8a7ad1d/output/AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-location:10.2.1] /Users/stewartmcmillan/.android/build-cache/a0265fb45da7ad09f5eefded4ab9677e43b19fc2/output/AndroidManifest.xml:4:5-19
+MERGED from [com.google.android.gms:play-services-base:10.2.1] /Users/stewartmcmillan/.android/build-cache/1bc04a10c1c84cf40ea74c09e460324c8dd6ef01/output/AndroidManifest.xml:18:5-20:19
+MERGED from [com.google.android.gms:play-services-tasks:10.2.1] /Users/stewartmcmillan/.android/build-cache/d01c58c2a047498e419b816070966363f452932d/output/AndroidManifest.xml:4:5-19
+MERGED from [com.google.android.gms:play-services-basement:10.2.1] /Users/stewartmcmillan/.android/build-cache/412e0b81ad7af289e975c8061cbe50eaf74a1aa5/output/AndroidManifest.xml:19:5-21:19
+MERGED from [com.android.support:support-v4:25.3.1] /Users/stewartmcmillan/.android/build-cache/11e222416bf76c7e13c0b7fc138e740795f347f7/output/AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-fragment:25.3.1] /Users/stewartmcmillan/.android/build-cache/814b791fefaa91ec4cd752e9591e46b11fcc64f5/output/AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-media-compat:25.3.1] /Users/stewartmcmillan/.android/build-cache/43538c78b7e9a1ed712706f9b2ba67afcfcdcd43/output/AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-ui:25.3.1] /Users/stewartmcmillan/.android/build-cache/65aa8fc40079093517ed9346fdb975f2421f6a30/output/AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-utils:25.3.1] /Users/stewartmcmillan/.android/build-cache/150df1e6a9044e7119aca5d30f7dab5ff9f91705/output/AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-compat:25.3.1] /Users/stewartmcmillan/.android/build-cache/513506c0c14dce1c9f4afe3b3f7f79d7714d8218/output/AndroidManifest.xml:29:5-20
+	android:supportsRtl
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:12:9-35
+	android:allowBackup
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:10:9-36
+	android:icon
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:11:9-43
+	android:theme
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:13:9-40
+activity#com.stewartmcm.android.evclarity.activities.MainActivity
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:14:9-22:20
+	android:screenOrientation
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:16:13-49
+	android:label
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:15:13-45
+	android:theme
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:17:13-49
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:14:19-90
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:18:13-21:29
+action#android.intent.action.MAIN
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:19:17-69
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:19:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:20:17-77
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:20:27-74
+provider#com.stewartmcm.android.evclarity.data.TripProvider
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:24:9-28:38
+	android:authorities
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:26:13-67
+	android:syncable
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:28:13-36
+	android:exported
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:25:13-46
+service#com.stewartmcm.android.evclarity.services.OdometerService
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:30:9-33:40
+	android:enabled
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:32:13-35
+	android:exported
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:33:13-37
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:31:13-85
+meta-data#com.google.android.gms.version
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:38:9-40:69
+MERGED from [com.google.android.gms:play-services-basement:10.2.1] /Users/stewartmcmillan/.android/build-cache/412e0b81ad7af289e975c8061cbe50eaf74a1aa5/output/AndroidManifest.xml:20:9-121
+	android:value
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:40:13-66
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:39:13-58
+activity#com.stewartmcm.android.evclarity.activities.EnergySettingsActivity
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:42:9-58:20
+	android:screenOrientation
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:46:13-49
+	android:label
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:44:13-67
+	android:parentActivityName
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:45:13-98
+	android:theme
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:47:13-49
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:43:13-94
+intent-filter#android.intent.action.SEARCH
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:48:13-50:29
+action#android.intent.action.SEARCH
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:49:17-71
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:49:25-68
+meta-data#android.support.PARENT_ACTIVITY
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:52:13-54:92
+	android:value
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:54:17-89
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:53:17-63
+meta-data#android.app.searchable
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:55:13-57:54
+	android:resource
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:57:17-51
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:56:17-54
+service#com.stewartmcm.android.evclarity.services.DetectedActivitiesIntentService
+ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:60:9-62:40
+	android:exported
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:62:13-37
+	android:name
+		ADDED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml:61:13-101
+uses-sdk
+INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+MERGED from [com.android.support:design:25.3.1] /Users/stewartmcmillan/.android/build-cache/8a2f01eece5b6877b31eef23b2fb091370bb73cd/output/AndroidManifest.xml:21:5-23:62
+MERGED from [com.android.support:appcompat-v7:25.3.1] /Users/stewartmcmillan/.android/build-cache/c216c5ecdea6e516db7f83500b7a687a6be9af5a/output/AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] /Users/stewartmcmillan/.android/build-cache/d076831032e46a485291f67370dfa0fbe868eba8/output/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:25.3.1] /Users/stewartmcmillan/.android/build-cache/c899826f4d5a34e59d2c1e79bcfd45582923868d/output/AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:recyclerview-v7:25.3.1] /Users/stewartmcmillan/.android/build-cache/90b6c437eccd2f0e1614f839c2fa33d0d951e366/output/AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:transition:25.3.1] /Users/stewartmcmillan/.android/build-cache/978b2bf29043674142c8c59958f56577d8a7ad1d/output/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-location:10.2.1] /Users/stewartmcmillan/.android/build-cache/a0265fb45da7ad09f5eefded4ab9677e43b19fc2/output/AndroidManifest.xml:3:5-43
+MERGED from [com.google.android.gms:play-services-base:10.2.1] /Users/stewartmcmillan/.android/build-cache/1bc04a10c1c84cf40ea74c09e460324c8dd6ef01/output/AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-tasks:10.2.1] /Users/stewartmcmillan/.android/build-cache/d01c58c2a047498e419b816070966363f452932d/output/AndroidManifest.xml:3:5-43
+MERGED from [com.google.android.gms:play-services-basement:10.2.1] /Users/stewartmcmillan/.android/build-cache/412e0b81ad7af289e975c8061cbe50eaf74a1aa5/output/AndroidManifest.xml:17:5-43
+MERGED from [com.android.support:support-v4:25.3.1] /Users/stewartmcmillan/.android/build-cache/11e222416bf76c7e13c0b7fc138e740795f347f7/output/AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-fragment:25.3.1] /Users/stewartmcmillan/.android/build-cache/814b791fefaa91ec4cd752e9591e46b11fcc64f5/output/AndroidManifest.xml:21:5-23:60
+MERGED from [com.android.support:support-media-compat:25.3.1] /Users/stewartmcmillan/.android/build-cache/43538c78b7e9a1ed712706f9b2ba67afcfcdcd43/output/AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-core-ui:25.3.1] /Users/stewartmcmillan/.android/build-cache/65aa8fc40079093517ed9346fdb975f2421f6a30/output/AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-core-utils:25.3.1] /Users/stewartmcmillan/.android/build-cache/150df1e6a9044e7119aca5d30f7dab5ff9f91705/output/AndroidManifest.xml:21:5-23:61
+MERGED from [com.jakewharton:butterknife:8.8.1] /Users/stewartmcmillan/.android/build-cache/16b318c868d7d610499047d371dd1fb120cdc669/output/AndroidManifest.xml:5:5-43
+MERGED from [com.android.support:support-compat:25.3.1] /Users/stewartmcmillan/.android/build-cache/513506c0c14dce1c9f4afe3b3f7f79d7714d8218/output/AndroidManifest.xml:21:5-23:58
+	tools:overrideLibrary
+		ADDED from [com.android.support:design:25.3.1] /Users/stewartmcmillan/.android/build-cache/8a2f01eece5b6877b31eef23b2fb091370bb73cd/output/AndroidManifest.xml:23:9-59
+	android:targetSdkVersion
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/AndroidManifest.xml
+meta-data#android.support.VERSION
+ADDED from [com.android.support:design:25.3.1] /Users/stewartmcmillan/.android/build-cache/8a2f01eece5b6877b31eef23b2fb091370bb73cd/output/AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:appcompat-v7:25.3.1] /Users/stewartmcmillan/.android/build-cache/c216c5ecdea6e516db7f83500b7a687a6be9af5a/output/AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] /Users/stewartmcmillan/.android/build-cache/d076831032e46a485291f67370dfa0fbe868eba8/output/AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-vector-drawable:25.3.1] /Users/stewartmcmillan/.android/build-cache/c899826f4d5a34e59d2c1e79bcfd45582923868d/output/AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:recyclerview-v7:25.3.1] /Users/stewartmcmillan/.android/build-cache/90b6c437eccd2f0e1614f839c2fa33d0d951e366/output/AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:transition:25.3.1] /Users/stewartmcmillan/.android/build-cache/978b2bf29043674142c8c59958f56577d8a7ad1d/output/AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-v4:25.3.1] /Users/stewartmcmillan/.android/build-cache/11e222416bf76c7e13c0b7fc138e740795f347f7/output/AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-fragment:25.3.1] /Users/stewartmcmillan/.android/build-cache/814b791fefaa91ec4cd752e9591e46b11fcc64f5/output/AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-media-compat:25.3.1] /Users/stewartmcmillan/.android/build-cache/43538c78b7e9a1ed712706f9b2ba67afcfcdcd43/output/AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-core-ui:25.3.1] /Users/stewartmcmillan/.android/build-cache/65aa8fc40079093517ed9346fdb975f2421f6a30/output/AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-core-utils:25.3.1] /Users/stewartmcmillan/.android/build-cache/150df1e6a9044e7119aca5d30f7dab5ff9f91705/output/AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-compat:25.3.1] /Users/stewartmcmillan/.android/build-cache/513506c0c14dce1c9f4afe3b3f7f79d7714d8218/output/AndroidManifest.xml:25:5-27:34
+	android:value
+		ADDED from [com.android.support:design:25.3.1] /Users/stewartmcmillan/.android/build-cache/8a2f01eece5b6877b31eef23b2fb091370bb73cd/output/AndroidManifest.xml:27:9-31
+	android:name
+		ADDED from [com.android.support:design:25.3.1] /Users/stewartmcmillan/.android/build-cache/8a2f01eece5b6877b31eef23b2fb091370bb73cd/output/AndroidManifest.xml:26:9-47
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:10.2.1] /Users/stewartmcmillan/.android/build-cache/1bc04a10c1c84cf40ea74c09e460324c8dd6ef01/output/AndroidManifest.xml:19:9-172
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:10.2.1] /Users/stewartmcmillan/.android/build-cache/1bc04a10c1c84cf40ea74c09e460324c8dd6ef01/output/AndroidManifest.xml:19:146-170
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:10.2.1] /Users/stewartmcmillan/.android/build-cache/1bc04a10c1c84cf40ea74c09e460324c8dd6ef01/output/AndroidManifest.xml:19:86-145
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:10.2.1] /Users/stewartmcmillan/.android/build-cache/1bc04a10c1c84cf40ea74c09e460324c8dd6ef01/output/AndroidManifest.xml:19:19-85

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.stewartmcm.evclarity.activity.EnergySettingsActivity"
+    tools:showIn="@layout/activity_energy_settings">
+
+    <TextView
+        android:id="@+id/utility_header_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Utility Provider"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/user_utility_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/utility_header_text_view"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/current_utility_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="Please set your location."
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/dollar_symbol_utility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="$"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/utility_rate_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="0.00"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text=" / kWh"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/gas_header_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_utility_details"
+        android:layout_marginTop="15dp"
+        android:text="Local Price of Gas"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/user_gas_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/gas_header_text_view"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/set_location_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_weight="1"
+            android:text="Please enter your local gas price."
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/dollar_symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/gas_price_edit_text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="0.00"
+            android:inputType="numberDecimal"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text=" / gal"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/select_vehicle_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_gas_details"
+        android:layout_marginTop="5dp"
+        android:text="Current Vehicle MPG"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/vehicle_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/select_vehicle_text_view">
+
+        <TextView
+            android:id="@+id/set_location_text_view1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
+            android:text="Please enter your vehicle's MPG."
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/mpg_edit_text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint=" 0.0 "
+            android:inputType="numberDecimal"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="mpg"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/lat_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_gas_details"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:id="@+id/long_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lat_text_view"
+        android:layout_centerHorizontal="true" />
+
+
+</RelativeLayout>

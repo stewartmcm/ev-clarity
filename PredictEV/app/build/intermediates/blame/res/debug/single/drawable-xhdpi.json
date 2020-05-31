@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/build/intermediates/res/merged/debug/drawable-xhdpi/ic_list_black_24dp.png",
+        "source": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/res/drawable-xhdpi/ic_list_black_24dp.png"
+    },
+    {
+        "merged": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/build/intermediates/res/merged/debug/drawable-xhdpi/ic_stat_car_icon.png",
+        "source": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/res/drawable-xhdpi/ic_stat_car_icon.png"
+    },
+    {
+        "merged": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/build/intermediates/res/merged/debug/drawable-xhdpi/ic_attach_money_black_24dp.png",
+        "source": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/res/drawable-xhdpi/ic_attach_money_black_24dp.png"
+    },
+    {
+        "merged": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/build/intermediates/res/merged/debug/drawable-xhdpi/ic_settings_black_24dp.png",
+        "source": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/res/drawable-xhdpi/ic_settings_black_24dp.png"
+    },
+    {
+        "merged": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/build/intermediates/res/merged/debug/drawable-xhdpi/ic_logo.png",
+        "source": "/Users/stewartmcmillan/Desktop/Projects/ev-clarity/PredictEV/app/src/main/res/drawable-xhdpi/ic_logo.png"
+    }
+]
