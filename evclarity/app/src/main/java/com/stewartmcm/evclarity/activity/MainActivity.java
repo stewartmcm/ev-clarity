@@ -8,29 +8,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -39,44 +31,14 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.evclarity.Constants;
-import com.stewartmcm.evclarity.DeleteTripTask;
 import com.stewartmcm.evclarity.R;
-import com.stewartmcm.evclarity.SumLoggedTripsTask;
-import com.stewartmcm.evclarity.TripAdapter;
-import com.stewartmcm.evclarity.db.Contract;
 import com.stewartmcm.evclarity.service.DetectedActivitiesIntentService;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
 
-import static com.stewartmcm.evclarity.R.id.error;
-
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
-
-    @BindView(error)
-    TextView errorTextView;
-
-    @BindView(R.id.recyclerview_triplog_empty)
-    TextView noTripsYetTextView;
-
-    private int tripPosition;
     private boolean isChecked;
     private boolean mGpsEnabled;
-    private TripAdapter mTripAdapter;
     private GoogleApiClient mGoogleApiClient;
-
-    private static final int TRIP_LOADER = 0;
-    private static final String[] TRIP_COLUMNS = {
-            Contract.Trip._ID,
-            Contract.Trip.COLUMN_DATE,
-            Contract.Trip.COLUMN_TRIP_MILES,
-            Contract.Trip.COLUMN_TRIP_SAVINGS
-    };
-
-    public static final int COL_DATE = 1;
-    public static final int COL_TRIP_MILES = 7;
-    public static final int COL_TRIP_SAVINGS = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,52 +50,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        loadSharedPreferences();
-        new SumLoggedTripsTask(this).execute();
-        ButterKnife.bind(this);
-        mGoogleApiClient.connect();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-
-        mTripAdapter = new TripAdapter(this, null, noTripsYetTextView);
-
-        RecyclerView tripRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mLayoutManager.setReverseLayout(true);
-
-        DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(tripRecyclerView.getContext(), mLayoutManager.getOrientation());
-
-        tripRecyclerView.setLayoutManager(mLayoutManager);
-        tripRecyclerView.addItemDecoration(dividerItemDecoration);
-        tripRecyclerView.setAdapter(mTripAdapter);
-
-        getSupportLoaderManager().initLoader(TRIP_LOADER, null, this);
-
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                tripPosition = viewHolder.getAdapterPosition();
-                new DeleteTripTask(getApplicationContext()).execute(tripPosition);
-                new SumLoggedTripsTask(MainActivity.this).execute();
-                int newTripArraySize = mTripAdapter.removeTrip(tripPosition);
-                mTripAdapter.notifyItemRemoved(tripPosition);
-                mTripAdapter.notifyItemRangeChanged(tripPosition, newTripArraySize);
-            }
-        };
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-        itemTouchHelper.attachToRecyclerView(tripRecyclerView);
+        loadSharedPreferences();
+        mGoogleApiClient.connect();
         invalidateOptionsMenu();
     }
 
@@ -336,29 +256,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this,
-                Contract.Trip.uri,
-                TRIP_COLUMNS,
-                null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mTripAdapter.swapCursor(data);
-
-        if (data.getCount() != 0) {
-            errorTextView.setVisibility(View.GONE);
-            noTripsYetTextView.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mTripAdapter.swapCursor(null);
-    }
-
     private void setDriveTracking(boolean isTracking) {
         if (isTracking) {
             ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
@@ -391,9 +288,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, EnergySettingsActivity.class);
-            startActivity(intent);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
+        if (id == R.id.action_settings && navController.getCurrentDestination().getId() != R.id.energySettingsFragment) {
+            navController.navigate(R.id.energySettingsFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tripListFragment">
+
+    <fragment
+        android:id="@+id/tripListFragment"
+        android:name="com.stewartmcm.evclarity.fragment.TripListFragment"
+        android:label="TripListFragment"
+        tools:layout="@layout/fragment_trip_list" >
+        <action
+            android:id="@+id/action_tripListFragment_to_energySettingsFragment"
+            app:destination="@id/energySettingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/energySettingsFragment"
+        android:name="com.stewartmcm.evclarity.fragment.EnergySettingsFragment"
+        android:label="EnergySettingsFragment" />
+</navigation>

@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stewartmcm.evclarity.activity.MainActivity;
 import com.stewartmcm.evclarity.db.PredictEvDatabaseHelper;
+import com.stewartmcm.evclarity.fragment.TripListFragment;
 import com.stewartmcm.evclarity.model.Trip;
 
 import java.text.DecimalFormat;
@@ -69,9 +69,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterVie
 
         for (int i = 0; i < mCursor.getCount(); i++) {
 
-            Trip trip = new Trip(mCursor.getString(MainActivity.COL_DATE),
-                    mCursor.getFloat(MainActivity.COL_TRIP_MILES),
-                    mCursor.getFloat(MainActivity.COL_TRIP_SAVINGS));
+            Trip trip = new Trip(mCursor.getString(TripListFragment.COL_DATE),
+                    mCursor.getFloat(TripListFragment.COL_TRIP_MILES),
+                    mCursor.getFloat(TripListFragment.COL_TRIP_SAVINGS));
 
             mTrips.add(trip);
             mCursor.moveToNext();
