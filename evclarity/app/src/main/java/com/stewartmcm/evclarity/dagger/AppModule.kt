@@ -15,8 +15,8 @@ class AppModule(private val app: Application) {
     @Singleton
     internal fun provideContext(): Context = app
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideSharedPreferences(context: Context): SharedPreferences {
         return PreferenceManager.getDefaultSharedPreferences(context)
     }

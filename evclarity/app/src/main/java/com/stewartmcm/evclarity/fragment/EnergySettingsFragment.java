@@ -1,12 +1,12 @@
 package com.stewartmcm.evclarity.fragment;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +27,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.evclarity.Constants;
+import com.stewartmcm.evclarity.EvApplication;
 import com.stewartmcm.evclarity.R;
 import com.stewartmcm.evclarity.model.Utility;
 import com.stewartmcm.evclarity.model.UtilityArray;
@@ -34,6 +35,8 @@ import com.stewartmcm.evclarity.service.UtilityRateAPIService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,8 +46,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class EnergySettingsFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     @BindView(R.id.current_utility_text_view)
@@ -59,13 +60,14 @@ public class EnergySettingsFragment extends Fragment implements GoogleApiClient.
     @BindView(R.id.mpg_edit_text)
     EditText mpgEditText;
 
+    @Inject
+    SharedPreferences sharedPrefs;
     private String utilityRateString;
     private String gasPriceString;
     private String currentMPGString;
     private String utilityName;
     private String latString;
     private String lonString;
-    private Location lastLocation;
     private double utilityRate;
     private ArrayList<Utility> utilities;
     private GoogleApiClient googleApiClient;
@@ -75,26 +77,22 @@ public class EnergySettingsFragment extends Fragment implements GoogleApiClient.
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_energy_settings, container, false);
         ButterKnife.bind(this, view);
-
-        if (savedInstanceState != null) {
-            utilityName = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_NAME);
-            utilityRateString = savedInstanceState.getString(Constants.KEY_SHARED_PREF_UTIL_RATE);
-
-            currentUtilityTextView.setText(utilityName);
-            utilityRateTextView.setText(R.string.dollar_sign + utilityRateString + R.string.kWh);
-
-        } else {
-            loadSharedPreferences();
-            currentUtilityTextView.setText(utilityName);
-            utilityRateTextView.setText(utilityRateString);
-            gasPriceEditText.setText(gasPriceString);
-            mpgEditText.setText(currentMPGString);
-        }
+        loadSharedPreferences();
+        currentUtilityTextView.setText(utilityName);
+        utilityRateTextView.setText(utilityRateString);
+        gasPriceEditText.setText(gasPriceString);
+        mpgEditText.setText(currentMPGString);
 
         // TODO: add logic to display list of utilities if user's lat/lon returns multiple utility providers
         utilities = new ArrayList<>();
 
         return view;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        ((EvApplication) getActivity().getApplication()).evComponent.inject(this);
+        super.onAttach(context);
     }
 
     @Override
@@ -113,6 +111,21 @@ public class EnergySettingsFragment extends Fragment implements GoogleApiClient.
     public void onPause() {
         super.onPause();
         googleApiClient.disconnect();
+    }
+
+    @Override
+    public void onDestroyView() {
+        utilityRateString = String.valueOf(utilityRate);
+        gasPriceString = gasPriceEditText.getText().toString();
+        currentMPGString = mpgEditText.getText().toString();
+
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName);
+        editor.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString);
+        editor.putString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString);
+        editor.putString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString);
+        editor.apply();
+        super.onDestroyView();
     }
 
     @Override
@@ -179,27 +192,14 @@ public class EnergySettingsFragment extends Fragment implements GoogleApiClient.
         }
     }
 
-    private void setUpdatesRequestedState(boolean requestingUpdates) {
-        getContext().getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
-                .edit()
-                .putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
-                .apply();
-    }
-
-    private boolean getUpdatesRequestedState() {
-        return getContext().getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
-                .getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false);
-    }
-
     private void loadSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        utilityName = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_NAME,
+        utilityName = sharedPrefs.getString(Constants.KEY_SHARED_PREF_UTIL_NAME,
                 getString(R.string.set_electricity_provider_cue));
-        utilityRateString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_UTIL_RATE,
+        utilityRateString = sharedPrefs.getString(Constants.KEY_SHARED_PREF_UTIL_RATE,
                 getString(R.string.default_electricity_rate));
-        gasPriceString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,
+        gasPriceString = sharedPrefs.getString(Constants.KEY_SHARED_PREF_GAS_PRICE,
                 getString(R.string.default_gas_price));
-        currentMPGString = sharedPreferences.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
+        currentMPGString = sharedPrefs.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG,
                 getString(R.string.default_mpg));
     }
 
@@ -208,7 +208,7 @@ public class EnergySettingsFragment extends Fragment implements GoogleApiClient.
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     googleApiClient);
 
             if (lastLocation != null) {

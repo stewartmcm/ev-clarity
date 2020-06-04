@@ -1,6 +1,8 @@
 package com.stewartmcm.evclarity.fragment;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -31,15 +33,16 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationServices;
 import com.stewartmcm.evclarity.Constants;
 import com.stewartmcm.evclarity.DeleteTripTask;
+import com.stewartmcm.evclarity.EvApplication;
 import com.stewartmcm.evclarity.R;
 import com.stewartmcm.evclarity.SumLoggedTripsTask;
 import com.stewartmcm.evclarity.TripAdapter;
 import com.stewartmcm.evclarity.db.Contract;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class TripListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
@@ -52,9 +55,11 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
+    @Inject
+    SharedPreferences sharedPrefs;
     private int tripPosition;
-    private TripAdapter mTripAdapter;
-    private GoogleApiClient mGoogleApiClient;
+    private TripAdapter adapter;
+    private GoogleApiClient googleApiClient;
 
     private static final int TRIP_LOADER = 0;
     private static final String[] TRIP_COLUMNS = {
@@ -72,23 +77,31 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        //TODO: determine if this needs ot happen in fragment lifecyle overrides or if MainActivity covers this
         buildGoogleApiClient();
+
         View view = inflater.inflate(R.layout.fragment_trip_list, container, false);
         ButterKnife.bind(this, view);
         return view;
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        ((EvApplication) getActivity().getApplication()).evComponent.inject(this);
+        super.onAttach(context);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         new SumLoggedTripsTask(getActivity()).execute();
-        mGoogleApiClient.connect();
+        googleApiClient.connect();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mTripAdapter = new TripAdapter(getContext(), null, noTripsYetTextView);
+        adapter = new TripAdapter(getContext(), null, noTripsYetTextView);
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         mLayoutManager.setReverseLayout(true);
@@ -98,7 +111,7 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
 
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setAdapter(mTripAdapter);
+        recyclerView.setAdapter(adapter);
 
         LoaderManager.getInstance(this).initLoader(TRIP_LOADER, null, this);
 
@@ -113,9 +126,9 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
                 tripPosition = viewHolder.getAdapterPosition();
                 new DeleteTripTask(getContext()).execute(tripPosition);
                 new SumLoggedTripsTask(getActivity()).execute();
-                int newTripArraySize = mTripAdapter.removeTrip(tripPosition);
-                mTripAdapter.notifyItemRemoved(tripPosition);
-                mTripAdapter.notifyItemRangeChanged(tripPosition, newTripArraySize);
+                int newTripArraySize = adapter.removeTrip(tripPosition);
+                adapter.notifyItemRemoved(tripPosition);
+                adapter.notifyItemRangeChanged(tripPosition, newTripArraySize);
             }
         };
 
@@ -126,7 +139,7 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onStop() {
         super.onStop();
-        mGoogleApiClient.disconnect();
+        googleApiClient.disconnect();
     }
 
     @Override
@@ -139,7 +152,7 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mTripAdapter.swapCursor(data);
+        adapter.swapCursor(data);
 
         if (data.getCount() != 0) {
             errorTextView.setVisibility(View.GONE);
@@ -149,21 +162,19 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mTripAdapter.swapCursor(null);
+        adapter.swapCursor(null);
     }
 
     @Override
     public void onResult(@NonNull Status status) {
         if (status.isSuccess()) {
-            boolean requestingUpdates = !getUpdatesRequestedState();
-            setUpdatesRequestedState(requestingUpdates);
-
+            //TODO is this necessary if its being done in MainActivity
+            boolean isTracking = sharedPrefs.getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false);
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, !isTracking);
+            editor.apply();
         } else {
-            Toast.makeText(
-                    getContext(),
-                    getString(R.string.no_gps_data),
-                    Toast.LENGTH_SHORT
-            ).show();
+            Toast.makeText(getContext(), getString(R.string.no_gps_data), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -183,7 +194,7 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onConnectionSuspended(int cause) {
-        mGoogleApiClient.connect();
+        googleApiClient.connect();
     }
 
     @Override
@@ -191,20 +202,8 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
          Log.e(this.getTag(), "Connection failed: " + result.getErrorCode());
     }
 
-    private void setUpdatesRequestedState(boolean requestingUpdates) {
-        getContext().getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
-                .edit()
-                .putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
-                .apply();
-    }
-
-    private boolean getUpdatesRequestedState() {
-        return getContext().getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
-                .getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false);
-    }
-
     private synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+        googleApiClient = new GoogleApiClient.Builder(getContext())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(ActivityRecognition.API)

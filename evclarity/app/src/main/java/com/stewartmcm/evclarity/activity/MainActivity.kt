@@ -9,8 +9,8 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -37,38 +37,18 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
 
     @Inject
     lateinit var sharedPrefs: SharedPreferences
-    private var isTracking: Boolean = false
-    private var gpsEnabled: Boolean = false
     private var googleApiClient: GoogleApiClient? = null
-
-    private val activityDetectionPendingIntent: PendingIntent
-        get() {
-            val intent = Intent(this, DetectedActivitiesIntentService::class.java)
-
-            return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
-
-    private var updatesRequestedState: Boolean
-        get() = getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-                .getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false)
-        set(requestingUpdates) = getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
-                .apply()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar()
         (application as EvApplication).evComponent.inject(this)
-        getDriveTrackingStatus()
         buildGoogleApiClient()
-
     }
 
     override fun onResume() {
         super.onResume()
-        getDriveTrackingStatus()
         googleApiClient!!.connect()
         invalidateOptionsMenu()
     }
@@ -78,28 +58,18 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
         googleApiClient!!.disconnect()
     }
 
-    private fun setSupportActionBar() {
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        if (supportActionBar != null) {
-            supportActionBar!!.setDisplayShowTitleEnabled(true)
-        }
-        supportActionBar!!.elevation = 0f
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         val trackingSwitch = menu.findItem(R.id.myswitch).actionView
                 .findViewById<View>(R.id.switchForActionBar) as SwitchCompat
 
-        setTrackingSwitch(trackingSwitch)
+        val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+        trackingSwitch.isChecked = sharedPrefs.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
 
         trackingSwitch.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-
-                val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
                 if (!hasLocationPermission()) {
                     val alertDialog = AlertDialog.Builder(this@MainActivity).create()
@@ -121,7 +91,7 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
                     }
                     alertDialog.show()
                 } else if (!googleApiClient!!.isConnected) {
-                    savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
+                    putSharedPrefsBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
                     Toast.makeText(this@MainActivity, getString(R.string.not_connected),
                             Toast.LENGTH_SHORT).show()
 
@@ -130,45 +100,34 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
                 }
 
             } else {
-
-                val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
                 if (!googleApiClient!!.isConnected) {
                     Toast.makeText(this@MainActivity, getString(R.string.not_connected), Toast.LENGTH_SHORT).show()
                     return@OnCheckedChangeListener
                 } else if (!gpsEnabled) {
-                    savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, false)
+                    putSharedPrefsBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, false)
 
                 }
                 // Remove all activity updates for the PendingIntent that was used to request activity
                 // updates.
                 toggleDriveTracking(false)
-                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
-                        googleApiClient,
-                        activityDetectionPendingIntent
-                ).setResultCallback(this@MainActivity)
-                savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
             }
-            setTrackingSwitch(trackingSwitch)
+            trackingSwitch.isChecked = sharedPrefs.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
         })
         return true
     }
 
-    override fun invalidateOptionsMenu() {
-        super.supportInvalidateOptionsMenu()
-    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        savePreferencesBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, gpsEnabled)
-        getDriveTrackingStatus()
-        return super.onPrepareOptionsMenu(menu)
+        if (item.itemId == R.id.action_settings && navController.currentDestination!!.id != R.id.energySettingsFragment) {
+            navController.navigate(R.id.energySettingsFragment)
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     @Synchronized
-    protected fun buildGoogleApiClient() {
+    private fun buildGoogleApiClient() {
         googleApiClient = GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -190,7 +149,7 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
     }
 
     override fun onConnectionFailed(result: ConnectionResult) {
-        // Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+         Log.i("Google Api Client", "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
 
     override fun onConnectionSuspended(cause: Int) {
@@ -198,65 +157,51 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
     }
 
     override fun onResult(status: Status) {
-        if (status.isSuccess) {
-            val requestingUpdates = !updatesRequestedState
-            updatesRequestedState = requestingUpdates
+        if (!status.isSuccess) Toast.makeText(this, getString(R.string.no_gps_data), Toast.LENGTH_SHORT).show()
+    }
 
-        } else {
-            Toast.makeText(
-                    this,
-                    getString(R.string.no_gps_data),
-                    Toast.LENGTH_SHORT
-            ).show()
+    private fun setSupportActionBar() {
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        if (supportActionBar != null) {
+            supportActionBar!!.setDisplayShowTitleEnabled(true)
         }
-    }
-
-    private fun getDriveTrackingStatus() {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        isTracking = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
-    }
-
-    private fun savePreferencesBoolean(key: String, value: Boolean?) {
-
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean(key, value!!)
-        editor.apply()
+        supportActionBar!!.elevation = 0f
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
     }
 
-    private fun setTrackingSwitch(trackingSwitch: SwitchCompat) {
-        getDriveTrackingStatus()
-
-        if (isTracking) {
-            trackingSwitch.isChecked = true
-        } else {
-            trackingSwitch.isChecked = false
-        }
-    }
-
     private fun toggleDriveTracking(isTracking: Boolean) {
+        val intent = Intent(this, DetectedActivitiesIntentService::class.java)
+        val pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
         if (isTracking) {
             ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
                     googleApiClient,
                     Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
-                    activityDetectionPendingIntent
+                    pendingIntent
             ).setResultCallback(this@MainActivity)
             Toast.makeText(this@MainActivity, getString(R.string.drive_tracking_on),
                     Toast.LENGTH_SHORT).show()
         } else {
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
                     googleApiClient,
-                    activityDetectionPendingIntent
+                    pendingIntent
             ).setResultCallback(this@MainActivity)
             Toast.makeText(this@MainActivity, getString(R.string.drive_tracking_off),
                     Toast.LENGTH_SHORT).show()
         }
-        savePreferencesBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isTracking)
+        putSharedPrefsBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, isTracking)
 
+    }
+
+    private fun putSharedPrefsBoolean(key: String, isTracking: Boolean) {
+        val editor = sharedPrefs.edit()
+        editor.putBoolean(key, isTracking)
+        editor.apply()
     }
 
     private fun hasLocationPermission(): Boolean {
@@ -264,17 +209,5 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
                 Manifest.permission.ACCESS_FINE_LOCATION)
 
         return permissionCheck == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-
-        val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
-
-        if (id == R.id.action_settings && navController.currentDestination!!.id != R.id.energySettingsFragment) {
-            navController.navigate(R.id.energySettingsFragment)
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 }
