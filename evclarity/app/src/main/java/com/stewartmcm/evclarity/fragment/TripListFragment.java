@@ -61,18 +61,6 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
     private TripAdapter adapter;
     private GoogleApiClient googleApiClient;
 
-    private static final int TRIP_LOADER = 0;
-    private static final String[] TRIP_COLUMNS = {
-            Contract.Trip._ID,
-            Contract.Trip.COLUMN_DATE,
-            Contract.Trip.COLUMN_TRIP_MILES,
-            Contract.Trip.COLUMN_TRIP_SAVINGS
-    };
-
-    public static final int COL_DATE = 1;
-    public static final int COL_TRIP_MILES = 7;
-    public static final int COL_TRIP_SAVINGS = 8;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -101,7 +89,7 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onResume() {
         super.onResume();
-        adapter = new TripAdapter(getContext(), null, noTripsYetTextView);
+        adapter = new TripAdapter(getContext());
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         mLayoutManager.setReverseLayout(true);
@@ -112,8 +100,6 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setAdapter(adapter);
-
-        LoaderManager.getInstance(this).initLoader(TRIP_LOADER, null, this);
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             @Override
@@ -142,12 +128,23 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
         googleApiClient.disconnect();
     }
 
+    @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] TRIP_COLUMNS = {
+                Contract.Trip._ID,
+                Contract.Trip.COLUMN_DATE,
+                Contract.Trip.COLUMN_TRIP_MILES,
+                Contract.Trip.COLUMN_TRIP_SAVINGS
+        };
+
         return new CursorLoader(getContext(),
                 Contract.Trip.uri,
                 TRIP_COLUMNS,
-                null, null, null);
+                null,
+                null,
+                null);
+
     }
 
     @Override

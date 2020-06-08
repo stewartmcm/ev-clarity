@@ -23,9 +23,6 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Main">
-            <meta-data
-                android:name="default-url"
-                android:value="https://www.mallory-brown.com" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,21 +30,13 @@
 
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="http" android:host="www.mallory-brown.com"/>
+                <data android:scheme="http" />
                 <data android:scheme="https" />
             </intent-filter>
 
         </activity>
-
-        <provider
-            android:name=".db.TripProvider"
-            android:authorities="com.stewartmcm.evclarity"
-            android:exported="false"
-            android:syncable="true" />
 
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for

@@ -3,17 +3,17 @@ package com.stewartmcm.evclarity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.stewartmcm.evclarity.db.Contract;
 import com.stewartmcm.evclarity.db.PredictEvDatabaseHelper;
-import com.stewartmcm.evclarity.fragment.TripListFragment;
 import com.stewartmcm.evclarity.model.Trip;
 
 import java.text.DecimalFormat;
@@ -21,125 +21,86 @@ import java.util.ArrayList;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripAdapterViewHolder> {
 
-    static final String TAG = "TRIP_ADAPTER";
-    final private Context mContext;
-    private Cursor mCursor;
-    private ArrayList<Trip> mTrips;
-    final private View mEmptyView;
-    final private TripAdapterOnClickHandler mClickHandler;
+    private static final int COL_DATE = 1;
+    private static final int COL_TRIP_MILES = 7;
+    private static final int COL_TRIP_SAVINGS = 8;
+    private static final String TAG = "TRIP_ADAPTER";
 
+    private Cursor cursor;
+    private ArrayList<Trip> trips;
 
+    static class TripAdapterViewHolder extends RecyclerView.ViewHolder {
+        TextView mileageTextView;
+        TextView dateTimeTextView;
+        TextView savingsTextView;
 
-    public static class TripAdapterViewHolder extends RecyclerView.ViewHolder {
-        TextView mTotalSavingsTextView;
-        TextView mTotalMileageTextView;
-        TextView mMileageTextView;
-        TextView mDateTimeTextView;
-        TextView mSavingsTextView;
-
-        public TripAdapterViewHolder(View itemView) {
+        TripAdapterViewHolder(View itemView) {
             super(itemView);
-
-            mTotalSavingsTextView = (TextView) itemView.findViewById(R.id.savings_text_view);
-            mTotalMileageTextView = (TextView) itemView.findViewById(R.id.total_mileage_textview);
-
-            mMileageTextView = (TextView) itemView.findViewById(R.id.list_item_mileage);
-            mDateTimeTextView = (TextView) itemView.findViewById(R.id.list_item_date);
-            mSavingsTextView = (TextView) itemView.findViewById(R.id.list_item_savings);
+            mileageTextView = (TextView) itemView.findViewById(R.id.list_item_mileage);
+            dateTimeTextView = (TextView) itemView.findViewById(R.id.list_item_date);
+            savingsTextView = (TextView) itemView.findViewById(R.id.list_item_savings);
         }
-    }
-    public static interface TripAdapterOnClickHandler {
-        void onClick(String dateTime, TripAdapterViewHolder viewHolder);
     }
 
     //TODO: use factory method instead
-    public TripAdapter(Context context, TripAdapterOnClickHandler clickHandler, View emptyView) {
-        mContext = context;
-        mClickHandler = clickHandler;
-        mEmptyView = emptyView;
+    public TripAdapter(Context context) {
+        PredictEvDatabaseHelper helper = PredictEvDatabaseHelper.getInstance(context);
+        SQLiteDatabase db = helper.getReadableDatabase();
 
-        mTrips = new ArrayList<>();
+        cursor = db.query(Contract.Trip.TABLE_NAME, null, null, null, null, null, null);
+        cursor.moveToFirst();
 
-        SQLiteDatabase db = null;
-        PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(mContext);
-        db = mHelper.getReadableDatabase();
+        trips = new ArrayList<>();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            Trip trip = new Trip(cursor.getString(COL_DATE),
+                    cursor.getFloat(COL_TRIP_MILES),
+                    cursor.getFloat(COL_TRIP_SAVINGS));
 
-        mCursor = db.query("TRIP", null, null, null, null, null, null);
-        mCursor.moveToFirst();
-
-        for (int i = 0; i < mCursor.getCount(); i++) {
-
-            Trip trip = new Trip(mCursor.getString(TripListFragment.COL_DATE),
-                    mCursor.getFloat(TripListFragment.COL_TRIP_MILES),
-                    mCursor.getFloat(TripListFragment.COL_TRIP_SAVINGS));
-
-            mTrips.add(trip);
-            mCursor.moveToNext();
+            trips.add(trip);
+            cursor.moveToNext();
         }
-        mCursor.close();
+        cursor.close();
     }
 
+    @NonNull
     @Override
     public TripAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
-
         return new TripAdapterViewHolder(item);
     }
 
     @Override
     public void onBindViewHolder(TripAdapterViewHolder holder, int position) {
-
-        float miles = mTrips.get(position).getMiles();
-        float savings = mTrips.get(position).getSavings();
+        float miles = trips.get(position).getMiles();
+        float savings = trips.get(position).getSavings();
 
         DecimalFormat milesFormat = new DecimalFormat("##0.0");
         DecimalFormat savingsFormat = new DecimalFormat("###.00");
 
         String savingsString = savingsFormat.format(savings);
-        Log.i(TAG, "doInBackground: " + savingsString);
+        Log.i(TAG, "savings: " + savingsString);
 
         String milesString = milesFormat.format(miles);
-        Log.i(TAG, "doInBackground: " + savingsString);
+        Log.i(TAG, "mileage: " + milesString);
 
-        holder.mMileageTextView.setText(milesString + " miles");
-        holder.mSavingsTextView.setText("$" + savingsString);
-        holder.mDateTimeTextView.setText(mTrips.get(position).getTimeStamp());
+        holder.mileageTextView.setText(milesString + " miles");
+        holder.savingsTextView.setText("$" + savingsString);
+        holder.dateTimeTextView.setText(trips.get(position).getTimeStamp());
     }
-
-    public void onSaveInstanceState(Bundle outState) {
-//        mICM.onSaveInstanceState(outState);
-    }
-
-    public void setCursor(Cursor cursor) {
-        mCursor = cursor;
-        notifyDataSetChanged();
-    }
-
-//    public String getTripAtPosition(int position) {
-//
-//        mCursor.moveToPosition(position);
-//        return mCursor.getString(MainActivity.COL_DATE);
-//    }
 
     @Override
     public int getItemCount() {
-        return mTrips.size();
+        return trips.size();
     }
 
     public int removeTrip(int tripPosition) {
-        mTrips.remove(tripPosition);
-
-        return mTrips.size();
-        //todo:consider returning new array size?
+        trips.remove(tripPosition);
+        return trips.size();
     }
 
     public void swapCursor(Cursor newCursor) {
-        mCursor = newCursor;
+        cursor = newCursor;
         notifyDataSetChanged();
-        mEmptyView.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
-    public Cursor getCursor() {
-        return mCursor;
-    }
 }

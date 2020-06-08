@@ -9,13 +9,13 @@
     android:layout_height="72dp">
 
     <TextView
+        android:id="@+id/list_item_mileage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:text="1.2 miles"
-        android:textColor="#000000"
-        android:id="@+id/list_item_mileage" />
+        android:textColor="#000000" />
 
     <View
         android:layout_width="0dp"
@@ -26,16 +26,15 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
         <TextView
+            android:id="@+id/list_item_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:textColor="#000000"
-            android:text="Wed May 25"
-            android:id="@+id/list_item_date" />
+            android:text="Wed May 25" />
 
         <View
             android:layout_width="0dp"
@@ -43,13 +42,13 @@
             android:layout_weight="1" />
 
         <TextView
+            android:id="@+id/list_item_savings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="#000000"
             android:layout_gravity="right"
-            android:text="$.25"
-            android:id="@+id/list_item_savings" />
+            android:text="$.25" />
 
     </LinearLayout>
 

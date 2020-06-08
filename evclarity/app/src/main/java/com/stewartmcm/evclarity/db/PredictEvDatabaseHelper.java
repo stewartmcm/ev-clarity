@@ -7,13 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-/**
- * Created by stewartmcmillan on 5/2/16.
- */
 public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
 
     public static final String TRIP_TABLE_NAME = Contract.Trip.TABLE_NAME;
 
+    //TODO: Revisit this db setup
     public static final String COL_ID = Contract.Trip._ID;
     public static final String COL_DATE = Contract.Trip.COLUMN_DATE;
     public static final String COL_TIME = Contract.Trip.COLUMN_TIME;
@@ -49,12 +47,8 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { }
 
-    }
-
-    // makes sure there is only one instance of the database
-    // if there isn't one, make it, otherwise return the one instance
     public static PredictEvDatabaseHelper instance;
 
     public static PredictEvDatabaseHelper getInstance(Context context) {

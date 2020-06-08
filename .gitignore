@@ -27,3 +27,6 @@ build/
 .navigation
 captures/
 output.json 
+evclarity/.idea/gradle.xml
+evclarity/.idea/modules.xml
+evclarity/.idea/caches/
