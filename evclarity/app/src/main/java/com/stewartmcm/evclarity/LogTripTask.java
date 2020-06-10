@@ -60,6 +60,7 @@ public class LogTripTask extends AsyncTask<Void, Void, Boolean> {
             return true;
 
         } catch (SQLiteException e) {
+            Log.e(TAG, "doInBackground: encountered problem while inserting trip to db" );
             return false;
         }
     }

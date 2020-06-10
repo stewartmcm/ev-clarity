@@ -164,6 +164,7 @@ public class EnergySettingsFragment extends Fragment implements GoogleApiClient.
                 call.enqueue(new Callback<UtilityArray>() {
                     @Override
                     public void onResponse(Call<UtilityArray> call, Response<UtilityArray> response) {
+                        //TODO: figure out why utility isn't being displayed
                         Utility[] utilityArray = response.body().getOutputs().getUtilities();
                         ArrayList<Utility> localUtilities = new ArrayList<>(Arrays.asList(utilityArray));
                         utilities.addAll(localUtilities);

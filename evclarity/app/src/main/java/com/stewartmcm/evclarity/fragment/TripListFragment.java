@@ -147,9 +147,11 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
 
     }
 
+    //TODO: is loadermanager needed?
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+//        adapter.swapCursor(data);
+        adapter.notifyDataSetChanged();
 
         if (data.getCount() != 0) {
             errorTextView.setVisibility(View.GONE);
@@ -159,7 +161,9 @@ public class TripListFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
+//        adapter.swapCursor(null);
+        adapter.notifyDataSetChanged();
+
     }
 
     @Override

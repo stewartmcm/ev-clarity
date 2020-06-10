@@ -7,6 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.stewartmcm.evclarity.model.Trip;
+
+import java.util.ArrayList;
+
 public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
 
     public static final String TRIP_TABLE_NAME = Contract.Trip.TABLE_NAME;
@@ -21,6 +25,10 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_DEST_LONG = Contract.Trip.COLUMN_DEST_LONG;
     public static final String COL_TRIP_MILES = Contract.Trip.COLUMN_TRIP_MILES;
     public static final String COL_TRIP_SAVINGS = Contract.Trip.COLUMN_TRIP_SAVINGS;
+
+    private static final int COL_DATE_INDEX = 1;
+    private static final int COL_TRIP_MILES_INDEX = 7;
+    private static final int COL_TRIP_SAVINGS_INDEX = 8;
 
     private static final String[] TRIP_COLUMNS = {COL_ID, COL_DATE, COL_TIME, COL_ORIGIN_LAT, COL_ORIGIN_LONG,
             COL_DEST_LAT, COL_DEST_LONG, COL_TRIP_MILES, COL_TRIP_SAVINGS};
@@ -43,7 +51,6 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
                 + "DEST_LONG REAL, "
                 + "TRIP_MILES REAL, "
                 + "TRIP_SAVINGS REAL);");
-
     }
 
     @Override
@@ -60,7 +67,7 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void insertTrip(SQLiteDatabase db, String date, String time, double originLat,
-                                   double originLong, double destLat, double destLong, double tripMiles, String tripSavings) {
+                           double originLong, double destLat, double destLong, double tripMiles, String tripSavings) {
 
         ContentValues tripValues = new ContentValues();
         tripValues.put(COL_DATE, date);
@@ -81,19 +88,22 @@ public class PredictEvDatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public Cursor getTripList() {
-
+    public ArrayList<Trip> getAllTrips() {
         SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(Contract.Trip.TABLE_NAME, TRIP_COLUMNS, null, null, null, null, null);
+        cursor.moveToFirst();
 
-        Cursor cursor = db.query(TRIP_TABLE_NAME, // a. table
-                TRIP_COLUMNS, // b. column names
-                null, // c. selections
-                null, // d. selections args
-                null, // e. group by
-                null, // f. having
-                null, // g. order by
-                null); // h. limit
+        ArrayList<Trip> trips = new ArrayList<>();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            Trip trip = new Trip(cursor.getString(COL_DATE_INDEX),
+                    cursor.getFloat(COL_TRIP_MILES_INDEX),
+                    cursor.getFloat(COL_TRIP_SAVINGS_INDEX));
 
-        return cursor;
+            trips.add(trip);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return trips;
     }
 }

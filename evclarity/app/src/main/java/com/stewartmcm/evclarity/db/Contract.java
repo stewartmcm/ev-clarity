@@ -10,8 +10,7 @@ public final class Contract {
     static final String PATH_TRIP_WITH_DATETIME = "trip/*";
     private static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
 
-    private Contract() {
-    }
+    private Contract() { }
 
     @SuppressWarnings("unused")
     public static final class Trip implements BaseColumns {

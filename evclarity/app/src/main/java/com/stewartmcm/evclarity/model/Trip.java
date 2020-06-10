@@ -3,13 +3,8 @@ package com.stewartmcm.evclarity.model;
 public class Trip {
 
     private float miles;
-
     private String timeStamp;
-
     private float savings;
-
-    //TODO: determine if array below needed if we already have db table for trips set up
-    //public static final Trip[] trips;
 
     public Trip(String dateTime, float miles, float savings) {
         this.timeStamp = dateTime;
