@@ -40,7 +40,7 @@ public class LogTripTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         Log.i(TAG, "LogTripTask doInBackground: method ran");
-        PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(mContext);
+        PredictEvDatabaseHelper mHelper = new PredictEvDatabaseHelper(mContext);
         SQLiteDatabase db = mHelper.getWritableDatabase();
         GregorianCalendar calender = new GregorianCalendar();
 

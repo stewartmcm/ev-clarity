@@ -101,7 +101,7 @@
         android:text="@string/empty_trip_list" />
 
     <TextView
-        android:id="@+id/error"
+        android:id="@+id/error_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

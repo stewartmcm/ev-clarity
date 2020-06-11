@@ -27,7 +27,7 @@ public class DeleteTripTask extends AsyncTask<Integer, Void, Boolean> {
 
         //TODO: Test deleting line below and declaring db in try catch statement
         SQLiteDatabase db = null;
-        PredictEvDatabaseHelper mHelper = PredictEvDatabaseHelper.getInstance(mContext);
+        PredictEvDatabaseHelper mHelper = new PredictEvDatabaseHelper(mContext);
 
         try {
             //TODO: try replacing query columns with constants
@@ -36,9 +36,9 @@ public class DeleteTripTask extends AsyncTask<Integer, Void, Boolean> {
                     null, null, null, null, null);
 
             if (deleteTripCursor.moveToPosition(tripNo)) {
-                String rowId = deleteTripCursor.getString(deleteTripCursor.getColumnIndex(PredictEvDatabaseHelper.COL_ID));
+                String rowId = deleteTripCursor.getString(deleteTripCursor.getColumnIndex(PredictEvDatabaseHelper.Companion.getCOL_ID()));
 
-                db.delete(Constants.TRIP_TABLE_NAME, PredictEvDatabaseHelper.COL_ID + "=?", new String[]{rowId});
+                db.delete(Constants.TRIP_TABLE_NAME, PredictEvDatabaseHelper.Companion.getCOL_ID() + "=?", new String[]{rowId});
                 deleteTripCursor.close();
             }
 
