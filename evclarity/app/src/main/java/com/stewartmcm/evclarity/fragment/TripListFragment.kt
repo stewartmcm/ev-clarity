@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import butterknife.ButterKnife
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.ResultCallback
@@ -45,10 +44,7 @@ class TripListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, Goog
                               savedInstanceState: Bundle?): View? {
         //TODO: determine if this needs ot happen in fragment lifecyle overrides or if MainActivity covers this
         buildGoogleApiClient()
-
-        val view = inflater.inflate(R.layout.fragment_trip_list, container, false)
-        ButterKnife.bind(this, view)
-        return view
+        return inflater.inflate(R.layout.fragment_trip_list, container, false)
     }
 
     override fun onAttach(context: Context) {
