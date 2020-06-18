@@ -26,7 +26,7 @@ public class OdometerService extends Service {
     private static Location lastLocation = null;
     private LocationManager locManager;
     private LocationListener listener;
-    private boolean mDriving;
+    private boolean isDriving;
 
     class OdometerBinder extends Binder {
         OdometerService getOdometer() {
@@ -46,7 +46,7 @@ public class OdometerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "onCreate: OdometerService is running");
+        Log.d(TAG, "onCreate: OdometerService is running");
 
         listener = new LocationListener() {
             @Override
@@ -57,14 +57,14 @@ public class OdometerService extends Service {
                     lastLocation = location;
                 }
 
-                if (mDriving ==false) {
+                if (!isDriving) {
                     distanceInMeters = 0.0;
                 }
 
                 distanceInMeters += location.distanceTo(lastLocation);
                 lastLocation = location;
                 savePreferencesDouble(Constants.KEY_SHARED_PREF_TRIP_DISTANCE, distanceInMeters / 1609.344);
-                Log.i(TAG, "onCreate: OdoServ TripMileage: " + distanceInMeters / 1609.344);
+                Log.d(TAG, "onCreate: OdoServ TripMileage: " + distanceInMeters / 1609.344);
             }
 
             @Override
@@ -96,28 +96,27 @@ public class OdometerService extends Service {
     @Override
     public void onDestroy() {
         locManager.removeUpdates(listener);
-        Log.i(TAG, "onDestroy: location updates removed");
+        Log.d(TAG, "onDestroy: location updates removed");
 
         super.onDestroy();
     }
 
     public double getMiles() {
         double rawMiles = this.distanceInMeters / 1609.344;
-        Log.i(TAG, "tripmileage: " + rawMiles);
+        Log.d(TAG, "tripmileage: " + rawMiles);
 
         return rawMiles;
     }
 
-    public double reset() {
+    public void reset() {
         //TODO: do we need to remove updates here? onDestroy() removes updates too.
         locManager.removeUpdates(listener);
         distanceInMeters = 0.0;
-        return 0.0;
     }
 
     private void loadSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mDriving = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_DRIVING_BOOL,
+        isDriving = sharedPreferences.getBoolean(Constants.KEY_SHARED_PREF_IS_DRIVING,
                 false);
 
     }

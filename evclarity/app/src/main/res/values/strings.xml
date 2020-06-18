@@ -19,6 +19,8 @@
     <string name="notification_copy_1">Trip Logged:&#160;</string>
     <string name="notification_copy_2">&#160;miles</string>
     <string name="default_utility_rate">0.0000</string>
+    <string name="notification_channel_name_trip_summaries">Trip Summary</string>
+    <string name="notification_channel_description_trip_summaries">A summary of your most recent trip.</string>
 
     <!--Odometer Service-->
 
@@ -58,8 +60,6 @@
     <string name="default_electricity_rate">0.0000</string>
     <string name="default_gas_price">0.00</string>
     <string name="default_mpg">0.0"</string>
-
-    <string name="nrel_api_path">https://developer.nrel.gov/api/utility_rates/</string>
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <string name="title_activity_trips_logged">Your Logged Drives</string>
