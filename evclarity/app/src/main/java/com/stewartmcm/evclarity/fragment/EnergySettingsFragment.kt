@@ -21,7 +21,6 @@ import com.google.android.gms.location.LocationServices
 import com.stewartmcm.evclarity.Constants
 import com.stewartmcm.evclarity.EvApplication
 import com.stewartmcm.evclarity.R
-import com.stewartmcm.evclarity.model.Utility
 import com.stewartmcm.evclarity.model.UtilityArray
 import com.stewartmcm.evclarity.service.UtilityRateAPIService
 import kotlinx.android.synthetic.main.fragment_energy_settings.*
@@ -41,23 +40,21 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
 
     //TODO: inject googleapiclient
     private lateinit var googleApiClient: GoogleApiClient
-    private lateinit var utilities: ArrayList<Utility>
-    private var utilityRateString: String? = null
-    private var gasPriceString: String? = null
-    private var currentMPGString: String? = null
+    private var utilityRate: String? = null
+    private var gasPrice: String? = null
+    private var currentMpg: String? = null
     private var utilityName: String? = null
     private var latString: String? = null
     private var lonString: String? = null
-    private var utilityRate: Double = 0.toDouble()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        getSavedEnergySettings()
+        getEnergySettings()
         val view = inflater.inflate(R.layout.fragment_energy_settings, container, false)
         view.current_utility_text_view.text = utilityName
-        view.utility_rate_text_view.text = utilityRateString
-        view.gas_price_edit_text.setText(gasPriceString)
-        view.mpg_edit_text.setText(currentMPGString)
+        view.utility_rate_text_view.text = utilityRate
+        view.gas_price_edit_text.setText(gasPrice)
+        view.mpg_edit_text.setText(currentMpg)
         view.fab.setOnClickListener { findUtilities() }
         return view
     }
@@ -86,7 +83,7 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
     }
 
     override fun onDestroyView() {
-        saveEnergySettings()
+        putEnergySettings()
         super.onDestroyView()
     }
 
@@ -123,11 +120,10 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
                         val localUtilities = ArrayList(Arrays.asList(*utilityArray))
 
                         utilityName = localUtilities[0].utilityName
-                        utilityRate = response.body()!!.outputs.residentialRate
+                        utilityRate = response.body()!!.outputs.residentialRate.toString()
 
                         current_utility_text_view.text = utilityName
-                        utilityRateString = utilityRate.toString()
-                        utility_rate_text_view.text = utilityRateString
+                        utility_rate_text_view.text = utilityRate
                         Toast.makeText(context, getString(R.string.electricity_provider_set),
                                 Toast.LENGTH_LONG).show()
                     }
@@ -145,23 +141,22 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
         }
     }
 
-    private fun getSavedEnergySettings() {
+    private fun getEnergySettings() {
         utilityName = sharedPrefs.getString(Constants.KEY_SHARED_PREF_UTIL_NAME, getString(R.string.set_electricity_provider_cue))
-        utilityRateString = sharedPrefs.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, getString(R.string.default_electricity_rate))
-        gasPriceString = sharedPrefs.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, getString(R.string.default_gas_price))
-        currentMPGString = sharedPrefs.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG, getString(R.string.default_mpg))
+        utilityRate = sharedPrefs.getString(Constants.KEY_SHARED_PREF_UTIL_RATE, getString(R.string.default_electricity_rate))
+        gasPrice = sharedPrefs.getString(Constants.KEY_SHARED_PREF_GAS_PRICE, getString(R.string.default_gas_price))
+        currentMpg = sharedPrefs.getString(Constants.KEY_SHARED_PREF_CURRENT_MPG, getString(R.string.default_mpg))
     }
 
-    private fun saveEnergySettings() {
-        utilityRateString = utilityRate.toString()
-        gasPriceString = gas_price_edit_text.text.toString()
-        currentMPGString = mpg_edit_text.text.toString()
+    private fun putEnergySettings() {
+        gasPrice = gas_price_edit_text.text.toString()
+        currentMpg = mpg_edit_text.text.toString()
 
         val editor = sharedPrefs.edit()
         editor.putString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName)
-        editor.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRateString)
-        editor.putString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPriceString)
-        editor.putString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMPGString)
+        editor.putString(Constants.KEY_SHARED_PREF_UTIL_RATE, utilityRate)
+        editor.putString(Constants.KEY_SHARED_PREF_GAS_PRICE, gasPrice)
+        editor.putString(Constants.KEY_SHARED_PREF_CURRENT_MPG, currentMpg)
         editor.apply()
     }
 
