@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
 import com.stewartmcm.evclarity.model.Trip
 import java.util.*
 
@@ -27,6 +26,7 @@ class PredictEvDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_N
             }
 
             cursor.close()
+            db.close()
             return trips
         }
 
@@ -61,7 +61,6 @@ class PredictEvDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_N
 
     fun deleteTrip(id: String): Int {
         val db = this.writableDatabase
-        Log.i("PredictEVDBHelper", "deleteTrip: $id")
         return db.delete(TRIP_TABLE_NAME, "_id = ?", arrayOf(id))
     }
 

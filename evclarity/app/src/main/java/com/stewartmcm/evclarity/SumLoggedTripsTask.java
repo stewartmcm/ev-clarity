@@ -16,6 +16,7 @@ import com.stewartmcm.evclarity.db.PredictEvDatabaseHelper;
 public class SumLoggedTripsTask extends AsyncTask<Void, Void, Boolean> {
 
     private Cursor mCursor;
+    private SQLiteDatabase db;
     private String mCurrentMPGString;
     private String mGasPriceString;
     private String mUtilityRateString;
@@ -30,10 +31,9 @@ public class SumLoggedTripsTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        SQLiteOpenHelper mHelper = new PredictEvDatabaseHelper(mActivity);
-
+        SQLiteOpenHelper helper = new PredictEvDatabaseHelper(mActivity);
+        db = helper.getReadableDatabase();
         try {
-            SQLiteDatabase db = mHelper.getReadableDatabase();
             mCursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
                     null, null, null, null, null);
             return true;
@@ -57,13 +57,14 @@ public class SumLoggedTripsTask extends AsyncTask<Void, Void, Boolean> {
             monthlySavingsTextView.setText(mActivity.getString(R.string.dollar_sign) + String.format(mActivity.getString(R.string.savings_format), savings));
             totalMileageTextView.setText(String.format(mActivity.getString(R.string.mileage_format),
                     sumLoggedTripsDouble));
-            mCursor.close();
 
         } else {
             Toast toast = Toast.makeText(mActivity, mActivity.getString(R.string.database_unavailable),
                     Toast.LENGTH_SHORT);
             toast.show();
         }
+        mCursor.close();
+        db.close();
     }
 
     private double calcSavings(double mileageDouble) {

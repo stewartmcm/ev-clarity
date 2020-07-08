@@ -39,17 +39,14 @@ public class LogTripTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        Log.i(TAG, "LogTripTask doInBackground: method ran");
         PredictEvDatabaseHelper mHelper = new PredictEvDatabaseHelper(mContext);
         SQLiteDatabase db = mHelper.getWritableDatabase();
         GregorianCalendar calender = new GregorianCalendar();
 
         double tripSavings = calcSavings(mFinalTripDistance);
-        Log.i(TAG, "doInBackground: " + tripSavings);
 
         DecimalFormat savingsFormat = new DecimalFormat("###.##");
         String savingsString = savingsFormat.format(tripSavings);
-        Log.i(TAG, "doInBackground: " + savingsString);
 
         cursor = db.query(Constants.TRIP_TABLE_NAME, new String[]{"SUM(TRIP_MILES) AS sum"},
                 null, null, null, null, null);
@@ -60,7 +57,7 @@ public class LogTripTask extends AsyncTask<Void, Void, Boolean> {
             return true;
 
         } catch (SQLiteException e) {
-            Log.e(TAG, "doInBackground: encountered problem while inserting trip to db" );
+            Log.e(TAG, "Error occurred while inserting trip into db." );
             return false;
         }
     }
@@ -69,6 +66,7 @@ public class LogTripTask extends AsyncTask<Void, Void, Boolean> {
     protected void onPostExecute(Boolean success) {
         super.onPostExecute(success);
         cursor.moveToFirst();
+        cursor.close();
     }
 
     private double calcSavings(double mileageDouble) {
@@ -84,8 +82,6 @@ public class LogTripTask extends AsyncTask<Void, Void, Boolean> {
         } else {
             gasPrice = Double.parseDouble(gasPriceString);
         }
-//        Log.i(TAG, "calcSavings: gasPrice: " + gasPrice);
-
 
         if (currentMPGString.isEmpty()) {
             currentMPG = 0.0;
@@ -115,7 +111,7 @@ public class LogTripTask extends AsyncTask<Void, Void, Boolean> {
 
     }
 
-    public String format(GregorianCalendar calendar){
+    private String format(GregorianCalendar calendar){
         SimpleDateFormat fmt = new SimpleDateFormat(mContext.getString(R.string.date_format));
         fmt.setCalendar(calendar);
         return fmt.format(calendar.getTime());
