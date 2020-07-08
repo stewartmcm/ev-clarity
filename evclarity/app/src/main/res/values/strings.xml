@@ -61,6 +61,9 @@
     <string name="default_gas_price">0.00</string>
     <string name="default_mpg">0.0"</string>
 
+    <string name="nrel_api_path">https://developer.nrel.gov/api/utility_rates/</string>
+    <string name="nrel_api_key">vIp4VQcx5zLfEr7Mi61aGd2vjIDpBpIqQRRQCoWt</string>
+
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <string name="title_activity_trips_logged">Your Logged Drives</string>
     <string name="no_network_connection">Please check your network connection and try again.</string>
@@ -79,5 +82,7 @@
     <string name="dialog_ok">OK</string>
     <string name="asset_statements" translatable="false">[{ \"include\": \"https://www.mallory-brown.com/.well-known/assetlinks.json\" }]</string>
 
+<!--Log messages-->
+    <string name="notification_manager_null_error">NotificationManager was null while attempting to create notification channel.</string>
 
 </resources>

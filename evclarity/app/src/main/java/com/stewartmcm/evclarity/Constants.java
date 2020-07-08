@@ -27,19 +27,14 @@ public final class Constants {
 
     public static final String ENERGY_SETTINGS_ACTIVITY_TAG = "ENERGYSETTINGS_ACTIVITY";
 
-    public static final String DETECTED_ACTIVITIES_INTENT_SERVICE_TAG = "DETECT_ACTIV_INT_SERV";
+    public static final String ACTIVITY_UPDATES_INTENT_SERVICE_TAG = "ACTIVITY_UPDATES_SERVICE";
+    public static final String LOCATION_UPDATES_INTENT_SERVICE_TAG = "LOCATION_UPDATES_SERVICE";
 
     public static final String ODOMETER_SERVICE_TAG = "ODOMETER_SERVICE";
 
     public static final String TRIP_TABLE_NAME = "trip";
 
-    /**
-     * The desired time between activity detections. Larger values result in fewer activity
-     * detections while improving battery life. A value of 0 results in activity detections at the
-     * fastest possible rate. Getting frequent updates negatively impact battery life and a real
-     * app may prefer to request less frequent updates.
-     */
-    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 5000;
+    public static final long ACTIVITY_UPDATES_INTERVAL_IN_MILLISECONDS = 10000;
 
     /**
      * An arbitrary request code that is used to grant the app access to the user's location data.
@@ -58,6 +53,10 @@ public final class Constants {
     public static final String KEY_SHARED_PREF_GPS_STATE = "KEY_SHARED_PREF_GPS_STATE";
 
     public static final String KEY_SHARED_PREF_TRIP_DISTANCE = "SHARED_PREF_TRIP_DISTANCE";
+    public static final String KEY_SHARED_PREF_LAST_LATITUDE = "SHARED_PREF_LAST_LATITUDE";
+    public static final String KEY_SHARED_PREF_LAST_LONGITUDE = "SHARED_PREF_LAST_LONGITUDE";
+    public static final String KEY_SHARED_PREF_NEW_LATITUDE = "SHARED_PREF_NEW_LATITUDE";
+    public static final String KEY_SHARED_PREF_NEW_LONGITUDE = "SHARED_PREF_NEW_LONGITUDE";
 
     public static final String KEY_SHARED_PREF_ASKED_FOR_PERMISSION = "SHARED_PREF_ASKED_FOR_PERMISSION";
 

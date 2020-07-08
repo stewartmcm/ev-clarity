@@ -30,14 +30,14 @@ import com.google.android.gms.location.LocationServices
 import com.stewartmcm.evclarity.Constants
 import com.stewartmcm.evclarity.EvApplication
 import com.stewartmcm.evclarity.R
-import com.stewartmcm.evclarity.service.DetectedActivitiesIntentService
+import com.stewartmcm.evclarity.service.ActivityUpdatesIntentService
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
 
     @Inject
     lateinit var sharedPrefs: SharedPreferences
-    private var googleApiClient: GoogleApiClient? = null
+    lateinit var googleApiClient: GoogleApiClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,13 +49,13 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
 
     override fun onResume() {
         super.onResume()
-        googleApiClient!!.connect()
+        googleApiClient.connect()
         invalidateOptionsMenu()
     }
 
     override fun onStop() {
         super.onStop()
-        googleApiClient!!.disconnect()
+        googleApiClient.disconnect()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -76,10 +76,9 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
                     alertDialog.setTitle(getString(R.string.location_permission_alert_header))
                     alertDialog.setMessage(getString(R.string.location_permission_alert))
                     alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.dialog_ok)
-                    ) { dialog, which -> dialog.dismiss() }
+                    ) { dialog, _ -> dialog.dismiss() }
                     alertDialog.show()
                 } else if (!gpsEnabled) {
-
                     val alertDialog = AlertDialog.Builder(this@MainActivity,
                             R.style.MyAlertDialogStyle)
                     alertDialog.setTitle(R.string.location_not_avail_alert_header)
@@ -87,10 +86,9 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
                     alertDialog.setPositiveButton(R.string.got_to_settings_button) { paramDialogInterface, paramInt ->
                         val myIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                         startActivity(myIntent)
-                        //get gps
                     }
                     alertDialog.show()
-                } else if (!googleApiClient!!.isConnected) {
+                } else if (!googleApiClient.isConnected) {
                     putSharedPrefsBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
                     Toast.makeText(this@MainActivity, getString(R.string.not_connected),
                             Toast.LENGTH_SHORT).show()
@@ -100,15 +98,13 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
                 }
 
             } else {
-                if (!googleApiClient!!.isConnected) {
+                if (!googleApiClient.isConnected) {
                     Toast.makeText(this@MainActivity, getString(R.string.not_connected), Toast.LENGTH_SHORT).show()
                     return@OnCheckedChangeListener
                 } else if (!gpsEnabled) {
                     putSharedPrefsBoolean(Constants.KEY_SHARED_PREF_GPS_STATE, false)
 
                 }
-                // Remove all activity updates for the PendingIntent that was used to request activity
-                // updates.
                 toggleDriveTracking(false)
             }
             trackingSwitch.isChecked = sharedPrefs.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false)
@@ -153,7 +149,7 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
     }
 
     override fun onConnectionSuspended(cause: Int) {
-        googleApiClient!!.connect()
+        googleApiClient.connect()
     }
 
     override fun onResult(status: Status) {
@@ -175,22 +171,21 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
     }
 
     private fun toggleDriveTracking(isTracking: Boolean) {
-        val intent = Intent(this, DetectedActivitiesIntentService::class.java)
-        val pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intent = Intent(this, ActivityUpdatesIntentService::class.java)
+        val pendingIntent = PendingIntent.getForegroundService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         if (isTracking) {
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
-                    googleApiClient,
-                    Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
-                    pendingIntent
-            ).setResultCallback(this@MainActivity)
+            ActivityRecognition.getClient(this)
+                    .requestActivityUpdates(
+                            Constants.ACTIVITY_UPDATES_INTERVAL_IN_MILLISECONDS,
+                            pendingIntent
+                    )
             Toast.makeText(this@MainActivity, getString(R.string.drive_tracking_on),
                     Toast.LENGTH_SHORT).show()
         } else {
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
-                    googleApiClient,
+            ActivityRecognition.getClient(this).removeActivityUpdates(
                     pendingIntent
-            ).setResultCallback(this@MainActivity)
+            )
             Toast.makeText(this@MainActivity, getString(R.string.drive_tracking_off),
                     Toast.LENGTH_SHORT).show()
         }

@@ -7,6 +7,7 @@ import android.os.Build
 import com.stewartmcm.evclarity.dagger.AppComponent
 import com.stewartmcm.evclarity.dagger.AppModule
 import com.stewartmcm.evclarity.dagger.DaggerAppComponent
+import timber.log.Timber
 
 class EvApplication : Application() {
 
@@ -31,7 +32,7 @@ class EvApplication : Application() {
       val channel = NotificationChannel(Constants.TRIP_SUMMARY_NOTIFICATION_CHANNEL_ID, name, importance)
       channel.description = description
       val notificationManager = getSystemService(NotificationManager::class.java)
-      notificationManager.createNotificationChannel(channel)
+      notificationManager?.createNotificationChannel(channel) ?: Timber.e(getString(R.string.notification_manager_null_error))
     }
   }
 
