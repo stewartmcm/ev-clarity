@@ -36,10 +36,7 @@ public final class Constants {
 
     public static final long ACTIVITY_UPDATES_INTERVAL_IN_MILLISECONDS = 10000;
 
-    /**
-     * An arbitrary request code that is used to grant the app access to the user's location data.
-     */
-    public static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1928;
+    public static final int PERMISSIONS_REQUEST = 1928;
 
     public static final String EXTRA_USER_LAT = "USER_LAT";
     public static final String EXTRA_USER_LON = "USER_LON";

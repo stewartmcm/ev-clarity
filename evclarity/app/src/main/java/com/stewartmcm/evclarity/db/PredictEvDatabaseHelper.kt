@@ -79,9 +79,9 @@ class PredictEvDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_N
         val COL_TRIP_MILES = Contract.Trip.COLUMN_TRIP_MILES
         val COL_TRIP_SAVINGS = Contract.Trip.COLUMN_TRIP_SAVINGS
 
-        private val COL_DATE_INDEX = 1
-        private val COL_TRIP_MILES_INDEX = 7
-        private val COL_TRIP_SAVINGS_INDEX = 8
+        private const val COL_DATE_INDEX = 1
+        private const val COL_TRIP_MILES_INDEX = 7
+        private const val COL_TRIP_SAVINGS_INDEX = 8
 
         private val TRIP_COLUMNS = arrayOf(COL_ID, COL_DATE, COL_TIME, COL_ORIGIN_LAT, COL_ORIGIN_LONG, COL_DEST_LAT, COL_DEST_LONG, COL_TRIP_MILES, COL_TRIP_SAVINGS)
 

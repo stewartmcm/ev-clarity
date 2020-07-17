@@ -184,7 +184,7 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
             val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
             ActivityCompat.requestPermissions(requireActivity(),
                     permissions,
-                    Constants.MY_PERMISSIONS_REQUEST_FINE_LOCATION)
+                    Constants.PERMISSIONS_REQUEST)
         }
     }
 
