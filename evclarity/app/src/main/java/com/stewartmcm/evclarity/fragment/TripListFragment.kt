@@ -27,15 +27,21 @@ import com.google.android.gms.common.api.ResultCallback
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.LocationServices
-import com.stewartmcm.evclarity.*
+import com.stewartmcm.evclarity.Constants
+import com.stewartmcm.evclarity.DeleteTripTask
+import com.stewartmcm.evclarity.EvApplication
+import com.stewartmcm.evclarity.R
+import com.stewartmcm.evclarity.SumLoggedTripsTask
+import com.stewartmcm.evclarity.TripAdapter
+import com.stewartmcm.evclarity.databinding.FragmentTripListBinding
 import com.stewartmcm.evclarity.db.Contract
-import kotlinx.android.synthetic.main.fragment_trip_list.*
 import javax.inject.Inject
 
 class TripListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
 
     @Inject
     lateinit var sharedPrefs: SharedPreferences
+    lateinit var viewBinding: FragmentTripListBinding
     private var tripPosition: Int = 0
     private var adapter: TripAdapter? = null
     private var googleApiClient: GoogleApiClient? = null
@@ -44,7 +50,8 @@ class TripListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, Goog
                               savedInstanceState: Bundle?): View? {
         //TODO: determine if this needs ot happen in fragment lifecyle overrides or if MainActivity covers this
         buildGoogleApiClient()
-        return inflater.inflate(R.layout.fragment_trip_list, container, false)
+        viewBinding = FragmentTripListBinding.inflate(inflater)
+        return viewBinding.root
     }
 
     override fun onAttach(context: Context) {
@@ -65,11 +72,11 @@ class TripListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, Goog
         val mLayoutManager = LinearLayoutManager(context)
         mLayoutManager.reverseLayout = true
 
-        val dividerItemDecoration = DividerItemDecoration(recycler_view.context, mLayoutManager.orientation)
+        val dividerItemDecoration = DividerItemDecoration(viewBinding.recyclerView.context, mLayoutManager.orientation)
 
-        recycler_view.layoutManager = mLayoutManager
-        recycler_view.addItemDecoration(dividerItemDecoration)
-        recycler_view.adapter = adapter
+        viewBinding.recyclerView.layoutManager = mLayoutManager
+        viewBinding.recyclerView.addItemDecoration(dividerItemDecoration)
+        viewBinding.recyclerView.adapter = adapter
 
         val simpleItemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -87,7 +94,7 @@ class TripListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, Goog
         }
 
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
-        itemTouchHelper.attachToRecyclerView(recycler_view)
+        itemTouchHelper.attachToRecyclerView(viewBinding.recyclerView)
     }
 
     override fun onStop() {
@@ -110,7 +117,7 @@ class TripListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, Goog
         adapter!!.notifyDataSetChanged()
 
         if (data.count != 0) {
-            error_text_view.visibility = View.GONE
+            viewBinding.errorTextView.visibility = View.GONE
         }
     }
 
@@ -139,7 +146,7 @@ class TripListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, Goog
             val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
             ActivityCompat.requestPermissions(requireActivity(),
                     permissions,
-                    Constants.PERMISSIONS_REQUEST)
+                    Constants.PERMISSIONS_RESULT_REQUEST)
         }
     }
 

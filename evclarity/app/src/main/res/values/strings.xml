@@ -8,8 +8,11 @@
     <string name="mileage_format">%.0f</string>
     <string name="location_not_avail_alert_header">Location Unavailable</string>
     <string name="location_not_avail_alert_message">EV Clarity uses your device\'s location to
-        calculate your potential savings. Please turn on your GPS in your device\'s settings.</string>
-    <string name="got_to_settings_button">Go to settings</string>
+        calculate your potential savings. Please allow EV Clarity to use your location in your device\'s settings.</string>
+    <string name="go_to_settings_button">Go to settings</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="permission_rationale_general">Multiple permissions are required to enable drive tracking. Please open your device\'s settings, grant the requested permissions, then return to this screen to toggle drive tracking on.</string>
+    <string name="permission_rationale_background_location">EV Clarity needs access to your device\'s location throughout the day to track your trips. Please open your device\'s settings, select the Location permission, select "Allow all the time", then return to this screen to toggle drive tracking on.</string>
 
     <!--Detected Activities Intent Service-->
 
@@ -75,7 +78,6 @@
     <string name="savings_default_value">0.0</string>
 
     <string name="dialog_ok">OK</string>
-    <string name="asset_statements" translatable="false">[{ \"include\": \"https://www.mallory-brown.com/.well-known/assetlinks.json\" }]</string>
 
 <!--    Permissions-->
     <string name="location_permission_alert_header">Location Permission Needed</string>

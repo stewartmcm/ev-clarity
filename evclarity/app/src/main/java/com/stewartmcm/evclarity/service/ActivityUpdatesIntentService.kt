@@ -16,6 +16,7 @@ import com.stewartmcm.evclarity.Constants
 import com.stewartmcm.evclarity.LogTripTask
 import com.stewartmcm.evclarity.R
 import com.stewartmcm.evclarity.activity.MainActivity
+import timber.log.Timber
 import java.text.DecimalFormat
 
 class ActivityUpdatesIntentService : IntentService(TAG) {
@@ -75,13 +76,20 @@ class ActivityUpdatesIntentService : IntentService(TAG) {
     private fun requestLocationUpdates() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         val locationUpdatesIntent = Intent(this, LocationUpdatesIntentService::class.java)
-        val locationUpdatesPendingIntent = PendingIntent.getForegroundService(this, 0, locationUpdatesIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val locationUpdatesPendingIntent =
+            PendingIntent.getForegroundService(
+                this,
+                Constants.LOCATION_UPDATES_FOREGROUND_SERVICE_REQUEST,
+                locationUpdatesIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
         val locationRequest = LocationRequest()
         locationRequest.interval = 2000
         locationRequest.fastestInterval = 2000
         locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        fusedLocationProviderClient!!.requestLocationUpdates(locationRequest, locationUpdatesPendingIntent)
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationUpdatesPendingIntent)
+            ?: Timber.e("FusedLocationProviderClient is null.")
     }
 
     private fun removeLocationUpdates() {
@@ -141,7 +149,7 @@ class ActivityUpdatesIntentService : IntentService(TAG) {
 
         val notificationIntent = Intent(this, MainActivity::class.java)
         val intent = PendingIntent.getActivity(this, 0,
-                notificationIntent, 0)
+                notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(this, Constants.TRIP_SUMMARY_NOTIFICATION_CHANNEL_ID)
         builder.setContentText(getString(R.string.notification_copy_1) + distanceString +

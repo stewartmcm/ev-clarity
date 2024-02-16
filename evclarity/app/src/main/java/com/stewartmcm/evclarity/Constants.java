@@ -36,7 +36,11 @@ public final class Constants {
 
     public static final long ACTIVITY_UPDATES_INTERVAL_IN_MILLISECONDS = 10000;
 
-    public static final int PERMISSIONS_REQUEST = 1928;
+    public static final int PERMISSIONS_RESULT_REQUEST = 0;
+    public static final int TRACKING_SWITCH_PERMISSIONS_RESULT_REQUEST = 1;
+
+    public static final int DRIVE_TRACKING_FOREGROUND_SERVICE_REQUEST = 0;
+    public static final int LOCATION_UPDATES_FOREGROUND_SERVICE_REQUEST = 1;
 
     public static final String EXTRA_USER_LAT = "USER_LAT";
     public static final String EXTRA_USER_LON = "USER_LON";

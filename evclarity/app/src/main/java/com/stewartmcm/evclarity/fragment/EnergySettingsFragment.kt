@@ -21,10 +21,11 @@ import com.google.android.gms.location.LocationServices
 import com.stewartmcm.evclarity.Constants
 import com.stewartmcm.evclarity.EvApplication
 import com.stewartmcm.evclarity.R
+import com.stewartmcm.evclarity.databinding.FragmentEnergySettingsBinding
 import com.stewartmcm.evclarity.model.UtilityArray
 import com.stewartmcm.evclarity.service.UtilityRateAPIService
-import kotlinx.android.synthetic.main.fragment_energy_settings.*
-import kotlinx.android.synthetic.main.fragment_energy_settings.view.*
+//import kotlinx.android.synthetic.main.fragment_energy_settings.*
+//import kotlinx.android.synthetic.main.fragment_energy_settings.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,8 +39,8 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
     @Inject
     lateinit var sharedPrefs: SharedPreferences
 
-    //TODO: inject googleapiclient
     private lateinit var googleApiClient: GoogleApiClient
+    private lateinit var viewBinding: FragmentEnergySettingsBinding
     private var utilityRate: String? = null
     private var gasPrice: String? = null
     private var currentMpg: String? = null
@@ -50,13 +51,13 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         getEnergySettings()
-        val view = inflater.inflate(R.layout.fragment_energy_settings, container, false)
-        view.current_utility_text_view.text = utilityName
-        view.utility_rate_text_view.text = utilityRate
-        view.gas_price_edit_text.setText(gasPrice)
-        view.mpg_edit_text.setText(currentMpg)
-        view.fab.setOnClickListener { findUtilities() }
-        return view
+        viewBinding = FragmentEnergySettingsBinding.inflate(inflater)
+        viewBinding.currentUtilityTextView.text = utilityName
+        viewBinding.utilityRateTextView.text = utilityRate
+        viewBinding.gasPriceEditText.setText(gasPrice)
+        viewBinding.mpgEditText.setText(currentMpg)
+        viewBinding.fab.setOnClickListener { findUtilities() }
+        return viewBinding.root
     }
 
     override fun onAttach(context: Context) {
@@ -122,8 +123,8 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
                         utilityName = localUtilities[0].utilityName
                         utilityRate = response.body()!!.outputs.residentialRate.toString()
 
-                        current_utility_text_view.text = utilityName
-                        utility_rate_text_view.text = utilityRate
+                        viewBinding.currentUtilityTextView.text = utilityName
+                        viewBinding.utilityRateTextView.text = utilityRate
                         Toast.makeText(context, getString(R.string.electricity_provider_set),
                                 Toast.LENGTH_LONG).show()
                     }
@@ -149,8 +150,8 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
     }
 
     private fun putEnergySettings() {
-        gasPrice = gas_price_edit_text.text.toString()
-        currentMpg = mpg_edit_text.text.toString()
+        gasPrice = viewBinding.gasPriceEditText.text.toString()
+        currentMpg = viewBinding.mpgEditText.text.toString()
 
         val editor = sharedPrefs.edit()
         editor.putString(Constants.KEY_SHARED_PREF_UTIL_NAME, utilityName)
@@ -184,7 +185,7 @@ class EnergySettingsFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, 
             val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
             ActivityCompat.requestPermissions(requireActivity(),
                     permissions,
-                    Constants.PERMISSIONS_REQUEST)
+                    Constants.PERMISSIONS_RESULT_REQUEST)
         }
     }
 

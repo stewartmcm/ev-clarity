@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
@@ -16,6 +17,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
@@ -49,22 +51,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
-        val trackingSwitch = menu.findItem(R.id.myswitch).actionView
-                .findViewById<View>(R.id.switchForActionBar) as SwitchCompat
+        val trackingSwitch = menu.findItem(R.id.myswitch).actionView?.findViewById<View>(R.id.switchForActionBar) as SwitchCompat
 
         val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
         trackingSwitch.isChecked = sharedPrefs.getBoolean(Constants.KEY_SHARED_PREF_DRIVE_TRACKING, false) && hasAllPermissions()
 
-        trackingSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+        trackingSwitch.setOnCheckedChangeListener { switch, isChecked ->
             if (isChecked) {
                 if (!gpsEnabled) {
+                    showPermissionDeniedDialog(getString(R.string.location_not_avail_alert_message))
                     val alertDialog = AlertDialog.Builder(this@MainActivity,
                             R.style.MyAlertDialogStyle)
                     alertDialog.setTitle(R.string.location_not_avail_alert_header)
                     alertDialog.setMessage(R.string.location_not_avail_alert_message)
-                    alertDialog.setPositiveButton(R.string.got_to_settings_button) { paramDialogInterface, paramInt ->
+                    alertDialog.setPositiveButton(R.string.go_to_settings_button) { paramDialogInterface, paramInt ->
                         val myIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                         startActivity(myIntent)
                     }
@@ -74,6 +76,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     requestAllPermissions()
                 }
+                switch.isChecked = true
 
             } else {
                 if (!gpsEnabled) {
@@ -97,7 +100,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSupportActionBar() {
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         if (supportActionBar != null) {
@@ -112,7 +115,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun toggleDriveTracking(isTracking: Boolean) {
         val intent = Intent(this, ActivityUpdatesIntentService::class.java)
-        val pendingIntent = PendingIntent.getForegroundService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getForegroundService(this, Constants.DRIVE_TRACKING_FOREGROUND_SERVICE_REQUEST, intent, PendingIntent.FLAG_IMMUTABLE)
 
         if (isTracking) {
             ActivityRecognition.getClient(this).requestActivityUpdates(Constants.ACTIVITY_UPDATES_INTERVAL_IN_MILLISECONDS, pendingIntent)
@@ -131,7 +134,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun removeLocationUpdates() {
         val locationUpdatesIntent = Intent(this, LocationUpdatesIntentService::class.java)
-        val locationUpdatesPendingIntent = PendingIntent.getForegroundService(this, 0, locationUpdatesIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val locationUpdatesPendingIntent = PendingIntent.getForegroundService(this, 0, locationUpdatesIntent, PendingIntent.FLAG_IMMUTABLE)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationProviderClient.removeLocationUpdates(locationUpdatesPendingIntent)
     }
@@ -150,18 +153,14 @@ class MainActivity : AppCompatActivity() {
         val fineLocationPermissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
 
-        val backgroundLocationPermissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-
-        return (fineLocationPermissionCheck == PackageManager.PERMISSION_GRANTED && backgroundLocationPermissionCheck == PackageManager.PERMISSION_GRANTED)
+        return fineLocationPermissionCheck == PackageManager.PERMISSION_GRANTED
     }
 
     private fun hasBackgroundLocationPermission(): Boolean {
-
         val backgroundLocationPermissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION)
 
-        return (backgroundLocationPermissionCheck == PackageManager.PERMISSION_GRANTED)
+        return backgroundLocationPermissionCheck == PackageManager.PERMISSION_GRANTED
     }
 
     private fun hasActivityRecognitionPermission(): Boolean {
@@ -172,9 +171,51 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestAllPermissions() {
-        ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACTIVITY_RECOGNITION),
-                Constants.PERMISSIONS_REQUEST)
+        ActivityCompat.requestPermissions(this@MainActivity,
+                arrayOf(
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                ),
+                Constants.TRACKING_SWITCH_PERMISSIONS_RESULT_REQUEST)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == Constants.TRACKING_SWITCH_PERMISSIONS_RESULT_REQUEST) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                showPermissionDeniedDialog(getString(R.string.permission_rationale_background_location))
+            }
+            if (grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_DENIED) {
+                showPermissionDeniedDialog(getString(R.string.permission_rationale_general))
+            }
+            if (grantResults.isNotEmpty() && grantResults[2] == PackageManager.PERMISSION_DENIED) {
+                showPermissionDeniedDialog(getString(R.string.permission_rationale_general))
+            }
+        }
+    }
+
+    private fun showPermissionDeniedDialog(msg: String) {
+        AlertDialog.Builder(this)
+            .setMessage(msg)
+            .setPositiveButton(getString(R.string.go_to_settings_button)) { _, _ ->
+                openAppSettings()
+            }
+            .setNegativeButton(getString(R.string.cancel_button)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun openAppSettings() {
+        val intent = Intent()
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", this.packageName, null)
+        intent.setData(uri)
+        this.startActivity(intent)
+    }
 }
